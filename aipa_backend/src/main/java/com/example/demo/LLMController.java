@@ -41,16 +41,17 @@ public class LLMController {
     }
 
     @PostMapping("/generate")
-    public Flux<String> generateText(@RequestBody Map<String, String> request) { // ✅ Fix: Map is now recognized
-        WebClient client = WebClient.create("https://2e7f-41-90-184-126.ngrok-free.app");
+    public Flux<String> generateText(@RequestBody Map<String, String> request) {
+        WebClient client = WebClient.create("https://aa42-41-90-184-126.ngrok-free.app");
         StringBuilder responseBuilder = new StringBuilder();
 
         return client.post()
-            .uri("/api/generate")
+            .uri("/api/generate?timestamp=" + System.currentTimeMillis()) // Unique URL each call
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(Map.of( // ✅ Fix: Map.of now works because Map is imported
+            .bodyValue(Map.of(
                 "model", "phi3:3.8b",
-                "prompt", request.get("prompt")
+                "prompt", request.get("prompt"),
+                "options", Map.of("num_ctx", 2048) // Explicit context reset
             ))
             .retrieve()
             .bodyToFlux(String.class)
@@ -65,7 +66,7 @@ public class LLMController {
             .doOnComplete(() -> {
                 // Final storage processing
                 String fullResponse = responseBuilder.toString();
-                storeResponse(fullResponse); // ✅ Warning about unused method is invalid
+                storeResponse(fullResponse);
             });
     }
     
