@@ -1,4 +1,4 @@
-package com.example.demo; // ✅ Added missing package declaration
+package com.example.demo; 
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

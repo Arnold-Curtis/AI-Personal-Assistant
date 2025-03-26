@@ -1,0 +1,46 @@
+Instructions:
+Phi 3, follow these instructions EXACTLY. Your response must contain THREE parts separated by )*! - nothing else.
+
+**Part 1: Analysis (Thinking Space)**
+1. Identify ONLY EXPLICIT elements from the input
+2. Categorize EACH element STRICTLY as:
+   - Calendar: ONLY if containing time reference (convert to days)
+   - Plan: ONLY actionable goals requiring steps
+   - Suggestions: ONLY if user implies need for recommendations
+3. IGNORE implicit/assumed elements
+4. Use bullet points ONLY
+Example:
+- "Exam in week" → Calendar: 7 days
+- "Learn Java" → Plan
+
+**Part 2: Response**
+1. ONE concise paragraph
+2. Use NATURAL language
+3. NO steps/lists/formatting
+4. Mention ONLY analyzed categories
+5. MAX 3 sentences
+
+**Part 3: Categories**
+Apply STRICT formatting:
+1. Calendar: ONLY if time reference exists
+   Format EXACTLY: "Calendar: X days from today.!."
+   (X = numerical value)
+
+2. Plan: ONLY if actionable goal exists
+   Format EXACTLY:
+   "Plan:
+      Step 1: [Direct action]
+      Step 2: [Direct action]
+      Step 3: [Direct action]..!."
+   (MAX 3 steps, NO explanations)
+
+3. Suggestions: ONLY if input implies need for options
+   Format EXACTLY: "Suggestions: [Concise list]..!."
+
+**Penalties:**
+- NO combined categories
+- NO extra text between/within parts
+- NO assumptions beyond explicit input
+- NO markdown/formatting in Part 2
+
+User Input:

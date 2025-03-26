@@ -1,4 +1,3 @@
-// LLMController.java
 package com.example.demo;
 
 import org.springframework.web.bind.annotation.*;
@@ -14,18 +13,14 @@ import java.util.Map;
 @RequestMapping("/api")
 public class LLMController {
     
-    // In-Memory Storage (Latest response only)
     private static String latestResponse = "";
-    
-    // File Storage Configuration
     private static final String TEMP_FILE = "tempres.txt";
+    private static final String PROMPT_TEMPLATE_PATH = "promptmst.txt";
     
     private void storeResponse(String response) {
-        // Store in memory (replace previous)
         latestResponse = response;
         System.out.println("Memory stored: " + latestResponse.substring(0, Math.min(20, latestResponse.length())) + "...");
 
-        // Store in file (overwrite completely)
         try {
             String content = "Generated at: " + Instant.now() + "\n" + response;
             Files.writeString(
@@ -42,35 +37,43 @@ public class LLMController {
 
     @PostMapping("/generate")
     public Flux<String> generateText(@RequestBody Map<String, String> request) {
-        WebClient client = WebClient.create("https://aa42-41-90-184-126.ngrok-free.app");
-        StringBuilder responseBuilder = new StringBuilder();
+        try {
+            String promptTemplate = Files.readString(Paths.get(PROMPT_TEMPLATE_PATH));
+            String fullPrompt = promptTemplate + "\nUser Input: " + request.get("prompt");
 
-        return client.post()
-            .uri("/api/generate?timestamp=" + System.currentTimeMillis()) // Unique URL each call
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(Map.of(
-                "model", "phi3:3.8b",
-                "prompt", request.get("prompt"),
-                "options", Map.of("num_ctx", 2048) // Explicit context reset
-            ))
-            .retrieve()
-            .bodyToFlux(String.class)
-            .map(chunk -> {
-                String processedChunk = "";
-                if (chunk.contains("\"response\":")) {
-                    processedChunk = chunk.split("\"response\":\"")[1].split("\"")[0];
-                    responseBuilder.append(processedChunk);
-                }
-                return processedChunk;
-            })
-            .doOnComplete(() -> {
-                // Final storage processing
-                String fullResponse = responseBuilder.toString();
-                storeResponse(fullResponse);
-            });
+            WebClient client = WebClient.create("https://aa42-41-90-184-126.ngrok-free.app");
+            StringBuilder responseBuilder = new StringBuilder();
+
+            return client.post()
+                .uri("/api/generate?timestamp=" + System.currentTimeMillis())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of(
+                    "model", "phi3:3.8b",
+                    "prompt", fullPrompt,
+                    "options", Map.of("num_ctx", 2048)
+                ))
+                .retrieve()
+                .bodyToFlux(String.class)
+                .map(chunk -> {
+                    String processedChunk = "";
+                    if (chunk.contains("\"response\":")) {
+                        processedChunk = chunk.split("\"response\":\"")[1].split("\"")[0];
+                        responseBuilder.append(processedChunk);
+                    }
+                    return processedChunk;
+                })
+                .doOnComplete(() -> {
+                    String fullResponse = responseBuilder.toString();
+                    storeResponse(fullResponse);
+                    System.out.println("Full response received: " + fullResponse);
+                });
+
+        } catch (IOException e) {
+            System.err.println("Template load error: " + e.getMessage());
+            return Flux.just("Error: Could not load prompt template");
+        }
     }
     
-    // Debugging Endpoints (Optional)
     @GetMapping("/last-response")
     public String getLastResponse() {
         return latestResponse;
