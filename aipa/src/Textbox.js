@@ -6,33 +6,41 @@ export const Textbox = () => {
     const [loading, setLoading] = useState(false);
     const abortControllerRef = useRef(null);
 
-    const extractPart2 = (fullResponse) => {
+    const extractResponse = (fullResponse) => {
         try {
-            // Handle both raw and escaped JSON responses
+            // Clean up the response first
             const cleanedResponse = fullResponse
                 .replace(/\\n/g, '\n')
-                .replace(/\\"/g, '"');
+                .replace(/\\"/g, '"')
+                .replace(/\\'/g, "'")
+                .replace(/\\t/g, '    ');
 
-            // Flexible parsing for different response formats
-            const part2Pattern = /(?:Part 2|\(Part 2\))[\s\S]*?Response([\s\S]*?)(?:Part 3|\(Part 3\))/i;
-            const match = cleanedResponse.match(part2Pattern);
-            
-            if (match && match[1]) {
-                return match[1]
-                    .replace(/^[\s:]+|[\s;]+$/g, '')
+            // Check if this is a structured response that needs parsing
+            const isStructured = cleanedResponse.includes(')*!') || 
+                                cleanedResponse.includes('Part 2:') ||
+                                cleanedResponse.includes('Categories:');
+
+            if (!isStructured) {
+                // For casual responses, return as-is
+                return cleanedResponse;
+            }
+
+            // Attempt to extract Part 2 if structured response
+            const part2Match = cleanedResponse.match(
+                /(?:Part 2: Response|\(\*Part 2\*\))([\s\S]*?)(?:Part 3:|Categories:|$)/i
+            );
+
+            if (part2Match && part2Match[1]) {
+                return part2Match[1]
+                    .replace(/^[\s:-]+|[\s;-]+$/g, '')
                     .trim();
             }
-            
-            // Fallback: Try to find natural language response
-            const naturalLanguageMatch = cleanedResponse.match(/"response":"([\s\S]*?)"/);
-            if (naturalLanguageMatch) {
-                return naturalLanguageMatch[1];
-            }
-            
-            return "Could not parse response. Showing raw:\n" + cleanedResponse.substring(0, 300);
+
+            // Fallback to returning the cleaned response if parsing fails
+            return cleanedResponse;
         } catch (e) {
-            console.error("Parsing error:", e);
-            return "Error processing response";
+            console.error("Response processing error:", e);
+            return fullResponse; // Return original if any error occurs
         }
     };
 
@@ -64,7 +72,7 @@ export const Textbox = () => {
                 fullResponse += decoder.decode(value, { stream: true });
             }
 
-            setResponse(extractPart2(fullResponse));
+            setResponse(extractResponse(fullResponse));
         } catch (error) {
             if (error.name === 'AbortError') {
                 setResponse("Request cancelled");
@@ -128,13 +136,21 @@ export const Textbox = () => {
                 padding: '15px',
                 background: '#f8f9fa',
                 borderRadius: '4px',
-                minHeight: '100px'
+                minHeight: '100px',
+                maxHeight: '500px',
+                overflowY: 'auto'
             }}>
                 <strong style={{ display: 'block', marginBottom: '10px' }}>Response:</strong>
                 <div style={{ whiteSpace: 'pre-wrap' }}>
                     {response || (loading ? "Waiting for response..." : "")}
                 </div>
             </div>
+            <style>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
         </div>
     );
 };

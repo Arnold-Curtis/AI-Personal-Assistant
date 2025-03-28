@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.io.IOException;
 import java.nio.file.*;
@@ -16,6 +17,10 @@ public class LLMController {
     private static String latestResponse = "";
     private static final String TEMP_FILE = "tempres.txt";
     private static final String PROMPT_TEMPLATE_PATH = "promptmst.txt";
+    private static final String ANALYSIS_CHECK_PROMPT = 
+        "Respond EXACTLY 'yes' or 'no' with no other text or formatting. " +
+        "Does this input require analysis for tasks/plans/dates/suggestions? " +
+        "Greetings and casual conversation should return 'no'. Input: ";
     
     private void storeResponse(String response) {
         latestResponse = response;
@@ -37,41 +42,64 @@ public class LLMController {
 
     @PostMapping("/generate")
     public Flux<String> generateText(@RequestBody Map<String, String> request) {
-        try {
-            String promptTemplate = Files.readString(Paths.get(PROMPT_TEMPLATE_PATH));
-            String fullPrompt = promptTemplate + "\nUser Input: " + request.get("prompt");
+        String userInput = request.get("prompt");
+        WebClient client = WebClient.create("https://aa42-41-90-184-126.ngrok-free.app");
 
-            WebClient client = WebClient.create("https://aa42-41-90-184-126.ngrok-free.app");
-            StringBuilder responseBuilder = new StringBuilder();
-
-            return client.post()
-                .uri("/api/generate?timestamp=" + System.currentTimeMillis())
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of(
-                    "model", "phi3:3.8b",
-                    "prompt", fullPrompt,
-                    "options", Map.of("num_ctx", 2048)
-                ))
-                .retrieve()
-                .bodyToFlux(String.class)
-                .map(chunk -> {
-                    String processedChunk = "";
-                    if (chunk.contains("\"response\":")) {
-                        processedChunk = chunk.split("\"response\":\"")[1].split("\"")[0];
-                        responseBuilder.append(processedChunk);
+        // Step 1: Check if analysis is needed
+        return client.post()
+            .uri("/api/generate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(Map.of(
+                "model", "phi3:3.8b",
+                "prompt", ANALYSIS_CHECK_PROMPT + userInput,
+                "options", Map.of("num_ctx", 2048)
+            ))
+            .retrieve()
+            .bodyToMono(String.class)
+            .flatMapMany(analysisDecision -> {
+                try {
+                    boolean needsAnalysis = analysisDecision.trim().equalsIgnoreCase("yes");
+                    String finalPrompt;
+                    
+                    if (needsAnalysis) {
+                        // Use structured template for analyzable inputs
+                        String promptTemplate = Files.readString(Paths.get(PROMPT_TEMPLATE_PATH));
+                        finalPrompt = promptTemplate + "\nUser Input: " + userInput;
+                    } else {
+                        // Direct response for greetings/casual inputs
+                        finalPrompt = userInput;
                     }
-                    return processedChunk;
-                })
-                .doOnComplete(() -> {
-                    String fullResponse = responseBuilder.toString();
-                    storeResponse(fullResponse);
-                    System.out.println("Full response received: " + fullResponse);
-                });
 
-        } catch (IOException e) {
-            System.err.println("Template load error: " + e.getMessage());
-            return Flux.just("Error: Could not load prompt template");
-        }
+                    StringBuilder responseBuilder = new StringBuilder();
+                    
+                    // Step 2: Process the actual request
+                    return client.post()
+                        .uri("/api/generate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(Map.of(
+                            "model", "phi3:3.8b",
+                            "prompt", finalPrompt,
+                            "options", Map.of("num_ctx", 2048)
+                        ))
+                        .retrieve()
+                        .bodyToFlux(String.class)
+                        .map(chunk -> {
+                            if (chunk.contains("\"response\":")) {
+                                String processedChunk = chunk.split("\"response\":\"")[1].split("\"")[0]
+                                    .replace("\\n", "\n")
+                                    .replace("\\\"", "\"");
+                                responseBuilder.append(processedChunk);
+                                return processedChunk;
+                            }
+                            return "";
+                        })
+                        .doOnComplete(() -> storeResponse(responseBuilder.toString()));
+
+                } catch (IOException e) {
+                    return Flux.just("Error: Could not load prompt template");
+                }
+            })
+            .onErrorResume(e -> Flux.just("Error: " + e.getMessage()));
     }
     
     @GetMapping("/last-response")
