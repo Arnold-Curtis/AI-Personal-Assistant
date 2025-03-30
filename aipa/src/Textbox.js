@@ -8,39 +8,27 @@ export const Textbox = () => {
 
     const extractResponse = (fullResponse) => {
         try {
-            // Clean up the response first
-            const cleanedResponse = fullResponse
+            const cleaned = fullResponse
                 .replace(/\\n/g, '\n')
                 .replace(/\\"/g, '"')
-                .replace(/\\'/g, "'")
-                .replace(/\\t/g, '    ');
+                .replace(/\\u[\dA-F]{4}/gi, m => 
+                    String.fromCharCode(parseInt(m.replace(/\\u/g, ''), 16))
+                ); // <-- Fixed closing parenthesis
 
-            // Check if this is a structured response that needs parsing
-            const isStructured = cleanedResponse.includes(')*!') || 
-                                cleanedResponse.includes('Part 2:') ||
-                                cleanedResponse.includes('Categories:');
-
-            if (!isStructured) {
-                // For casual responses, return as-is
-                return cleanedResponse;
-            }
-
-            // Attempt to extract Part 2 if structured response
-            const part2Match = cleanedResponse.match(
-                /(?:Part 2: Response|\(\*Part 2\*\))([\s\S]*?)(?:Part 3:|Categories:|$)/i
-            );
-
-            if (part2Match && part2Match[1]) {
-                return part2Match[1]
-                    .replace(/^[\s:-]+|[\s;-]+$/g, '')
+            // Enhanced parsing logic with multiple delimiters
+            const decisionSplit = cleaned.split(/■■■\s*(RESPONSE|Decision:|USER OUTPUT)/i);
+            if (decisionSplit.length > 1) {
+                return decisionSplit.pop()
+                    .replace(/(\)\*!|■■■).*/gs, '')
                     .trim();
             }
 
-            // Fallback to returning the cleaned response if parsing fails
-            return cleanedResponse;
+            // Fallback to return full cleaned response if no delimiters found
+            return cleaned;
+
         } catch (e) {
-            console.error("Response processing error:", e);
-            return fullResponse; // Return original if any error occurs
+            console.error("Parsing error:", e);
+            return fullResponse;
         }
     };
 
@@ -96,21 +84,25 @@ export const Textbox = () => {
                     placeholder="What's up? Tell me Anything. I promise to try and help. I'm Here for you"
                     style={{ 
                         width: '100%',
-                        padding: '10px',
+                        padding: '12px',
                         fontSize: '16px',
-                        marginBottom: '10px'
+                        marginBottom: '15px',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px'
                     }}
                 />
                 <button 
                     type="submit" 
                     disabled={loading}
                     style={{
-                        padding: '10px 20px',
-                        background: loading ? '#ccc' : '#007bff',
+                        padding: '12px 24px',
+                        background: loading ? '#6c757d' : '#007bff',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                        transition: 'background 0.3s ease'
                     }}
                 >
                     {loading ? (
@@ -118,31 +110,37 @@ export const Textbox = () => {
                             <span 
                                 style={{
                                     display: 'inline-block',
-                                    width: '16px',
-                                    height: '16px',
+                                    width: '18px',
+                                    height: '18px',
                                     border: '2px solid rgba(255,255,255,0.3)',
                                     borderRadius: '50%',
                                     borderTopColor: 'white',
                                     animation: 'spin 1s linear infinite',
-                                    marginRight: '8px'
+                                    marginRight: '10px'
                                 }}
                             />
                             Processing...
                         </>
-                    ) : "Submit"}
+                    ) : "Get Help"}
                 </button>
             </form>
             <div style={{
-                padding: '15px',
-                background: '#f8f9fa',
-                borderRadius: '4px',
-                minHeight: '100px',
-                maxHeight: '500px',
-                overflowY: 'auto'
+                padding: '20px',
+                background: '#fff',
+                borderRadius: '8px',
+                minHeight: '120px',
+                maxHeight: '60vh',
+                overflowY: 'auto',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                border: '1px solid #eee'
             }}>
-                <strong style={{ display: 'block', marginBottom: '10px' }}>Response:</strong>
-                <div style={{ whiteSpace: 'pre-wrap' }}>
-                    {response || (loading ? "Waiting for response..." : "")}
+                <div style={{ 
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: '1.6',
+                    fontSize: '16px',
+                    color: '#333'
+                }}>
+                    {response || (loading ? "Crafting your personalized response..." : "")}
                 </div>
             </div>
             <style>{`

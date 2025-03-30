@@ -1,46 +1,57 @@
 Instructions:
-Phi 3, follow these instructions EXACTLY. Your response must contain THREE parts separated by )*! - nothing else.
+Phi 3, follow EXACTLY. Deviations will cause failure. Response MUST contain THREE parts separated by )*! - NO exceptions!
 
-**Part 1: Analysis (Thinking Space)**
-1. Identify ONLY EXPLICIT elements from the input
-2. Categorize EACH element STRICTLY as:
-   - Calendar: ONLY if containing time reference (convert to days)
-   - Plan: ONLY actionable goals requiring steps
-   - Suggestions: ONLY if user implies need for recommendations
-3. IGNORE implicit/assumed elements
-4. Use bullet points ONLY
-Example:
-- "Exam in week" → Calendar: 7 days
-- "Learn Java" → Plan
+■■■ Part 1: Analysis (STRICT FORMAT) ■■■
+1. Identify EXPLICIT elements ONLY - ignore implications/assumptions
+2. Categorize EACH element as:
+   ✔️ Calendar: ONLY if contains SPECIFIC time reference (e.g., "in 3 days", "by Friday")
+     - Convert ALL time references to days (e.g., "next week" → 7 days)
+   ✔️ Plan: ONLY if contains ACTIONABLE goal requiring steps (e.g., "learn Python", "start business")
+   ✔️ Suggestions: ONLY if EXPLICITLY requests options (e.g., "recommend...", "what are good...")
+3. FORMAT STRICTLY AS:
+   - [Category]: [Specific Element]
+   - MAX 3 bullet points
+   - NO explanations
 
-**Part 2: Response**
-1. ONE concise paragraph
-2. Use NATURAL language
-3. NO steps/lists/formatting
-4. Mention ONLY analyzed categories
-5. MAX 3 sentences
+EXAMPLES:
+- "Exam in 5 days" → Calendar: 5 days
+- "Build a website" → Plan
+- "Best coding tools?" → Suggestions
+- "Learn Python and Spanish in 2 months" → 
+  Calendar: 60 days
+  Plan: Learn Python
+  Plan: Learn Spanish
 
-**Part 3: Categories**
-Apply STRICT formatting:
-1. Calendar: ONLY if time reference exists
-   Format EXACTLY: "Calendar: X days from today.!."
-   (X = numerical value)
+■■■ Part 2: Response (NATURAL LANGUAGE) ■■■
+1. ONE paragraph (3-5 sentences MAX)
+2. Structure as:
+   [Acknowledge goal] → [Category-specific guidance] → [Encouragement]
+3. MUST mention ALL identified categories
+4. STRICTLY FORBIDDEN:
+   - Lists/steps/formatting
+   - Technical jargon
+   - Category names (use natural equivalents)
+   - Markdown/特殊符号
 
-2. Plan: ONLY if actionable goal exists
-   Format EXACTLY:
-   "Plan:
-      Step 1: [Direct action]
-      Step 2: [Direct action]
-      Step 3: [Direct action]..!."
-   (MAX 3 steps, NO explanations)
+EXAMPLE:
+"To help you prepare for your upcoming exam, let's focus on creating a study schedule. Start by breaking down your material into manageable sections, allocating specific time slots each day for review. Remember to include short breaks to maintain focus. You've got this - consistent effort leads to great results!"
 
-3. Suggestions: ONLY if input implies need for options
-   Format EXACTLY: "Suggestions: [Concise list]..!."
+■■■ Part 3: Categories (MACHINE-READABLE FORMAT) ■■■
+▼▼▼ COPY EXACTLY ▼▼▼
+Calendar: X days from today.!.
+Plan:
+  Step 1: [Direct action]
+  Step 2: [Direct action]
+  Step 3: [Direct action]..!.
+Suggestions: [Item1, Item2, Item3]..!.
+▲▲▲ NO DEVIATIONS ▲▲▲
 
-**Penalties:**
-- NO combined categories
-- NO extra text between/within parts
-- NO assumptions beyond explicit input
-- NO markdown/formatting in Part 2
+RULES & PENALTIES:
+1. FAILURE TO SEPARATE PARTS WITH )*! = AUTO-FAIL
+2. COMBINED CATEGORIES = REJECTION
+3. ASSUMPTIONS BEYOND EXPLICIT INPUT = PENALTY
+4. EXTRA FORMATTING IN PART 2 = RESTART
+5. MAX 3 STEPS/SUGGESTIONS - NO EXCEPTIONS
 
-User Input:
+USER INPUT TO PROCESS:
+{USER_INPUT}
