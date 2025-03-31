@@ -3,19 +3,18 @@ package com.example.demo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
-import java.time.Duration;
 import java.time.Instant;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Map;
+import java.util.List;
 import java.util.regex.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RestController
 @RequestMapping("/api")
@@ -27,75 +26,52 @@ public class LLMController {
     private static final String PROMPT_TEMPLATE_PATH = "promptmst.txt";
     
     private static final String ANALYSIS_CHECK_PROMPT = 
-"ROLE: Binary Decision Analyst " +
-"GOAL: Output ONLY yes or no based on a 9-point scoring system. " +
-
-"DECISION RULES: " +
-"1. Actionable Verb: +1 yes if learn/build/fix/help/understand, +1 no if none " +
-"2. Timeframe: +1 yes if ≥3 days, +1 no if <3 days " +
-"3. Same-Day Conflict: +1 no if same-day events exist " +
-"4. Priority Severity: +1 no if high-priority conflict exists " +
-"5. Time Flexibility: +1 yes if flexible schedule mentioned " +
-"6. Resource Availability: +1 yes if resources available " +
-"7. Goal Specificity: +1 yes if clear goal specified " +
-"8. Dependency Check: +1 no if blocked by dependencies " +
-"9. Historical Context: +1 yes if positive history with similar tasks " +
-
-"FORMAT: " +
-"1. Actionable Verb: [yes/no] " +
-"2. Timeframe: [X days] [yes/no] " +
-"3. Same-Day Conflict: [no if conflict] " +
-"4. Priority Severity: [no if high] " +
-"5. Time Flexibility: [yes/no] " +
-"6. Resource Availability: [yes/no] " +
-"7. Goal Specificity: [yes/no] " +
-"8. Dependency Check: [no if blocked] " +
-"9. Historical Context: [yes/no] " +
-"TOTAL: yes:[X] vs no:[Y] FINAL: [yes/no] " +
-
-"EXAMPLE 1 (YES): " +
-"Actionable Verb: yes " +
-"Timeframe: 21 days yes " +
-"Same-Day Conflict: none " +
-"Priority Severity: none " +
-"Time Flexibility: yes " +
-"Resource Availability: yes " +
-"Goal Specificity: yes " +
-"Dependency Check: none " +
-"Historical Context: yes " +
-"TOTAL: yes:7 vs no:0 FINAL: yes " +
-
-"EXAMPLE 2 (NO): " +
-"Actionable Verb: yes " +
-"Timeframe: 1 day no " +
-"Same-Day Conflict: yes no " +
-"Priority Severity: yes no " +
-"Time Flexibility: no " +
-"Resource Availability: no " +
-"Goal Specificity: yes " +
-"Dependency Check: none " +
-"Historical Context: no " +
-"TOTAL: yes:2 vs no:7 FINAL: no " +
-
-"DIRECTIVE: You must follow the scoring exactly. If yes > no, output yes. Never override the tally. " +
-"USER INPUT:";
+    "Analyze the given input and determine whether it is actionable or non-actionable based on the following guiding factors:\n\n" +
+    "Actionable Verb: Does it contain verbs like learn, build, fix, help, understand that imply action?\n\n" +
+    "Timeframe: Is the task something that extends beyond 3 days, or is it immediate?\n\n" +
+    "Same-Day Conflict: Is there any mention of an urgent, same-day event that would interfere?\n\n" +
+    "Priority Severity: Is the task blocked by a high-priority issue?\n\n" +
+    "Time Flexibility: Does it mention flexibility in scheduling?\n\n" +
+    "Resource Availability: Are the necessary resources available to complete the task?\n\n" +
+    "Goal Specificity: Is there a clear and specific goal being described?\n\n" +
+    "Dependency Check: Is the task dependent on something else before it can be done?\n\n" +
+    "Historical Context: Has the person successfully done similar tasks before?\n\n" +
+    "Response Format:\n\n" +
+    "The response should be split into two sections:\n\n" +
+    "Thinking Space: This is where the AI evaluates the prompt, breaking it down based on the above factors. The AI should \"think out loud,\" explaining its reasoning.\n\n" +
+    "Final Decision: The AI should strictly return either YES (actionable) or NO (non-actionable), formatted as:\n\n" +
+    ").* YES or ).* NO\n\n" +
+    "Example 1 (Non-Actionable Input):\n\n" +
+    "Input:\n\"Hey man, how's it going?\"\n\n" +
+    "Output:\nThinking Space:\n\n" +
+    "No actionable verb detected.\n\n" +
+    "No timeframe mentioned.\n\n" +
+    "No indication of resources, specific goals, or dependencies.\n\n" +
+    "This is purely conversational with no clear task to complete.\n\n" +
+    ").* NO\n\n" +
+    "Example 2 (Actionable Input):\n\n" +
+    "Input:\n\"Hey, I would love to learn Java and get closer to my family.\"\n\n" +
+    "Output:\nThinking Space:\n\n" +
+    "\"Learn\" is an actionable verb.\n\n" +
+    "No specific timeframe, but learning is generally long-term.\n\n" +
+    "No conflicts or urgent blockers mentioned.\n\n" +
+    "Clear goal (learning Java, improving relationships).\n\n" +
+    "Resources for learning Java are widely available.\n\n" +
+    "No dependencies mentioned.\n\n" +
+    "Historical context is unknown, but learning Java is feasible.\n\n" +
+    ").* YES\n\n" +
+    "User Input: ";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebClient webClient;
 
-    public LLMController(WebClient.Builder webClientBuilder) {
-        HttpClient httpClient = HttpClient.create()
-            .responseTimeout(Duration.ofSeconds(45))
-            .keepAlive(true)
-            .compress(true)
-            .wiretap(true);
+    @Value("${gemini.api.key}")
+    private String geminiApiKey;
 
+    public LLMController(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder
-            .baseUrl("https://2059-41-90-178-43.ngrok-free.app")
-            .clientConnector(new ReactorClientHttpConnector(httpClient))
-            .defaultHeader("Connection", "keep-alive")
-            .defaultHeader("Keep-Alive", "timeout=45")
-            .defaultHeader("ngrok-skip-browser-warning", "true")
+            .baseUrl("https://generativelanguage.googleapis.com/v1beta/models/")
+            .defaultHeader("Content-Type", "application/json")
             .build();
     }
 
@@ -116,11 +92,16 @@ public class LLMController {
 
     private void storeAnalysisResult(String rawResponse, String finalDecision, String userInput) {
         try {
+            // Extract thinking space if present
+            String thinkingSpace = rawResponse.contains("Thinking Space:") 
+                ? rawResponse.split("Thinking Space:")[1].split("\\)\\.\\*")[0].trim()
+                : "No analysis available";
+            
             String content = "=== Analysis Result ===\n" +
                            "Timestamp: " + Instant.now() + "\n" +
                            "User Input: " + userInput + "\n" +
                            "Final Decision: " + finalDecision + "\n" +
-                           "Response Analysis:\n" + rawResponse + "\n" +
+                           "Thinking Process:\n" + thinkingSpace + "\n" +
                            "========================\n\n";
             
             Files.writeString(
@@ -137,64 +118,54 @@ public class LLMController {
     @PostMapping("/generate")
     public Flux<String> generateText(@RequestBody Map<String, String> request) {
         String userInput = request.get("prompt");
+        if (userInput == null || userInput.trim().isEmpty()) {
+            return Flux.just("{\"error\": \"Prompt is required\"}");
+        }
         
         return webClient.post()
-            .uri("/api/generate")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(Map.of(
-                "model", "phi3:3.8b",
-                "prompt", ANALYSIS_CHECK_PROMPT + userInput,
-                "options", Map.of("num_ctx", 2048)
-            ))
+            .uri(uriBuilder -> uriBuilder
+                .path("gemini-2.0-flash:generateContent")
+                .queryParam("key", geminiApiKey)
+                .build())
+            .bodyValue(createGeminiRequest(ANALYSIS_CHECK_PROMPT + userInput))
             .retrieve()
-            .bodyToFlux(String.class)
-            .timeout(Duration.ofSeconds(40))
-            .retry(3)
-            .doOnError(e -> System.err.println("API Error: " + e.getClass().getSimpleName() + ": " + e.getMessage()))
-            .collect(StringBuilder::new, (sb, chunk) -> {
-                try {
-                    JsonNode node = objectMapper.readTree(chunk);
-                    sb.append(node.path("response").asText());
-                } catch (JsonProcessingException e) {
-                    System.err.println("JSON Parse Error: " + chunk);
-                }
-            })
+            .onStatus(status -> status.isError(), response -> 
+                response.bodyToMono(String.class)
+                    .flatMap(errorBody -> Mono.error(new RuntimeException(
+                        "API Error: " + response.statusCode() + " - " + errorBody
+                    )))
+            )
+            .bodyToMono(JsonNode.class)
             .flatMapMany(analysisResponse -> {
-                String fullResponse = analysisResponse.toString();
-                System.out.println("Full Analysis Response:\n" + fullResponse);
-                
-                String finalDecision = parseFinalDecision(fullResponse);
-                System.out.println("Parsed Decision: " + finalDecision);
-                
-                storeAnalysisResult(fullResponse, finalDecision, userInput);
-
                 try {
+                    String fullResponse = extractGeminiResponse(analysisResponse);
+                    System.out.println("Full Analysis Response:\n" + fullResponse);
+                    
+                    String finalDecision = parseFinalDecision(fullResponse);
+                    System.out.println("Parsed Decision: " + finalDecision);
+                    
+                    storeAnalysisResult(fullResponse, finalDecision, userInput);
+
                     String finalPrompt = finalDecision.equals("yes") 
                         ? Files.readString(Paths.get(PROMPT_TEMPLATE_PATH)) + "\nUser Input: " + userInput
                         : userInput;
 
                     return webClient.post()
-                        .uri("/api/generate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(Map.of(
-                            "model", "phi3:3.8b",
-                            "prompt", finalPrompt,
-                            "options", Map.of("num_ctx", 2048)
-                        ))
+                        .uri(uriBuilder -> uriBuilder
+                            .path("gemini-2.0-flash:generateContent")
+                            .queryParam("key", geminiApiKey)
+                            .build())
+                        .bodyValue(createGeminiRequest(finalPrompt))
                         .retrieve()
-                        .bodyToFlux(String.class)
-                        .timeout(Duration.ofSeconds(40))
-                        .retry(3)
-                        .collect(StringBuilder::new, (sb, chunk) -> {
-                            try {
-                                JsonNode node = objectMapper.readTree(chunk);
-                                sb.append(node.path("response").asText());
-                            } catch (JsonProcessingException e) {
-                                System.err.println("JSON Parse Error: " + chunk);
-                            }
-                        })
+                        .onStatus(status -> status.isError(), response -> 
+                            response.bodyToMono(String.class)
+                                .flatMap(errorBody -> Mono.error(new RuntimeException(
+                                    "API Error: " + response.statusCode() + " - " + errorBody
+                                )))
+                        )
+                        .bodyToMono(JsonNode.class)
                         .map(finalResponse -> {
-                            String processed = finalResponse.toString()
+                            String processed = extractGeminiResponse(finalResponse)
                                 .replace("\\n", "\n")
                                 .replace("\\\"", "\"");
                             storeResponse(processed);
@@ -202,24 +173,61 @@ public class LLMController {
                         })
                         .flux();
                 } catch (IOException e) {
-                    return Flux.just("Error: Failed to load prompt template");
+                    return Flux.just("{\"error\": \"Failed to load prompt template: " + e.getMessage() + "\"}");
+                } catch (Exception e) {
+                    return Flux.just("{\"error\": \"" + e.getMessage() + "\"}");
                 }
             })
-            .onErrorResume(e -> {
-                if (e instanceof reactor.netty.http.client.PrematureCloseException) {
-                    return Flux.just("Error: Connection to AI service failed. Please try again.");
-                }
-                return Flux.just("Error: " + e.getMessage());
-            });
+            .onErrorResume(e -> Flux.just(
+                "{\"error\": \"" + e.getMessage().replace("\"", "\\\"") + "\"}"
+            ));
+    }
+
+    private Map<String, Object> createGeminiRequest(String prompt) {
+        return Map.of(
+            "contents", List.of(
+                Map.of("parts", List.of(
+                    Map.of("text", prompt)
+                ))
+            ),
+            "generationConfig", Map.of(
+                "temperature", 0.9,
+                "topP", 1,
+                "topK", 40,
+                "maxOutputTokens", 2048
+            )
+        );
+    }
+
+    private String extractGeminiResponse(JsonNode responseNode) {
+        try {
+            if (responseNode.has("error")) {
+                return responseNode.get("error").asText();
+            }
+            return responseNode
+                .path("candidates").get(0)
+                .path("content")
+                .path("parts").get(0)
+                .path("text")
+                .asText();
+        } catch (Exception e) {
+            System.err.println("Failed to parse Gemini response: " + responseNode);
+            return "{\"error\": \"Failed to parse API response\"}";
+        }
     }
 
     private String parseFinalDecision(String fullResponse) {
-        Pattern pattern = Pattern.compile(
-            "^(?:Decision|Final Decision):\\s*(yes|no)$", 
-            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
-        );
-        Matcher matcher = pattern.matcher(fullResponse.trim());
-        return matcher.find() ? matcher.group(1).toLowerCase() : "no";
+        try {
+            // Updated to match the new ").* YES" or ").* NO" format
+            Pattern pattern = Pattern.compile(
+                "\\)\\.\\*\\s*(YES|NO)$", 
+                Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
+            );
+            Matcher matcher = pattern.matcher(fullResponse.trim());
+            return matcher.find() ? matcher.group(1).toLowerCase() : "no";
+        } catch (Exception e) {
+            return "no";
+        }
     }
     
     @GetMapping("/last-response")
@@ -232,7 +240,7 @@ public class LLMController {
         try {
             return Files.readString(Paths.get(TEMP_FILE));
         } catch (IOException e) {
-            return "Error: Could not load response file";
+            return "{\"error\": \"Could not load response file\"}";
         }
     }
     
@@ -241,7 +249,7 @@ public class LLMController {
         try {
             return Files.readString(Paths.get(ANALYSIS_RESULT_FILE));
         } catch (IOException e) {
-            return "Error: Could not load analysis results";
+            return "{\"error\": \"Could not load analysis results\"}";
         }
     }
 }
