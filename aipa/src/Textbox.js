@@ -15,48 +15,56 @@ export const Textbox = () => {
             try {
                 const jsonResponse = JSON.parse(responseText);
                 
-                // Handle backend error format
                 if (jsonResponse.error) {
                     return `ERROR: ${jsonResponse.error}`;
                 }
                 
-                // Handle success response format
                 if (jsonResponse.text) {
                     return jsonResponse.text;
                 }
                 
-                // Handle Gemini API success response
                 if (jsonResponse.candidates?.[0]?.content?.parts) {
                     return jsonResponse.candidates[0].content.parts[0].text;
                 }
                 
-                // Handle raw JSON responses
                 return JSON.stringify(jsonResponse, null, 2);
             } catch (e) {
                 // Not JSON, proceed with text processing
             }
 
-            // Handle the new two-part response format
-            if (responseText.includes("Thinking Space:") && responseText.includes(").*")) {
-                const thinkingSpace = responseText.split("Thinking Space:")[1].split(").*")[0].trim();
-                const decisionMatch = responseText.match(/\)\.\*\s*(YES|NO)/i);
-                const decision = decisionMatch ? decisionMatch[1] : "UNDECIDED";
-                
-                return `THINKING PROCESS:\n${thinkingSpace}\n\nFINAL DECISION: ${decision}`;
+            // Primary extraction - strict Part 2 pattern
+            const strictResponseRegex = /(\*\*Part 2: Response\*\*|\*\*Response:\*\*)([^*]+)(\*\*Part 3:|\*\*Categories:|$)/is;
+            const strictMatch = responseText.match(strictResponseRegex);
+            if (strictMatch && strictMatch[2]) {
+                return cleanResponseText(strictMatch[2]);
             }
 
-            // Clean up other responses
-            return responseText
-                .replace(/\\n/g, '\n')
-                .replace(/\\"/g, '"')
-                .replace(/\\u[\dA-F]{4}/gi, match => 
-                    String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16))
-                );
+            // Secondary extraction - loose response pattern
+            const looseResponseRegex = /(?:Response:|Answer:)([\s\S]*?)(?=\n\*\*|\n\n|$)/i;
+            const looseMatch = responseText.match(looseResponseRegex);
+            if (looseMatch && looseMatch[1]) {
+                return cleanResponseText(looseMatch[1]);
+            }
+
+            // Final fallback - clean entire response
+            return cleanResponseText(responseText);
 
         } catch (e) {
             console.error("Response parsing error:", e);
             return "An error occurred while processing the response";
         }
+    };
+
+    const cleanResponseText = (text) => {
+        return text
+            .replace(/(\*\*|\*|!\.|■+|#{2,}|\)\.\*)/g, '') // Remove formatting marks
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\u[\dA-F]{4}/gi, m => 
+                String.fromCharCode(parseInt(m.replace(/\\u/g, ''), 16))
+            )
+            .replace(/\n{2,}/g, '\n\n') // Normalize line breaks
+            .trim();
     };
 
     const handleSubmit = async (e) => {
@@ -81,7 +89,6 @@ export const Textbox = () => {
                 signal: controller.signal
             });
 
-            // Clone the response to prevent "body already read" errors
             const responseClone = response.clone();
             const responseText = await response.text();
 
