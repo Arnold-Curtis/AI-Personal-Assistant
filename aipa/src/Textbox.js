@@ -1,10 +1,19 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 export const Textbox = () => {
     const [input, setInput] = useState('');
     const [response, setResponse] = useState('');
     const [loading, setLoading] = useState(false);
     const abortControllerRef = useRef(null);
+    const intervalRef = useRef(null);
+    const responseBuilder = useRef('');
+
+    // Cleanup intervals on unmount
+    useEffect(() => {
+        return () => {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+        };
+    }, []);
 
     const extractResponse = (responseData) => {
         try {
@@ -12,36 +21,11 @@ export const Textbox = () => {
                 ? responseData 
                 : JSON.stringify(responseData, null, 2);
 
-            // Phase 1: Try JSON parsing first
-            try {
-                const jsonResponse = JSON.parse(responseText);
-                if (jsonResponse.error) return `ERROR: ${jsonResponse.error}`;
-                if (jsonResponse.text) return jsonResponse.text;
-                if (jsonResponse.candidates?.[0]?.content?.parts) {
-                    return jsonResponse.candidates[0].content.parts[0].text;
-                }
-                return JSON.stringify(jsonResponse, null, 2);
-            } catch (e) {
-                // Not JSON, proceed to text processing
-            }
-
-            // Phase 2: Precise extraction between )*! markers
-            const sections = responseText.split(/\s*\)\*!\s*/);
-            if (sections.length >= 4) {
-                // The actual response is between the second and third )*! markers
-                const rawResponse = sections[2];
-                return cleanResponseText(rawResponse);
-            }
-
-            // Phase 3: Fallback to header-based extraction
-            const part2Regex = /(\*\*Part 2: Response\*\*)([\s\S]*?)(?=\*\*Part 3:|\)\*!)/i;
-            const part2Match = responseText.match(part2Regex);
-            if (part2Match && part2Match[2]) {
-                return cleanResponseText(part2Match[2]);
-            }
-
-            // Final fallback: Clean entire response
-            return cleanResponseText(responseText);
+            // Improved regex to better handle response parts
+            const part2Match = responseText.match(/\*\*Part 2: Response\*\*([\s\S]*?)(?:\*\*Part 3:|$)/i);
+            return part2Match && part2Match[1] 
+                ? cleanResponseText(part2Match[1]) 
+                : cleanResponseText(responseText);
 
         } catch (e) {
             console.error("Response parsing error:", e);
@@ -51,29 +35,49 @@ export const Textbox = () => {
 
     const cleanResponseText = (text) => {
         return text
-            // Remove all headers and artifacts
-            .replace(/(\*\*Part \d+:.*|\*!|\)!|Calendar:.*|Plan:.*|Step \d+:.*|Analysis:.*)/gi, '')
-            // Clean up formatting characters
-            .replace(/[\*■#!\-→]/g, '')
-            // Handle escaped characters
+            .replace(/\*\*Part \d+:.*?\*\*/g, '')
+            .replace(/\)\*!/g, '')
+            .replace(/[\*■#!→\-]/g, '')
             .replace(/\\n/g, '\n')
             .replace(/\\"/g, '"')
             .replace(/\\u[\dA-F]{4}/gi, m => 
                 String.fromCharCode(parseInt(m.replace(/\\u/g, ''), 16))
             )
-            // Normalize whitespace and remove unwanted lines
             .split('\n')
             .map(line => line.trim())
-            .filter(line => line && !line.match(/^[0-9\.]+/) && !line.startsWith('-'))
+            .filter(line => line && !line.match(/^[0-9.]+/) && !line.startsWith('-'))
             .join('\n')
             .trim();
     };
 
+    const simulateStreaming = (text) => {
+        responseBuilder.current = '';
+        setResponse('');
+        
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        
+        // Start with first character immediately
+        if (text.length > 0) {
+            responseBuilder.current = text.charAt(0);
+            setResponse(responseBuilder.current);
+        }
+        
+        // Stream remaining characters
+        let index = 1;
+        intervalRef.current = setInterval(() => {
+            if (index < text.length) {
+                responseBuilder.current += text.charAt(index);
+                setResponse(responseBuilder.current);
+                index++;
+            } else {
+                clearInterval(intervalRef.current);
+            }
+        }, 20); // Adjust speed (20ms per character)
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-        }
+        if (abortControllerRef.current) abortControllerRef.current.abort();
         
         const controller = new AbortController();
         abortControllerRef.current = controller;
@@ -101,7 +105,8 @@ export const Textbox = () => {
                 );
             }
 
-            setResponse(extractResponse(responseText));
+            const processed = extractResponse(responseText);
+            simulateStreaming(processed);
 
         } catch (error) {
             if (error.name === 'AbortError') {
@@ -114,6 +119,14 @@ export const Textbox = () => {
             setLoading(false);
             abortControllerRef.current = null;
         }
+    };
+
+    const handleReset = () => {
+        if (abortControllerRef.current) abortControllerRef.current.abort();
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        setInput('');
+        setResponse('');
+        responseBuilder.current = '';
     };
 
     return (
@@ -180,13 +193,7 @@ export const Textbox = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => {
-                            if (abortControllerRef.current) {
-                                abortControllerRef.current.abort();
-                            }
-                            setInput('');
-                            setResponse('');
-                        }}
+                        onClick={handleReset}
                         style={{
                             padding: '12px 24px',
                             background: '#dc3545',
