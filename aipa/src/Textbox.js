@@ -8,55 +8,65 @@ export const Textbox = () => {
 
     const extractResponse = (responseData) => {
         try {
-            // Handle both string and object responses
-            const responseText = typeof responseData === 'string' ? responseData : JSON.stringify(responseData);
-            
-            // First try to parse as JSON
+            const responseText = typeof responseData === 'string' 
+                ? responseData 
+                : JSON.stringify(responseData, null, 2);
+
+            // Phase 1: Try JSON parsing first
             try {
                 const jsonResponse = JSON.parse(responseText);
-                
-                // Handle backend error format
-                if (jsonResponse.error) {
-                    return `ERROR: ${jsonResponse.error}`;
-                }
-                
-                // Handle success response format
-                if (jsonResponse.text) {
-                    return jsonResponse.text;
-                }
-                
-                // Handle Gemini API success response
+                if (jsonResponse.error) return `ERROR: ${jsonResponse.error}`;
+                if (jsonResponse.text) return jsonResponse.text;
                 if (jsonResponse.candidates?.[0]?.content?.parts) {
                     return jsonResponse.candidates[0].content.parts[0].text;
                 }
-                
-                // Handle raw JSON responses
                 return JSON.stringify(jsonResponse, null, 2);
             } catch (e) {
-                // Not JSON, proceed with text processing
+                // Not JSON, proceed to text processing
             }
 
-            // Handle the new two-part response format
-            if (responseText.includes("Thinking Space:") && responseText.includes(").*")) {
-                const thinkingSpace = responseText.split("Thinking Space:")[1].split(").*")[0].trim();
-                const decisionMatch = responseText.match(/\)\.\*\s*(YES|NO)/i);
-                const decision = decisionMatch ? decisionMatch[1] : "UNDECIDED";
-                
-                return `THINKING PROCESS:\n${thinkingSpace}\n\nFINAL DECISION: ${decision}`;
+            // Phase 2: Precise extraction between )*! markers
+            const sections = responseText.split(/\s*\)\*!\s*/);
+            if (sections.length >= 4) {
+                // The actual response is between the second and third )*! markers
+                const rawResponse = sections[2];
+                return cleanResponseText(rawResponse);
             }
 
-            // Clean up other responses
-            return responseText
-                .replace(/\\n/g, '\n')
-                .replace(/\\"/g, '"')
-                .replace(/\\u[\dA-F]{4}/gi, match => 
-                    String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16))
-                );
+            // Phase 3: Fallback to header-based extraction
+            const part2Regex = /(\*\*Part 2: Response\*\*)([\s\S]*?)(?=\*\*Part 3:|\)\*!)/i;
+            const part2Match = responseText.match(part2Regex);
+            if (part2Match && part2Match[2]) {
+                return cleanResponseText(part2Match[2]);
+            }
+
+            // Final fallback: Clean entire response
+            return cleanResponseText(responseText);
 
         } catch (e) {
             console.error("Response parsing error:", e);
             return "An error occurred while processing the response";
         }
+    };
+
+    const cleanResponseText = (text) => {
+        return text
+            // Remove all headers and artifacts
+            .replace(/(\*\*Part \d+:.*|\*!|\)!|Calendar:.*|Plan:.*|Step \d+:.*|Analysis:.*)/gi, '')
+            // Clean up formatting characters
+            .replace(/[\*■#!\-→]/g, '')
+            // Handle escaped characters
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\u[\dA-F]{4}/gi, m => 
+                String.fromCharCode(parseInt(m.replace(/\\u/g, ''), 16))
+            )
+            // Normalize whitespace and remove unwanted lines
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line && !line.match(/^[0-9\.]+/) && !line.startsWith('-'))
+            .join('\n')
+            .trim();
     };
 
     const handleSubmit = async (e) => {
@@ -81,8 +91,6 @@ export const Textbox = () => {
                 signal: controller.signal
             });
 
-            // Clone the response to prevent "body already read" errors
-            const responseClone = response.clone();
             const responseText = await response.text();
 
             if (!response.ok) {

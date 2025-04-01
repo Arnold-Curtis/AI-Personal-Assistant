@@ -59,8 +59,8 @@ public class LLMController {
     "Resources for learning Java are widely available.\n\n" +
     "No dependencies mentioned.\n\n" +
     "Historical context is unknown, but learning Java is feasible.\n\n" +
-    ").* YES\n\n" +
-    "User Input: ";
+    ").* YES" +
+    "User Input";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebClient webClient;
@@ -92,16 +92,11 @@ public class LLMController {
 
     private void storeAnalysisResult(String rawResponse, String finalDecision, String userInput) {
         try {
-            // Extract thinking space if present
-            String thinkingSpace = rawResponse.contains("Thinking Space:") 
-                ? rawResponse.split("Thinking Space:")[1].split("\\)\\.\\*")[0].trim()
-                : "No analysis available";
-            
             String content = "=== Analysis Result ===\n" +
                            "Timestamp: " + Instant.now() + "\n" +
                            "User Input: " + userInput + "\n" +
                            "Final Decision: " + finalDecision + "\n" +
-                           "Thinking Process:\n" + thinkingSpace + "\n" +
+                           "Response Analysis:\n" + rawResponse + "\n" +
                            "========================\n\n";
             
             Files.writeString(
@@ -147,7 +142,12 @@ public class LLMController {
                     storeAnalysisResult(fullResponse, finalDecision, userInput);
 
                     String finalPrompt = finalDecision.equals("yes") 
-                        ? Files.readString(Paths.get(PROMPT_TEMPLATE_PATH)) + "\nUser Input: " + userInput
+                        ? Files.readString(Paths.get(PROMPT_TEMPLATE_PATH)) 
+                            + "\n\n**User Input:** " + userInput
+                            + "\n\n**Response Structure Requirements:**"
+                            + "\n**Part 1: Analysis** - Detailed thinking process"
+                            + "\n**Part 2: Response** - Actionable steps/advice"
+                            + "\n**Part 3: Additional Notes** - Optional considerations"
                         : userInput;
 
                     return webClient.post()
@@ -218,9 +218,8 @@ public class LLMController {
 
     private String parseFinalDecision(String fullResponse) {
         try {
-            // Updated to match the new ").* YES" or ").* NO" format
             Pattern pattern = Pattern.compile(
-                "\\)\\.\\*\\s*(YES|NO)$", 
+                "\\*\\s*(yes|no)\\s*$", 
                 Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
             );
             Matcher matcher = pattern.matcher(fullResponse.trim());
