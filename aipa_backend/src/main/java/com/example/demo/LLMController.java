@@ -26,41 +26,54 @@ public class LLMController {
     private static final String PROMPT_TEMPLATE_PATH = "promptmst.txt";
     
     private static final String ANALYSIS_CHECK_PROMPT = 
-    "Analyze the given input and determine whether it is actionable or non-actionable based on the following guiding factors:\n\n" +
-    "Actionable Verb: Does it contain verbs like learn, build, fix, help, understand that imply action?\n\n" +
-    "Timeframe: Is the task something that extends beyond 3 days, or is it immediate?\n\n" +
-    "Same-Day Conflict: Is there any mention of an urgent, same-day event that would interfere?\n\n" +
-    "Priority Severity: Is the task blocked by a high-priority issue?\n\n" +
-    "Time Flexibility: Does it mention flexibility in scheduling?\n\n" +
-    "Resource Availability: Are the necessary resources available to complete the task?\n\n" +
-    "Goal Specificity: Is there a clear and specific goal being described?\n\n" +
-    "Dependency Check: Is the task dependent on something else before it can be done?\n\n" +
-    "Historical Context: Has the person successfully done similar tasks before?\n\n" +
-    "Response Format:\n\n" +
-    "The response should be split into two sections:\n\n" +
-    "Thinking Space: This is where the AI evaluates the prompt, breaking it down based on the above factors. The AI should \"think out loud,\" explaining its reasoning.\n\n" +
-    "Final Decision: The AI should strictly return either YES (actionable) or NO (non-actionable), formatted as:\n\n" +
-    ").* YES or ).* NO\n\n" +
-    "Example 1 (Non-Actionable Input):\n\n" +
-    "Input:\n\"Hey man, how's it going?\"\n\n" +
-    "Output:\nThinking Space:\n\n" +
-    "No actionable verb detected.\n\n" +
-    "No timeframe mentioned.\n\n" +
-    "No indication of resources, specific goals, or dependencies.\n\n" +
-    "This is purely conversational with no clear task to complete.\n\n" +
-    ").* NO\n\n" +
-    "Example 2 (Actionable Input):\n\n" +
-    "Input:\n\"Hey, I would love to learn Java and get closer to my family.\"\n\n" +
-    "Output:\nThinking Space:\n\n" +
-    "\"Learn\" is an actionable verb.\n\n" +
-    "No specific timeframe, but learning is generally long-term.\n\n" +
-    "No conflicts or urgent blockers mentioned.\n\n" +
-    "Clear goal (learning Java, improving relationships).\n\n" +
-    "Resources for learning Java are widely available.\n\n" +
-    "No dependencies mentioned.\n\n" +
-    "Historical context is unknown, but learning Java is feasible.\n\n" +
-    ").* YES" +
-    "User Input";
+    "Analyze the given input and determine whether it is actionable or non-actionable based on the following guiding factors:\n" +
+    "Actionable Verb: Does it contain verbs like learn, build, fix, help, understand that imply action?\n" +
+    "Timeframe: Is the task something that extends beyond 3 days, or is it immediate? If the input is a scheduled event (e.g., a meeting, wedding, appointment), consider it actionable.\n" +
+    "Same-Day Conflict: Is there any mention of an urgent, same-day event that would interfere?\n" +
+    "Priority Severity: Is the task blocked by a high-priority issue?\n" +
+    "Time Flexibility: Does it mention flexibility in scheduling?\n" +
+    "Resource Availability: Are the necessary resources available to complete the task?\n" +
+    "Goal Specificity: Is there a clear and specific goal being described?\n" +
+    "Dependency Check: Is the task dependent on something else before it can be done?\n" +
+    "Historical Context: Has the person successfully done similar tasks before?\n" +
+    "Special Case - Calendar Events: If the input specifies a scheduled event (e.g., 'I have a wedding in 2 weeks' or 'My meeting is next Friday'), then it is considered actionable, even if no action verb is explicitly stated.\n" +
+    "Response Format:\n" +
+    "The response should be split into two sections:\n" +
+    "Thinking Space: This is where the AI evaluates the prompt, breaking it down based on the above factors. The AI should \"think out loud,\" explaining its reasoning.\n" +
+    "Final Decision: The AI should strictly return either YES (actionable) or NO (non-actionable), formatted as: ).* YES or ).* NO\n" +
+    "Example 1 (Non-Actionable Input):\n" +
+    "Input:\n\"Hey man, how's it going?\"\n" +
+    "Output:\nThinking Space:\n" +
+    "No actionable verb detected.\n" +
+    "No timeframe mentioned.\n" +
+    "No indication of resources, specific goals, or dependencies.\n" +
+    "This is purely conversational with no clear task to complete.\n" +
+    ").* NO\n" +
+    "Example 2 (Actionable Input - Learning Task):\n" +
+    "Input:\n\"Hey, I would love to learn Java and get closer to my family.\"\n" +
+    "Output:\nThinking Space:\n" +
+    "\"Learn\" is an actionable verb.\n" +
+    "No specific timeframe, but learning is generally long-term.\n" +
+    "No conflicts or urgent blockers mentioned.\n" +
+    "Clear goal (learning Java, improving relationships).\n" +
+    "Resources for learning Java are widely available.\n" +
+    "No dependencies mentioned.\n" +
+    "Historical context is unknown, but learning Java is feasible.\n" +
+    ").* YES\n" +
+    "Example 3 (Actionable Input - Scheduled Event):\n" +
+    "Input:\n\"Whats up man, I have a wedding in 2 weeks.\"\n" +
+    "Output:\nThinking Space:\n" +
+    "No actionable verb present, but a scheduled event is mentioned.\n" +
+    "Timeframe: The wedding is in two weeks, which is a defined future event.\n" +
+    "Same-Day Conflict: Not applicable unless another task is in conflict.\n" +
+    "Priority Severity: Not relevant since it’s an event, not a task.\n" +
+    "Time Flexibility: The event is on a fixed date.\n" +
+    "Resource Availability: Not applicable.\n" +
+    "Goal Specificity: The goal (attending a wedding) is clear.\n" +
+    "Dependency Check: No dependencies needed for recognizing the event.\n" +
+    "Since it is a scheduled event, it qualifies as actionable.\n" +
+    ").* YES";
+
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebClient webClient;

@@ -1,12 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
-export const Textbox = () => {
+export const Textbox = ({ onCalendarEventDetected }) => {
     const [input, setInput] = useState('');
     const [response, setResponse] = useState('');
     const [loading, setLoading] = useState(false);
+    const [hasCalendarEvent, setHasCalendarEvent] = useState(false);
     const abortControllerRef = useRef(null);
     const intervalRef = useRef(null);
     const responseBuilder = useRef('');
+    const responseEndRef = useRef(null);
+    const responseContainerRef = useRef(null);
 
     // Cleanup intervals on unmount
     useEffect(() => {
@@ -15,13 +20,53 @@ export const Textbox = () => {
         };
     }, []);
 
+    // Auto-scroll to bottom only if user hasn't manually scrolled up
+    useEffect(() => {
+        if (responseEndRef.current && responseContainerRef.current) {
+            const container = responseContainerRef.current;
+            const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
+            
+            if (isNearBottom || loading) {
+                responseEndRef.current.scrollIntoView({ 
+                    behavior: 'auto',
+                    block: 'nearest'
+                });
+            }
+        }
+    }, [response, loading]);
+
+    const extractCalendarEvents = (text) => {
+        const calendarRegex = /Calendar: (\d+) days (?:from today|a) (.+?)\.!\./g;
+        const events = [];
+        let match;
+        
+        while ((match = calendarRegex.exec(text)) !== null) {
+            const days = parseInt(match[1]);
+            const title = match[2].trim();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() + days);
+            
+            events.push({
+                title,
+                start: startDate.toISOString().split('T')[0]
+            });
+        }
+        
+        setHasCalendarEvent(events.length > 0);
+        return events;
+    };
+
     const extractResponse = (responseData) => {
         try {
             const responseText = typeof responseData === 'string' 
                 ? responseData 
                 : JSON.stringify(responseData, null, 2);
 
-            // Improved regex to better handle response parts
+            const calendarEvents = extractCalendarEvents(responseText);
+            if (calendarEvents.length > 0 && onCalendarEventDetected) {
+                onCalendarEventDetected(calendarEvents);
+            }
+
             const part2Match = responseText.match(/\*\*Part 2: Response\*\*([\s\S]*?)(?:\*\*Part 3:|$)/i);
             return part2Match && part2Match[1] 
                 ? cleanResponseText(part2Match[1]) 
@@ -41,8 +86,7 @@ export const Textbox = () => {
             .replace(/\\n/g, '\n')
             .replace(/\\"/g, '"')
             .replace(/\\u[\dA-F]{4}/gi, m => 
-                String.fromCharCode(parseInt(m.replace(/\\u/g, ''), 16))
-            )
+                String.fromCharCode(parseInt(m.replace(/\\u/g, ''), 16)))
             .split('\n')
             .map(line => line.trim())
             .filter(line => line && !line.match(/^[0-9.]+/) && !line.startsWith('-'))
@@ -56,23 +100,16 @@ export const Textbox = () => {
         
         if (intervalRef.current) clearInterval(intervalRef.current);
         
-        // Start with first character immediately
-        if (text.length > 0) {
-            responseBuilder.current = text.charAt(0);
-            setResponse(responseBuilder.current);
-        }
-        
-        // Stream remaining characters
-        let index = 1;
+        let index = 0;
         intervalRef.current = setInterval(() => {
             if (index < text.length) {
-                responseBuilder.current += text.charAt(index);
+                responseBuilder.current = text.substring(0, index + 1);
                 setResponse(responseBuilder.current);
                 index++;
             } else {
                 clearInterval(intervalRef.current);
             }
-        }, 20); // Adjust speed (20ms per character)
+        }, 20);
     };
 
     const handleSubmit = async (e) => {
@@ -83,6 +120,7 @@ export const Textbox = () => {
         abortControllerRef.current = controller;
         setLoading(true);
         setResponse('');
+        setHasCalendarEvent(false);
 
         try {
             const response = await fetch('http://localhost:8080/api/generate', {
@@ -114,6 +152,10 @@ export const Textbox = () => {
             } else {
                 console.error('API Error:', error);
                 setResponse(`ERROR: ${error.message}`);
+                toast.error(`Error: ${error.message}`, {
+                    position: 'bottom-right',
+                    autoClose: 5000
+                });
             }
         } finally {
             setLoading(false);
@@ -126,13 +168,13 @@ export const Textbox = () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
         setInput('');
         setResponse('');
+        setHasCalendarEvent(false);
         responseBuilder.current = '';
     };
 
     return (
         <div style={{ 
             padding: '20px', 
-            maxWidth: '800px', 
             margin: '0 auto',
             fontFamily: 'Arial, sans-serif'
         }}>
@@ -209,24 +251,33 @@ export const Textbox = () => {
                 </div>
             </form>
             
-            <div style={{
-                padding: '20px',
-                background: '#f8f9fa',
-                borderRadius: '8px',
-                minHeight: '200px',
-                maxHeight: '60vh',
-                overflowY: 'auto',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                border: '1px solid #dee2e6'
-            }}>
+            <div 
+                ref={responseContainerRef}
+                style={{
+                    padding: '20px',
+                    background: '#f8f9fa',
+                    borderRadius: '8px',
+                    minHeight: '200px',
+                    maxHeight: '60vh',
+                    overflowY: 'auto',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    border: '1px solid #dee2e6',
+                    textAlign: 'right',
+                    direction: 'rtl'
+                }}
+            >
                 <div style={{ 
                     whiteSpace: 'pre-wrap',
                     lineHeight: '1.6',
                     fontSize: '16px',
                     color: '#212529',
-                    fontFamily: 'monospace'
+                    fontFamily: 'monospace',
+                    direction: 'ltr',
+                    unicodeBidi: 'bidi-override',
+                    textAlign: 'left'
                 }}>
                     {response || (loading ? "Analyzing your request and crafting response..." : "Your response will appear here...")}
+                    <div ref={responseEndRef} />
                 </div>
             </div>
             
