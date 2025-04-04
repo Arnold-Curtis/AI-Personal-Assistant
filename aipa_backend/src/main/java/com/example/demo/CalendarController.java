@@ -2,6 +2,7 @@ package com.example.demo;
 
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -12,24 +13,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @RequestMapping("/api/calendar")
 public class CalendarController {
 
-    // Thread-safe event storage with sample data
-    private static final List<Map<String, String>> events = new CopyOnWriteArrayList<>(Arrays.asList(
-        createEvent("Team Meeting", LocalDate.now().plusDays(1)),
-        createEvent("Project Deadline", LocalDate.now().plusDays(3))
-    ));
-
-    private static Map<String, String> createEvent(String title, LocalDate date) {
-        Map<String, String> event = new HashMap<>();
-        event.put("id", UUID.randomUUID().toString());
-        event.put("title", title);
-        event.put("start", date.format(DateTimeFormatter.ISO_DATE));
-        return event;
-    }
+    // In-memory storage (replace with database repository in production)
+    private static final Map<String, List<Map<String, String>>> userEvents = new HashMap<>();
 
     @GetMapping("/events")
-    public ResponseEntity<?> getEvents() {
+    public ResponseEntity<?> getEvents(Authentication authentication) {
         try {
-            // Sort events by date before returning
+            String userId = getUserId(authentication);
+            List<Map<String, String>> events = userEvents.getOrDefault(userId, new ArrayList<>());
+            
+            // Sort events by date
             List<Map<String, String>> sortedEvents = new ArrayList<>(events);
             sortedEvents.sort(Comparator.comparing(e -> LocalDate.parse(e.get("start"))));
             
@@ -44,8 +37,12 @@ public class CalendarController {
     }
 
     @PostMapping("/add-event")
-    public ResponseEntity<?> addEvent(@RequestBody Map<String, String> eventRequest) {
+    public ResponseEntity<?> addEvent(
+            @RequestBody Map<String, String> eventRequest,
+            Authentication authentication) {
         try {
+            String userId = getUserId(authentication);
+            
             // Validate required fields
             if (eventRequest == null || !eventRequest.containsKey("title") || !eventRequest.containsKey("start")) {
                 return ResponseEntity.badRequest()
@@ -65,28 +62,31 @@ public class CalendarController {
                     ));
             }
 
-            // Create and store new event
+            // Create new event
             Map<String, String> newEvent = createEvent(
                 eventRequest.get("title").trim(),
                 eventDate
             );
 
+            // Initialize user's event list if not exists
+            userEvents.putIfAbsent(userId, new CopyOnWriteArrayList<>());
+            
             // Check for duplicates
-            boolean isDuplicate = events.stream()
+            boolean isDuplicate = userEvents.get(userId).stream()
                 .anyMatch(e -> e.get("start").equals(newEvent.get("start")) && 
                               e.get("title").equalsIgnoreCase(newEvent.get("title")));
             
             if (!isDuplicate) {
-                events.add(newEvent);
+                userEvents.get(userId).add(newEvent);
                 return ResponseEntity.status(HttpStatus.CREATED)
                     .body(newEvent);
             } else {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of(
                         "error", "Event already exists",
-                        "existingEvent", events.stream()
+                        "existingEvent", userEvents.get(userId).stream()
                             .filter(e -> e.get("start").equals(newEvent.get("start")) && 
-                                       e.get("title").equalsIgnoreCase(newEvent.get("title")))
+                                        e.get("title").equalsIgnoreCase(newEvent.get("title")))
                             .findFirst()
                             .orElse(null)
                     ));
@@ -101,9 +101,19 @@ public class CalendarController {
     }
 
     @DeleteMapping("/remove-event/{id}")
-    public ResponseEntity<?> removeEvent(@PathVariable String id) {
+    public ResponseEntity<?> removeEvent(
+            @PathVariable String id,
+            Authentication authentication) {
         try {
-            boolean removed = events.removeIf(e -> id.equals(e.get("id")));
+            String userId = getUserId(authentication);
+            
+            if (!userEvents.containsKey(userId)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User has no events"));
+            }
+
+            boolean removed = userEvents.get(userId).removeIf(e -> id.equals(e.get("id")));
+            
             return removed ? 
                 ResponseEntity.ok(Map.of(
                     "message", "Event removed successfully",
@@ -121,10 +131,20 @@ public class CalendarController {
     }
 
     @DeleteMapping("/clear-events")
-    public ResponseEntity<?> clearEvents() {
+    public ResponseEntity<?> clearEvents(Authentication authentication) {
         try {
-            int count = events.size();
-            events.clear();
+            String userId = getUserId(authentication);
+            
+            if (!userEvents.containsKey(userId)) {
+                return ResponseEntity.ok(Map.of(
+                    "message", "No events to clear",
+                    "count", 0
+                ));
+            }
+
+            int count = userEvents.get(userId).size();
+            userEvents.get(userId).clear();
+            
             return ResponseEntity.ok(Map.of(
                 "message", "All events cleared",
                 "count", count
@@ -136,5 +156,20 @@ public class CalendarController {
                     "details", e.getMessage()
                 ));
         }
+    }
+
+    private Map<String, String> createEvent(String title, LocalDate date) {
+        Map<String, String> event = new HashMap<>();
+        event.put("id", UUID.randomUUID().toString());
+        event.put("title", title);
+        event.put("start", date.format(DateTimeFormatter.ISO_DATE));
+        event.put("allDay", "true");
+        return event;
+    }
+
+    private String getUserId(Authentication authentication) {
+        // In a real application, get user ID from authentication principal
+        // This is a placeholder implementation
+        return authentication != null ? authentication.getName() : "default-user";
     }
 }

@@ -3039,3 +3039,63 @@ Final Decision:
 
 ========================
 
+=== Analysis Result ===
+Timestamp: 2025-04-03T08:35:03.002389800Z
+User Input: Whats up man 
+Final Decision: no
+Response Analysis:
+Okay, I understand the task. I will analyze the input, provide my reasoning in the "Thinking Space," and then provide a final "YES" or "NO" decision.
+
+Here's the input:
+"Whats up man"
+Output:
+Thinking Space:
+No actionable verb detected. The phrase is a greeting, not a task.
+No timeframe mentioned.
+No indication of resources, specific goals, or dependencies.
+This is purely conversational with no clear task to complete.
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-03T08:35:14.009904900Z
+User Input: Whats up man 
+Final Decision: no
+Response Analysis:
+Okay, I'm ready to analyze the input and determine if it's actionable or non-actionable.
+
+Input:
+"Whats up man"
+
+Thinking Space:
+No actionable verb detected.
+No timeframe mentioned.
+No indication of resources, specific goals, or dependencies.
+This is purely conversational with no clear task to complete.
+
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-03T13:31:28.644941300Z
+User Input: Hey man my birthday is in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man my birthday is in 2 weeks"
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The birthday is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (celebrating a birthday) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+).* YES
+
+========================
+

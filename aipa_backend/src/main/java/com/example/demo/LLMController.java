@@ -224,7 +224,7 @@ public class LLMController {
                 .path("text")
                 .asText();
         } catch (Exception e) {
-            System.err.println("Failed to parse Gemini response:k " + responseNode);
+            System.err.println("Failed to parse Gemini response: " + responseNode);
             return "{\"error\": \"Failed to parse API response\"}";
         }
     }
