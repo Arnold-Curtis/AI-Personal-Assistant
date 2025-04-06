@@ -48,7 +48,10 @@ export const Textbox = ({ onCalendarEventDetected }) => {
             
             events.push({
                 title,
-                start: startDate.toISOString().split('T')[0]
+                start: startDate.toISOString().split('T')[0],
+                isAllDay: true,
+                eventColor: "#3b82f6", // Default blue color
+                description: `Event generated from AI: ${title}`
             });
         }
         
@@ -123,36 +126,27 @@ export const Textbox = ({ onCalendarEventDetected }) => {
         setHasCalendarEvent(false);
 
         try {
-            const response = await fetch('http://localhost:8080/api/generate', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ prompt: input }),
-                signal: controller.signal
-            });
+            // Using relative URL instead of absolute URL to ensure auth token is included
+            const response = await axios.post('/api/generate', 
+                { prompt: input }, 
+                { signal: controller.signal }
+            );
 
-            const responseText = await response.text();
-
-            if (!response.ok) {
-                throw new Error(
-                    responseText.startsWith('{') 
-                        ? JSON.parse(responseText).error 
-                        : `Server error: ${response.status}`
-                );
-            }
+            // axios automatically parses JSON, so we can directly access response.data
+            const responseText = typeof response.data === 'string'
+                ? response.data
+                : JSON.stringify(response.data, null, 2);
 
             const processed = extractResponse(responseText);
             simulateStreaming(processed);
 
         } catch (error) {
-            if (error.name === 'AbortError') {
+            if (error.name === 'CanceledError' || error.name === 'AbortError') {
                 setResponse("Request cancelled by user");
             } else {
                 console.error('API Error:', error);
-                setResponse(`ERROR: ${error.message}`);
-                toast.error(`Error: ${error.message}`, {
+                setResponse(`ERROR: ${error.message || 'Unknown error'}`);
+                toast.error(`Error: ${error.message || 'Unknown error'}`, {
                     position: 'bottom-right',
                     autoClose: 5000
                 });

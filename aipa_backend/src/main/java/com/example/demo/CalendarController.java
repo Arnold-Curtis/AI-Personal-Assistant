@@ -1,175 +1,227 @@
 package com.example.demo;
 
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/calendar")
 public class CalendarController {
 
-    // In-memory storage (replace with database repository in production)
-    private static final Map<String, List<Map<String, String>>> userEvents = new HashMap<>();
+    private static final Logger logger = Logger.getLogger(CalendarController.class.getName());
 
-    @GetMapping("/events")
-    public ResponseEntity<?> getEvents(Authentication authentication) {
-        try {
-            String userId = getUserId(authentication);
-            List<Map<String, String>> events = userEvents.getOrDefault(userId, new ArrayList<>());
-            
-            // Sort events by date
-            List<Map<String, String>> sortedEvents = new ArrayList<>(events);
-            sortedEvents.sort(Comparator.comparing(e -> LocalDate.parse(e.get("start"))));
-            
-            return ResponseEntity.ok(sortedEvents);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of(
-                    "error", "Failed to retrieve events",
-                    "details", e.getMessage()
-                ));
-        }
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+
+    public CalendarController(JwtUtil jwtUtil, UserRepository userRepository) {
+        this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/add-event")
-    public ResponseEntity<?> addEvent(
-            @RequestBody Map<String, String> eventRequest,
-            Authentication authentication) {
+    @Transactional
+    public ResponseEntity<?> addEvent(@RequestBody CalendarEvent event, 
+                                    HttpServletRequest request) {
         try {
-            String userId = getUserId(authentication);
+            String token = extractToken(request);
+            String email = jwtUtil.extractUsername(token);
+            User user = userRepository.findByEmail(email);
             
-            // Validate required fields
-            if (eventRequest == null || !eventRequest.containsKey("title") || !eventRequest.containsKey("start")) {
+            if (user == null) {
+                return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+            }
+
+            // If event has an ID, it's an update
+            if (event.getId() != null) {
+                return updateEvent(event, user);
+            }
+
+            // Check for duplicate events
+            List<CalendarEvent> existingEvents = entityManager
+                .createQuery("SELECT e FROM CalendarEvent e WHERE e.title = :title AND e.start = :start AND e.user = :user", CalendarEvent.class)
+                .setParameter("title", event.getTitle())
+                .setParameter("start", event.getStart())
+                .setParameter("user", user)
+                .getResultList();
+            
+            if (!existingEvents.isEmpty()) {
                 return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Both 'title' and 'start' fields are required"));
+                    .body(Map.of("error", "Event already exists"));
             }
 
-            // Validate date format
-            LocalDate eventDate;
-            try {
-                eventDate = LocalDate.parse(eventRequest.get("start"));
-            } catch (DateTimeParseException e) {
-                return ResponseEntity.badRequest()
-                    .body(Map.of(
-                        "error", "Invalid date format",
-                        "expectedFormat", "YYYY-MM-DD",
-                        "received", eventRequest.get("start")
-                    ));
-            }
-
-            // Create new event
-            Map<String, String> newEvent = createEvent(
-                eventRequest.get("title").trim(),
-                eventDate
-            );
-
-            // Initialize user's event list if not exists
-            userEvents.putIfAbsent(userId, new CopyOnWriteArrayList<>());
+            event.setUser(user);
+            entityManager.persist(event);
             
-            // Check for duplicates
-            boolean isDuplicate = userEvents.get(userId).stream()
-                .anyMatch(e -> e.get("start").equals(newEvent.get("start")) && 
-                              e.get("title").equalsIgnoreCase(newEvent.get("title")));
+            // Return a converted DTO to avoid circular references
+            Map<String, Object> eventDto = convertToDto(event);
+            return ResponseEntity.ok(eventDto);
             
-            if (!isDuplicate) {
-                userEvents.get(userId).add(newEvent);
-                return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(newEvent);
-            } else {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of(
-                        "error", "Event already exists",
-                        "existingEvent", userEvents.get(userId).stream()
-                            .filter(e -> e.get("start").equals(newEvent.get("start")) && 
-                                        e.get("title").equalsIgnoreCase(newEvent.get("title")))
-                            .findFirst()
-                            .orElse(null)
-                    ));
-            }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of(
-                    "error", "Failed to add event",
-                    "details", e.getMessage()
-                ));
+            logger.severe("Error adding event: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized: " + e.getMessage()));
         }
     }
 
-    @DeleteMapping("/remove-event/{id}")
-    public ResponseEntity<?> removeEvent(
-            @PathVariable String id,
-            Authentication authentication) {
+    @Transactional
+    private ResponseEntity<?> updateEvent(CalendarEvent updatedEvent, User user) {
         try {
-            String userId = getUserId(authentication);
+            CalendarEvent existingEvent = entityManager.find(CalendarEvent.class, updatedEvent.getId());
             
-            if (!userEvents.containsKey(userId)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User has no events"));
+            if (existingEvent == null || !existingEvent.getUser().equals(user)) {
+                return ResponseEntity.status(404).body(Map.of("error", "Event not found"));
             }
-
-            boolean removed = userEvents.get(userId).removeIf(e -> id.equals(e.get("id")));
             
-            return removed ? 
-                ResponseEntity.ok(Map.of(
-                    "message", "Event removed successfully",
-                    "removedId", id
-                )) :
-                ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Event not found"));
+            // Update fields
+            existingEvent.setTitle(updatedEvent.getTitle());
+            if (updatedEvent.getDescription() != null) {
+                existingEvent.setDescription(updatedEvent.getDescription());
+            }
+            if (updatedEvent.getStart() != null) {
+                existingEvent.setStart(updatedEvent.getStart());
+            }
+            if (updatedEvent.getAllDay() != null) {
+                existingEvent.setAllDay(updatedEvent.getAllDay());
+            }
+            if (updatedEvent.getEventColor() != null) {
+                existingEvent.setEventColor(updatedEvent.getEventColor());
+            }
+            
+            entityManager.merge(existingEvent);
+            
+            logger.info("Event updated successfully: " + existingEvent.getId());
+            return ResponseEntity.ok(convertToDto(existingEvent));
+            
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of(
-                    "error", "Failed to remove event",
-                    "details", e.getMessage()
-                ));
+            logger.severe("Error updating event: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to update event: " + e.getMessage()));
         }
     }
 
-    @DeleteMapping("/clear-events")
-    public ResponseEntity<?> clearEvents(Authentication authentication) {
+    @GetMapping("/events")
+    public ResponseEntity<?> getEvents(HttpServletRequest request) {
         try {
-            String userId = getUserId(authentication);
+            String token = extractToken(request);
+            String email = jwtUtil.extractUsername(token);
+            User user = userRepository.findByEmail(email);
             
-            if (!userEvents.containsKey(userId)) {
-                return ResponseEntity.ok(Map.of(
-                    "message", "No events to clear",
-                    "count", 0
-                ));
+            if (user == null) {
+                return ResponseEntity.status(404).body(Map.of("error", "User not found"));
             }
 
-            int count = userEvents.get(userId).size();
-            userEvents.get(userId).clear();
+            List<CalendarEvent> events = entityManager
+                .createQuery("SELECT e FROM CalendarEvent e WHERE e.user = :user", CalendarEvent.class)
+                .setParameter("user", user)
+                .getResultList();
             
-            return ResponseEntity.ok(Map.of(
-                "message", "All events cleared",
-                "count", count
-            ));
+            // Convert to DTOs to prevent serialization issues
+            List<Map<String, Object>> eventDtos = new ArrayList<>();
+            for (CalendarEvent event : events) {
+                eventDtos.add(convertToDto(event));
+            }
+            
+            return ResponseEntity.ok(eventDtos);
+            
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of(
-                    "error", "Failed to clear events",
-                    "details", e.getMessage()
-                ));
+            logger.severe("Error retrieving events: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized: " + e.getMessage()));
         }
     }
 
-    private Map<String, String> createEvent(String title, LocalDate date) {
-        Map<String, String> event = new HashMap<>();
-        event.put("id", UUID.randomUUID().toString());
-        event.put("title", title);
-        event.put("start", date.format(DateTimeFormatter.ISO_DATE));
-        event.put("allDay", "true");
-        return event;
+    @DeleteMapping("/events/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteEvent(@PathVariable Long id,
+                                       HttpServletRequest request) {
+        try {
+            String token = extractToken(request);
+            String email = jwtUtil.extractUsername(token);
+            User user = userRepository.findByEmail(email);
+            
+            if (user == null) {
+                return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+            }
+
+            CalendarEvent event = entityManager.find(CalendarEvent.class, id);
+            if (event == null || !event.getUser().equals(user)) {
+                return ResponseEntity.status(404).body(Map.of("error", "Event not found"));
+            }
+            
+            entityManager.remove(event);
+            return ResponseEntity.ok(Map.of("message", "Event deleted successfully"));
+            
+        } catch (Exception e) {
+            logger.severe("Error deleting event: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized: " + e.getMessage()));
+        }
     }
 
-    private String getUserId(Authentication authentication) {
-        // In a real application, get user ID from authentication principal
-        // This is a placeholder implementation
-        return authentication != null ? authentication.getName() : "default-user";
+    @GetMapping("/events/upcoming")
+    public ResponseEntity<?> getUpcomingEvents(HttpServletRequest request) {
+        try {
+            String token = extractToken(request);
+            String email = jwtUtil.extractUsername(token);
+            User user = userRepository.findByEmail(email);
+            
+            if (user == null) {
+                return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+            }
+
+            LocalDate today = LocalDate.now();
+            List<CalendarEvent> upcomingEvents = entityManager
+                .createQuery("SELECT e FROM CalendarEvent e WHERE e.user = :user AND e.start >= :today ORDER BY e.start", CalendarEvent.class)
+                .setParameter("user", user)
+                .setParameter("today", today)
+                .getResultList();
+            
+            // Convert to DTOs to prevent serialization issues
+            List<Map<String, Object>> eventDtos = new ArrayList<>();
+            for (CalendarEvent event : upcomingEvents) {
+                eventDtos.add(convertToDto(event));
+            }
+                
+            return ResponseEntity.ok(eventDtos);
+            
+        } catch (Exception e) {
+            logger.severe("Error retrieving upcoming events: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Converts a CalendarEvent entity to a Map DTO to avoid circular reference issues
+     */
+    private Map<String, Object> convertToDto(CalendarEvent event) {
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("id", event.getId());
+        dto.put("title", event.getTitle());
+        dto.put("start", event.getStart().toString());
+        dto.put("description", event.getDescription());
+        dto.put("isAllDay", event.getAllDay());
+        dto.put("eventColor", event.getEventColor());
+        return dto;
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
+        }
+        return authHeader.substring(7);
     }
 }

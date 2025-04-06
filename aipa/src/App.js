@@ -7,10 +7,11 @@ import { Textbox } from './Textbox';
 import { Calendar } from './Calendar';
 import { Login } from './Login';
 
-// Set the base URL for all API requests
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+// Configure axios defaults
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+axios.defaults.baseURL = API_BASE_URL;
 
-// Configure axios to include credentials and handle errors globally
+// Add request interceptor to include token
 axios.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -21,6 +22,7 @@ axios.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
+// Add response interceptor to handle errors
 axios.interceptors.response.use(
   response => response,
   error => {
@@ -40,24 +42,62 @@ function App() {
   const [user, setUser] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [backendOnline, setBackendOnline] = useState(true);
   const calendarRef = useRef(null);
+  
+  // Check backend health periodically
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        await axios.get('/api/health');
+        if (!backendOnline) {
+          setBackendOnline(true);
+          toast.success("Backend connection restored!");
+        }
+      } catch (error) {
+        if (backendOnline) {
+          setBackendOnline(false);
+          toast.error("Backend connection lost. Some features may not work.", { 
+            autoClose: false,
+            toastId: 'backend-offline'
+          });
+        }
+      }
+    };
+    
+    checkHealth();
+    const interval = setInterval(checkHealth, 30000); // every 30 seconds
+    return () => clearInterval(interval);
+  }, [backendOnline]);
 
-  // Check authentication status and load user data
+  // Check authentication status on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
           const response = await axios.get('/api/auth/me');
+          
+          // Fix profile image URL by ensuring it has the full server path
+          let profileImageUrl = response.data.profileImageUrl;
+          
+          // If it's a relative URL (starts with /), prepend the API base URL
+          if (profileImageUrl && profileImageUrl.startsWith('/uploads/')) {
+            profileImageUrl = `${API_BASE_URL}${profileImageUrl}`;
+          }
+          
+          console.log("Profile image URL:", profileImageUrl);
+          
           setUser({
             ...response.data,
-            profileImageUrl: response.data.profileImageUrl || getDefaultAvatar(response.data.email)
+            profileImageUrl: profileImageUrl || getDefaultAvatar(response.data.email)
           });
+          
           await loadEvents();
         }
       } catch (error) {
         console.error('Authentication check failed:', error);
-        localStorage.removeItem('token');
+        handleLogout();
       } finally {
         setLoading(false);
       }
@@ -72,27 +112,55 @@ function App() {
 
   const loadEvents = async () => {
     try {
+      console.log("Loading calendar events...");
       const response = await axios.get('/api/calendar/events');
-      setEvents(response.data);
+      console.log("Calendar events received:", response.data);
+      
+      if (Array.isArray(response.data)) {
+        setEvents(response.data);
+        
+        // Refresh calendar if ref exists
+        if (calendarRef.current && calendarRef.current.refreshEvents) {
+          setTimeout(() => calendarRef.current.refreshEvents(), 500);
+        }
+      } else {
+        console.error("Invalid events format received:", response.data);
+        toast.error("Invalid calendar data format received");
+      }
     } catch (error) {
       console.error('Failed to load events:', error);
-      toast.error('Failed to load calendar events');
+      if (error.response?.status === 401) {
+        toast.error('Authentication error. Please log in again.');
+        handleLogout();
+      } else {
+        toast.error('Failed to load calendar events');
+      }
     }
   };
 
   const handleLogin = (userData) => {
     localStorage.setItem('token', userData.token);
+    
+    // Fix profile image URL for newly logged in user
+    let profileImageUrl = userData.user.profileImageUrl;
+    if (profileImageUrl && profileImageUrl.startsWith('/uploads/')) {
+      profileImageUrl = `${API_BASE_URL}${profileImageUrl}`;
+    }
+    
     setUser({
       ...userData.user,
-      profileImageUrl: userData.user.profileImageUrl || getDefaultAvatar(userData.user.email)
+      profileImageUrl: profileImageUrl || getDefaultAvatar(userData.user.email)
     });
+    
     loadEvents();
+    toast.success('Login successful! Loading your data...');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null);
     setEvents([]);
+    toast.info('You have been logged out');
   };
 
   const handleAddEvent = async (eventData) => {
@@ -100,6 +168,9 @@ function App() {
       const response = await axios.post('/api/calendar/add-event', eventData);
       setEvents(prev => [...prev, response.data]);
       toast.success('Event added successfully!');
+      
+      // Refresh calendar data after adding event
+      setTimeout(loadEvents, 500);
     } catch (error) {
       console.error('Failed to add event:', error);
       toast.error(error.response?.data?.error || 'Failed to add event');
@@ -116,11 +187,16 @@ function App() {
       setEvents(prev => [...prev, ...addedEvents]);
       toast.success(`${addedEvents.length} event(s) added from text!`);
       
-      if (calendarRef.current) {
-        setTimeout(() => {
-          calendarRef.current.scrollIntoView({ behavior: 'smooth' });
-        }, 300);
-      }
+      // Use document.querySelector instead of ref for scrolling
+      setTimeout(() => {
+        const calendarElement = document.querySelector('.calendar-container');
+        if (calendarElement) {
+          calendarElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500);
+      
+      // Refresh calendar data after adding events
+      setTimeout(loadEvents, 1000);
     } catch (error) {
       console.error('Failed to add events from text:', error);
       toast.error(error.response?.data?.error || 'Failed to add events from text');
@@ -150,7 +226,9 @@ function App() {
             alt="Profile" 
             className="profile-photo"
             onClick={handleLogout}
+            title="Click to log out"
             onError={(e) => {
+              console.error("Error loading profile image:", e.target.src);
               e.target.onerror = null;
               e.target.src = getDefaultAvatar(user.email);
             }}
@@ -165,7 +243,8 @@ function App() {
         />
         <Calendar 
           ref={calendarRef}
-          events={events} 
+          events={events}
+          backendOnline={backendOnline}
         />
       </main>
 

@@ -1,7 +1,9 @@
 package com.example.demo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "calendar_events")
@@ -28,6 +30,7 @@ public class CalendarEvent {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore  // Add this annotation to break the circular reference
     private User user;
 
     // Constructors
@@ -37,6 +40,12 @@ public class CalendarEvent {
     public CalendarEvent(String title, LocalDate start) {
         this.title = title;
         this.start = start;
+    }
+
+    public CalendarEvent(String title, LocalDate start, User user) {
+        this.title = title;
+        this.start = start;
+        this.user = user;
     }
 
     // Getters and Setters
@@ -96,7 +105,44 @@ public class CalendarEvent {
         this.user = user;
     }
 
-    // Helper methods
+    /**
+     * Updates this event's properties from another event
+     * @param updatedEvent The event containing updated properties
+     */
+    public void updateFrom(CalendarEvent updatedEvent) {
+        if (updatedEvent.getTitle() != null) {
+            this.title = updatedEvent.getTitle();
+        }
+        if (updatedEvent.getStart() != null) {
+            this.start = updatedEvent.getStart();
+        }
+        if (updatedEvent.getDescription() != null) {
+            this.description = updatedEvent.getDescription();
+        }
+        if (updatedEvent.getAllDay() != null) {
+            this.isAllDay = updatedEvent.getAllDay();
+        }
+        if (updatedEvent.getEventColor() != null) {
+            this.eventColor = updatedEvent.getEventColor();
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CalendarEvent that = (CalendarEvent) o;
+        return Objects.equals(id, that.id) ||
+               (Objects.equals(title, that.title) && 
+                Objects.equals(start, that.start) && 
+                Objects.equals(user, that.user));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, start, user);
+    }
+
     @Override
     public String toString() {
         return "CalendarEvent{" +

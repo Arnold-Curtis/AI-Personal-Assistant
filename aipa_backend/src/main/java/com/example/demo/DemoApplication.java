@@ -9,6 +9,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.file.*;
 import java.io.IOException;
@@ -23,9 +25,11 @@ import org.springframework.lang.NonNull;
 public class DemoApplication {
 
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
-    public DemoApplication(UserRepository userRepository) {
+    public DemoApplication(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public static void main(String[] args) {
@@ -155,22 +159,19 @@ public class DemoApplication {
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body(Map.of(
-                "error", "Unauthorized"
-            ));
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
         }
         
-        // Token is extracted but not used in this example implementation
         String token = authHeader.substring(7);
+        if (!jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
         
-        // In a real implementation, you would validate the token and get the user
-        // This is just a placeholder implementation
-        User user = userRepository.findByEmail("user@example.com");
+        String email = jwtUtil.extractUsername(token);
+        User user = userRepository.findByEmail(email);
         
         if (user == null) {
-            return ResponseEntity.status(404).body(Map.of(
-                "error", "User not found"
-            ));
+            return ResponseEntity.status(404).body(Map.of("error", "User not found"));
         }
         
         return ResponseEntity.ok(createUserResponse(user));
@@ -182,8 +183,14 @@ public class DemoApplication {
     }
 
     private Map<String, Object> createAuthResponse(User user) {
+        UserDetails userDetails = org.springframework.security.core.userdetails.User
+            .withUsername(user.getEmail())
+            .password(user.getPassword())
+            .authorities("USER")
+            .build();
+        
         Map<String, Object> response = new HashMap<>();
-        response.put("token", UUID.randomUUID().toString()); // Replace with JWT in production
+        response.put("token", jwtUtil.generateToken(userDetails));
         response.put("user", createUserResponse(user));
         return response;
     }
