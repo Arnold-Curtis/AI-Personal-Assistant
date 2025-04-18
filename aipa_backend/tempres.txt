@@ -1,14 +1,14 @@
-Generated at: 2025-04-06T10:43:07.228023100Z
+Generated at: 2025-04-18T09:21:39.181016300Z
 )*!
 **Part 1: Analysis**
-- "wedding in a week" → Calendar: 7 days Wedding
+- "wedding in 2 weeks" → Calendar: 14 days Wedding
 )*!
 **Part 2: Response**
-Okay, I see you have a wedding coming up in a week! It is now added to your calendar. Just let me know if there is anything I can do to help!
+I see you have a wedding to attend in two weeks! That's going to be fun. The wedding event has been added to the calendar.
 )*!
 **Part 3: Categories**
-Calendar: 7 days from today Wedding.!..!.Plan:
-      Step 1: 
-      Step 2: 
-      Step 3: 
-      ..!.Suggestions: []..!.
+Calendar: 14 days from today Wedding..!.Plan:
+   Step 1: [Null]
+   Step 2: [Null]
+   Step 3: [Null]
+   ..!.Suggestions: [Null]..!.

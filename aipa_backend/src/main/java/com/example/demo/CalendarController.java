@@ -12,6 +12,11 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import org.hibernate.Session;
 
 @RestController
 @RequestMapping("/api/calendar")
@@ -144,9 +149,9 @@ public class CalendarController {
 
     @DeleteMapping("/events/{id}")
     @Transactional
-    public ResponseEntity<?> deleteEvent(@PathVariable Long id,
-                                       HttpServletRequest request) {
+    public ResponseEntity<?> deleteEvent(@PathVariable Long id, HttpServletRequest request) {
         try {
+            // First authenticate the user
             String token = extractToken(request);
             String email = jwtUtil.extractUsername(token);
             User user = userRepository.findByEmail(email);
@@ -155,18 +160,28 @@ public class CalendarController {
                 return ResponseEntity.status(404).body(Map.of("error", "User not found"));
             }
 
+            // Verify the event belongs to this user
             CalendarEvent event = entityManager.find(CalendarEvent.class, id);
-            if (event == null || !event.getUser().equals(user)) {
+            
+            if (event == null) {
                 return ResponseEntity.status(404).body(Map.of("error", "Event not found"));
             }
             
+            if (!event.getUser().equals(user)) {
+                return ResponseEntity.status(403).body(Map.of("error", "You don't have permission to delete this event"));
+            }
+            
+            // Use JPA to delete the event - this is safer and handles transactions correctly
             entityManager.remove(event);
+            entityManager.flush(); // Force immediate execution of the delete
+            
+            logger.info("Event deleted successfully via JPA: " + id);
             return ResponseEntity.ok(Map.of("message", "Event deleted successfully"));
             
         } catch (Exception e) {
             logger.severe("Error deleting event: " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("error", "Database error: " + e.getMessage()));
         }
     }
 
