@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import { Textbox } from './Textbox';
 import { Calendar } from './Calendar';
+import { Plan } from './Plan';
 import { Login } from './Login';
 
 // Configure axios defaults
@@ -41,6 +42,7 @@ axios.interceptors.response.use(
 function App() {
   const [user, setUser] = useState(null);
   const [events, setEvents] = useState([]);
+  const [planSteps, setPlanSteps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [backendOnline, setBackendOnline] = useState(true);
   const calendarRef = useRef(null);
@@ -160,6 +162,7 @@ function App() {
     localStorage.removeItem('token');
     setUser(null);
     setEvents([]);
+    setPlanSteps([]);  // Clear plan data on logout
     toast.info('You have been logged out');
   };
 
@@ -240,7 +243,15 @@ function App() {
         <Textbox 
           onSubmit={handleAddEvent} 
           onCalendarEventDetected={handleAddEventFromText}
+          onPlanDetected={setPlanSteps}
         />
+        
+        {/* Plan component will only display if planSteps has items */}
+        <Plan 
+          planData={planSteps} 
+          onUpdatePlan={(updatedPlan) => setPlanSteps(updatedPlan)} 
+        />
+        
         <Calendar 
           ref={calendarRef}
           events={events}

@@ -209,6 +209,11 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <!-- Add SQLCipher repository -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>

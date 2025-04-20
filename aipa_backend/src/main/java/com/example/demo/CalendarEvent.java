@@ -27,6 +27,9 @@ public class CalendarEvent {
 
     @Column(name = "event_color")
     private String eventColor;
+    
+    @Column(name = "plan_title")
+    private String planTitle;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -97,6 +100,14 @@ public class CalendarEvent {
         this.eventColor = eventColor;
     }
 
+    public String getPlanTitle() {
+        return planTitle;
+    }
+
+    public void setPlanTitle(String planTitle) {
+        this.planTitle = planTitle;
+    }
+
     public User getUser() {
         return user;
     }
@@ -125,6 +136,9 @@ public class CalendarEvent {
         if (updatedEvent.getEventColor() != null) {
             this.eventColor = updatedEvent.getEventColor();
         }
+        if (updatedEvent.getPlanTitle() != null) {
+            this.planTitle = updatedEvent.getPlanTitle();
+        }
     }
 
     @Override
@@ -152,6 +166,7 @@ public class CalendarEvent {
                 ", description='" + description + '\'' +
                 ", isAllDay=" + isAllDay +
                 ", eventColor='" + eventColor + '\'' +
+                ", planTitle='" + planTitle + '\'' +
                 '}';
     }
 }

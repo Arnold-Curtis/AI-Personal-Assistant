@@ -106,6 +106,7 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
   const [eventDescription, setEventDescription] = useState('');
+  const [eventPlanTitle, setEventPlanTitle] = useState('');
   const [lastDeletedEvent, setLastDeletedEvent] = useState(null);
   const [undoTimerId, setUndoTimerId] = useState(null);
   const [showUndoButton, setShowUndoButton] = useState(false);
@@ -362,6 +363,9 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     }
     
     // Now select the new event
+    console.log('Event clicked:', info.event);
+    console.log('Event extendedProps:', info.event.extendedProps);
+    console.log('Plan title value:', info.event.extendedProps?.planTitle);
     setSelectedEvent(info.event);
   };
 
@@ -488,8 +492,12 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
   const openEditModal = () => {
     if (!selectedEvent) return;
     
+    console.log('Selected event data:', selectedEvent);
+    console.log('Plan title from event:', selectedEvent.extendedProps.planTitle);
+    
     setEventTitle(selectedEvent.title);
     setEventDescription(selectedEvent.extendedProps.description || '');
+    setEventPlanTitle(selectedEvent.extendedProps.planTitle || '');
     setIsEditModalOpen(true);
   };
 
@@ -497,6 +505,7 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     setIsEditModalOpen(false);
     setEventTitle('');
     setEventDescription('');
+    setEventPlanTitle('');
   };
 
   const handleSaveEvent = async () => {
@@ -511,7 +520,8 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
       const updatedEvent = {
         ...selectedEvent.extendedProps,
         title: eventTitle.trim(),
-        description: eventDescription.trim()
+        description: eventDescription.trim(),
+        planTitle: eventPlanTitle // Preserve plan title when updating
       };
       
       await axios.post('/api/calendar/add-event', updatedEvent);
@@ -679,6 +689,15 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
                 rows={5}
               />
             </div>
+            {console.log('Edit modal rendering, eventPlanTitle value:', eventPlanTitle, typeof eventPlanTitle)}
+            {eventPlanTitle && eventPlanTitle.trim() !== '' && (
+              <div className="form-group plan-title-box">
+                <label>Part of Plan</label>
+                <button className="plan-title-button" type="button">
+                  {eventPlanTitle}
+                </button>
+              </div>
+            )}
             <div className="modal-footer">
               <button 
                 className="save-button" 

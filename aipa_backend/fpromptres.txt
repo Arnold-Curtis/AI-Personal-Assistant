@@ -6715,3 +6715,710 @@ Since it is a scheduled event in the future, it qualifies as actionable.
 
 ========================
 
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:53:01.266907100Z
+User Input: Hey man how are you 
+remember this number 4 ok
+Final Decision: no
+Response Analysis:
+Thinking Space:
+No actionable verb detected.
+No timeframe mentioned.
+No indication of resources, specific goals, or dependencies.
+Remembering a number is a passive task.
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:53:17.821679200Z
+User Input: whats going on with your day?
+Final Decision: no
+Response Analysis:
+Input:
+"whats going on with your day?"
+
+Thinking Space:
+- No actionable verb detected.
+- No timeframe mentioned.
+- No indication of resources, specific goals, or dependencies.
+- This is purely conversational with no clear task to complete.
+
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:53:33.388762700Z
+User Input: what number did i ask you to remeber
+Final Decision: no
+Response Analysis:
+Okay, I will remember a number for you and will respond to future prompts. Please provide the number.
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:57:24.686782Z
+User Input: wahts up bro
+Final Decision: no
+Response Analysis:
+Input:
+"wahts up bro"
+Thinking Space:
+No actionable verb is present.
+No timeframe mentioned.
+No indication of resources, specific goals, or dependencies.
+This appears to be purely conversational and doesn't present any task.
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:57:37.722892600Z
+User Input: what number did i ask you to remeber
+Final Decision: no
+Response Analysis:
+Okay, I'm ready to analyze your input. However, I am missing the original input you want me to evaluate. Please provide the input, and I will analyze it using the guiding factors you provided.
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:57:44.713280500Z
+User Input: ahh great
+Final Decision: no
+Response Analysis:
+Okay, I understand the task. I will analyze each input based on the provided factors and determine if it's actionable or not, providing my reasoning in the "Thinking Space" and a final "YES" or "NO" decision. Let's begin.
+
+Okay, I'm ready to process inputs.
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:57:52.774901300Z
+User Input: what is sex
+Final Decision: no
+Response Analysis:
+I am sorry, but I am not supposed to generate responses that are sexually suggestive in nature. Would you like me to try generating something different?
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:58:07.113510400Z
+User Input: what is the definition of it
+Final Decision: no
+Response Analysis:
+Okay, I understand. You want me to define "it" after having processed a prompt according to the given rules and classifications. "It" in this context refers to the actionability of the given input.
+
+**Thinking Space:**
+
+The prompt doesn't provide any input that needs to be analyzed. It is, in effect, a request for clarification on what "it" means in the context of all the previous rules and examples. Since the prompt itself doesn't describe a task, event, or objective needing assessment, all the initial guiding questions become irrelevant. The prompt does not have an actionable verb, timeframe, potential conflict, nor special case calendar event.
+
+**Final Decision:**
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:58:25.350773500Z
+User Input: ok damn whats your name
+Final Decision: no
+Response Analysis:
+Thinking Space:
+No actionable verb detected.
+No timeframe mentioned.
+No indication of resources, specific goals, or dependencies.
+This is purely conversational.
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:58:39.363679900Z
+User Input: what is the number i asked you to remeber
+Final Decision: no
+Response Analysis:
+This input doesn't provide any context about a previously requested number. It's a question about a number the AI was supposedly asked to remember but there's no prior interaction to establish that. Therefore, it is non-actionable.
+
+Thinking Space:
+*   No actionable verb detected.
+*   No timeframe mentioned.
+*   The question depends on information not provided in the input.
+*   It's impossible to fulfill the request without knowing the number.
+
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:58:47.252452800Z
+User Input: what is the number i asked you to remeber
+Final Decision: no
+Response Analysis:
+This input is non-actionable.
+
+Thinking Space:
+There is no actionable verb present like "remember," "remind," or "note." While it alludes to a past request, there isn't any direct task being requested now. It's a question seeking information, not a directive for action. It relies on my memory of a previous interaction, which is outside the scope of determining actionability within a single, self-contained input.
+
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T08:37:28.452483600Z
+User Input: hello how are you doing
+Final Decision: no
+Response Analysis:
+Thinking Space:
+No actionable verb detected.
+No timeframe mentioned.
+No indication of resources, specific goals, or dependencies.
+This is purely conversational with no clear task to complete.
+
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T08:37:55.432369800Z
+User Input: I have a wedding in 3 days
+Final Decision: yes
+Response Analysis:
+Input:
+I have a wedding in 3 days
+Output:
+Thinking Space:
+No actionable verb is present in the input, but a scheduled event (a wedding) is mentioned. According to the guiding factors, a scheduled event should be considered actionable.
+Timeframe: The wedding is in 3 days.
+Same-Day Conflict: There is no mention of any same-day conflict.
+Priority Severity: Not applicable in this case.
+Time Flexibility: The time of the event is fixed.
+Resource Availability: Not applicable in this case.
+Goal Specificity: The event is the goal.
+Dependency Check: There are likely dependencies related to attending the wedding (travel arrangements, etc.), making this actionable for planning and preparations.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T08:58:59.797382300Z
+User Input: Hey man I have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+Hey man I have a wedding in 2 weeks
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+
+Final Decision:
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T09:00:24.466034100Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks"
+
+Thinking Space:
+No actionable verb is explicitly stated, but the mention of a wedding in two weeks constitutes a scheduled event. According to the guiding factors, scheduled events are considered actionable. The timeframe is clearly defined (2 weeks). There is no mention of same-day conflicts, priority severity issues, or time flexibility concerns. Resource availability and dependency checks are not directly relevant. The goal (attending the wedding) is implicit.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T09:01:32.205078900Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks."
+Thinking Space:
+The input mentions a "wedding in 2 weeks." While there's no explicit action verb, the mention of a scheduled event (a wedding with a specific timeframe) makes it actionable based on the special case rule. The timeframe is defined (2 weeks). There's no information about conflicts, priority, flexibility, or resource availability, but this information is not required to identify the event as actionable. The goal (attending/preparing for a wedding) is implicitly defined.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T09:01:59.289584500Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks."
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T09:04:03.221368800Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks."
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T09:04:37.188179Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks"
+
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T09:09:00.320284500Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks."
+
+Thinking Space:
+Actionable Verb: Absent.
+Timeframe: The wedding is scheduled for two weeks from now. This falls under the "scheduled event" special case.
+Same-Day Conflict: Not applicable, as there's no mention of any conflicting event.
+Priority Severity: Not relevant.
+Time Flexibility: The date is fixed.
+Resource Availability: Not relevant.
+Goal Specificity: The goal is attending the wedding, which is clear.
+Dependency Check: No dependencies mentioned.
+Historical Context: Not relevant. Though no action verb is present, because it is a scheduled event, it is considered actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T09:33:49.449134100Z
+User Input: Hey man Ild love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man Ild love to learn java"
+
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb.
+Timeframe: No specific timeframe is given, but learning typically extends beyond 3 days.
+Same-Day Conflict: No same-day conflict mentioned.
+Priority Severity: No information about priority conflicts.
+Time Flexibility: No mention of flexibility.
+Resource Availability: Resources to learn Java are generally available (books, online courses, etc.).
+Goal Specificity: The goal is clear: learn Java.
+Dependency Check: No immediate dependencies mentioned.
+Historical Context: No information about prior learning experiences.
+The presence of the actionable verb "learn" and a clear goal make this actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T09:37:27.730428100Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb.
+Timeframe: No specific timeframe, but learning Java is generally a longer-term goal, although it could conceivably be started immediately.
+Same-Day Conflict: No conflicting events mentioned.
+Priority Severity: No indication of blocking issues.
+Time Flexibility: No specific scheduling constraints.
+Resource Availability: Learning Java resources are widely available.
+Goal Specificity: The goal (learning Java) is clear.
+Dependency Check: No dependencies mentioned.
+Historical Context: No information provided about past learning experiences, but this does not prevent it from being actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T09:54:13.724013500Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb.
+Timeframe: No specific timeframe is mentioned, implying it is not immediate but a longer-term goal.
+Same-Day Conflict: There is no mention of anything interfering.
+Priority Severity: Nothing mentioned here
+Time Flexibility: Learning is generally flexible.
+Resource Availability: Resources for learning Java are widely available (online courses, books, etc.).
+Goal Specificity: The goal (learning Java) is clear.
+Dependency Check: There are no specific dependencies mentioned.
+Historical Context: While the historical context is unknown, learning Java is a feasible task.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T10:52:55.373877100Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb.
+Timeframe: No specific timeframe is mentioned, but learning Java generally takes time.
+Same-Day Conflict: No conflicts mentioned.
+Priority Severity: No blockers mentioned.
+Time Flexibility: Learning Java has flexibility.
+Resource Availability: Resources for learning Java are widely available online.
+Goal Specificity: The goal is to learn Java, which is clear.
+Dependency Check: No immediate dependencies are mentioned.
+Historical Context: No previous attempts mentioned.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T10:58:22.961014Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb.
+Timeframe: No specific timeframe, but learning is generally a longer-term activity.
+Same-Day Conflict: No conflicts mentioned.
+Priority Severity: No blocking issues are mentioned.
+Time Flexibility: The user can likely determine when to learn java.
+Resource Availability: Resources to learn Java are widely available online.
+Goal Specificity: The goal is clear: to learn Java.
+Dependency Check: No immediate dependencies are specified.
+Historical Context: Whether the user has learned similar skills before is unknown, but not strictly relevant.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T11:04:08.210912500Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+
+Thinking Space:
+The input contains the actionable verb "learn."
+The timeframe is not specified, but learning Java is generally a long-term activity, so it extends beyond 3 days.
+There are no same-day conflicts mentioned.
+There are no priority severity issues mentioned.
+Time flexibility is not relevant in this context.
+Resources for learning Java are generally available (e.g., online courses, books).
+The goal is specific: learning Java.
+There are no dependencies mentioned.
+The historical context is unknown, but learning Java is a feasible task.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T11:04:58.256285900Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb.
+Timeframe: No specific timeframe, but learning is generally a longer-term goal.
+Same-Day Conflict: No conflicts or urgent blockers mentioned.
+Priority Severity: Not applicable.
+Time Flexibility: Not relevant here.
+Resource Availability: Resources for learning Java are widely available (online courses, books, etc.).
+Goal Specificity: The goal (learning Java) is clear and specific.
+Dependency Check: No dependencies mentioned.
+Historical Context: While past success with similar tasks is unknown, learning Java is feasible for most individuals.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T11:10:22.872162400Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+Actionable Verb: "learn" is an actionable verb.
+Timeframe: No specific timeframe is given, but learning Java can be considered a longer-term task.
+Same-Day Conflict: No conflicts are mentioned.
+Priority Severity: Not specified. No blockers are mentioned.
+Time Flexibility: Not applicable.
+Resource Availability: Resources to learn Java are generally available.
+Goal Specificity: The goal is to learn Java, which is specific.
+Dependency Check: No dependencies are mentioned.
+Historical Context: Not applicable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T11:17:45.534042700Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+
+Thinking Space:
+The input contains the verb "learn," which is actionable.
+The timeframe is not explicitly defined, but learning is typically a longer-term goal.
+There is no mention of same-day conflicts, priority severity, or time flexibility constraints.
+The input does imply a specific goal: gaining knowledge in Java.
+No dependencies are explicitly stated.
+Resource availability for learning Java is generally high (online courses, books, etc.).
+We do not know the historical context of whether they have learned other languages.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T11:33:15.812721700Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb.
+Timeframe: No specific timeframe is mentioned, suggesting a longer-term goal.
+Same-Day Conflict: No conflicts are indicated.
+Priority Severity: No priority conflicts mentioned.
+Time Flexibility: No time-related constraints are given.
+Resource Availability: Resources to learn Java are likely available.
+Goal Specificity: The goal is to learn Java, which is specific.
+Dependency Check: No dependencies are indicated prior to starting.
+Historical Context: Assuming the person can generally learn new things.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T11:38:06.589312900Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb, suggesting a desire to acquire knowledge.
+Timeframe: No specific timeframe is given. Learning Java is generally a longer-term task.
+Same-Day Conflict: No conflicts are mentioned.
+Priority Severity: Not mentioned.
+Time Flexibility: Flexible.
+Resource Availability: Resources for learning Java are widely available (books, online courses, etc.).
+Goal Specificity: The goal is to learn Java, which is somewhat specific.
+Dependency Check: No explicit dependencies mentioned.
+Historical Context: Not provided.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T11:42:50.203596500Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb.
+Timeframe: No specific timeframe, implying a longer-term goal.
+Same-Day Conflict: No conflicts mentioned.
+Priority Severity: No blockers mentioned.
+Time Flexibility: Learning can often be done flexibly.
+Resource Availability: Java learning resources are widely available.
+Goal Specificity: The goal (learning Java) is clear.
+Dependency Check: No specific dependencies mentioned.
+Historical Context: Irrelevant; any person can learn Java.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T11:49:35.871968700Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+Actionable Verb: The input contains the verb "learn", which implies action.
+Timeframe: No specific timeframe is given, but learning is a continuous process.
+Same-Day Conflict: No conflicts are mentioned.
+Priority Severity: There are no high-priority issues blocking this task.
+Time Flexibility: The schedule is flexible.
+Resource Availability: Resources to learn Java are widely available.
+Goal Specificity: The goal is clear, to learn Java.
+Dependency Check: There are no explicit dependencies mentioned.
+Historical Context: The user's prior experience with Java is unknown, but it doesn't prevent the task from being actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T13:21:27.302672Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+The input contains the actionable verb "learn." While the timeframe is not explicitly stated, learning Java is generally a long-term goal. There are no same-day conflicts, priority severity issues, or dependency checks mentioned. We also assume there is time flexibility, as learning can be scheduled. Resources are available for learning Java. The goal is specific (learning Java).
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T13:26:05.669655300Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+Actionable Verb: "Learn" is an actionable verb.
+Timeframe: No specific timeframe, but learning Java is generally a longer-term endeavor.
+Same-Day Conflict: No conflicts mentioned.
+Priority Severity: No blockers mentioned.
+Time Flexibility: The timing of learning is flexible.
+Resource Availability: Resources for learning Java are readily available.
+Goal Specificity: The goal (learning Java) is clear.
+Dependency Check: No immediate dependencies are apparent.
+Historical Context: Unknown, but it doesn’t prevent actionability.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T13:33:24.779736600Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+Thinking Space:
+"Learn" is an actionable verb.
+No specific timeframe is mentioned, implying a mid- to long-term goal.
+No conflicts or urgent blockers are mentioned.
+The goal (learning Java) is clear and specific.
+Resources are readily available (books, online courses, etc.).
+No dependencies are explicitly mentioned.
+Historical context (previous experience with programming) is unknown, but learning Java is generally feasible.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T13:36:23.854051400Z
+User Input: Hey man I would love to learn java
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I would love to learn java"
+
+Thinking Space:
+- Actionable Verb: "learn" is an actionable verb.
+- Timeframe: No specific timeframe is mentioned, implying it's not immediate but rather ongoing.
+- Same-Day Conflict: No conflicts mentioned.
+- Priority Severity: Not applicable.
+- Time Flexibility: The learning can be flexible.
+- Resource Availability: Resources for learning Java are available online.
+- Goal Specificity: The goal (learn Java) is clear.
+- Dependency Check: No immediate dependencies mentioned.
+- Historical Context: Unknown whether the person has learned similar things before, but this is a general learning task.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T13:41:15.542556500Z
+User Input: Hey I have a wedding in 2 days
+Final Decision: yes
+Response Analysis:
+Input:
+Hey I have a wedding in 2 days
+Output:
+Thinking Space:
+No explicit action verb. However, a scheduled event is mentioned (wedding).
+Timeframe: The wedding is in 2 days, which is a defined future event within 3 days making it immediate.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending/preparing for a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+
+).* YES
+
+========================
+

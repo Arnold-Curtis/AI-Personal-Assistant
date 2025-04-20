@@ -1,20 +1,24 @@
 package com.example.demo;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Map;
 import java.util.List;
 import java.util.regex.*;
+import java.util.ArrayList;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @RestController
 @RequestMapping("/api")
@@ -123,9 +127,46 @@ public class LLMController {
         }
     }
 
+    // Class to represent a chat message
+    static class ChatMessage {
+        private String text;
+        private boolean isUser;
+        
+        public String getText() {
+            return text;
+        }
+        
+        public void setText(String text) {
+            this.text = text;
+        }
+        
+        public boolean getIsUser() {
+            return isUser;
+        }
+        
+        public void setIsUser(boolean isUser) {
+            this.isUser = isUser;
+        }
+    }
+
     @PostMapping("/generate")
-    public Flux<String> generateText(@RequestBody Map<String, String> request) {
-        String userInput = request.get("prompt");
+    public Flux<String> generateText(@RequestBody Map<String, Object> request) {
+        String userInput = (String) request.get("prompt");
+        final List<ChatMessage> chatHistory = new ArrayList<>();
+        
+        // Parse chat history if provided
+        if (request.containsKey("history")) {
+            try {
+                List<ChatMessage> history = objectMapper.convertValue(
+                    request.get("history"), 
+                    new TypeReference<List<ChatMessage>>() {}
+                );
+                chatHistory.addAll(history);
+            } catch (Exception e) {
+                System.err.println("Failed to parse chat history: " + e.getMessage());
+            }
+        }
+        
         if (userInput == null || userInput.trim().isEmpty()) {
             return Flux.just("{\"error\": \"Prompt is required\"}");
         }
@@ -154,21 +195,50 @@ public class LLMController {
                     
                     storeAnalysisResult(fullResponse, finalDecision, userInput);
 
-                    String finalPrompt = finalDecision.equals("yes") 
-                        ? Files.readString(Paths.get(PROMPT_TEMPLATE_PATH)) 
-                            + "\n\n**User Input:** " + userInput
-                            + "\n\n**Response Structure Requirements:**"
-                            + "\n**Part 1: Analysis** - Detailed thinking process"
-                            + "\n**Part 2: Response** - Actionable steps/advice"
-                            + "\n**Part 3: Additional Notes** - Optional considerations"
-                        : userInput;
+                    // Build final prompt with chat history context
+                    StringBuilder promptWithHistory = new StringBuilder();
+                    
+                    // Use template for actionable prompts
+                    if (finalDecision.equals("yes")) {
+                        String promptTemplate = Files.readString(Paths.get(PROMPT_TEMPLATE_PATH));
+                        
+                        // Replace date placeholders with actual date
+                        String formattedDate = getFormattedDate();
+                        promptTemplate = promptTemplate.replace("[DAY_OF_WEEK] the [DAY] of [MONTH] [YEAR]", formattedDate);
+                        
+                        promptWithHistory.append(promptTemplate);
+                        promptWithHistory.append("User Input & Today is: " + formattedDate + "\n" + userInput);
+                        promptWithHistory.append("\n\n**Conversation History:**\n");
+                    } else {
+                        promptWithHistory.append("You are an AI assistant helping with a conversation.\n**Conversation History:**\n");
+                    }
+                    
+                    // Add conversation history if available, limiting to last 10 messages
+                    int startIndex = Math.max(0, chatHistory.size() - 10);
+                    for (int i = startIndex; i < chatHistory.size(); i++) {
+                        ChatMessage msg = chatHistory.get(i);
+                        promptWithHistory.append(msg.getIsUser() ? "User: " : "Assistant: ");
+                        promptWithHistory.append(msg.getText()).append("\n\n");
+                    }
+                    
+                    // Add the current user input
+                    promptWithHistory.append("User: ").append(userInput).append("\n\n");
+                    promptWithHistory.append("Assistant: ");
+                    
+                    // Add response structure requirements for actionable prompts
+                    if (finalDecision.equals("yes")) {
+                        promptWithHistory.append("\n\n**Response Structure Requirements:**");
+                        promptWithHistory.append("\n**Part 1: Analysis** - Detailed thinking process");
+                        promptWithHistory.append("\n**Part 2: Response** - Actionable steps/advice");
+                        promptWithHistory.append("\n**Part 3: Additional Notes** - Optional considerations");
+                    }
 
                     return webClient.post()
                         .uri(uriBuilder -> uriBuilder
                             .path("gemini-2.0-flash:generateContent")
                             .queryParam("key", geminiApiKey)
                             .build())
-                        .bodyValue(createGeminiRequest(finalPrompt))
+                        .bodyValue(createGeminiRequest(promptWithHistory.toString()))
                         .retrieve()
                         .onStatus(status -> status.isError(), response -> 
                             response.bodyToMono(String.class)
@@ -263,5 +333,15 @@ public class LLMController {
         } catch (IOException e) {
             return "{\"error\": \"Could not load analysis results\"}";
         }
+    }
+
+    private String getFormattedDate() {
+        LocalDate today = LocalDate.now();
+        String dayOfWeek = today.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+        int day = today.getDayOfMonth();
+        String month = today.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+        int year = today.getYear();
+        
+        return dayOfWeek + " the " + day + " of " + month + " " + year;
     }
 }

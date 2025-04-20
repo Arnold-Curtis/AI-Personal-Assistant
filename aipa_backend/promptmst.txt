@@ -45,25 +45,43 @@ I see you have a presentation coming up and want to improve your Spanish. That's
 CRITICAL FORMATTING RULES:
 1. Each category type MUST be separated by ..!.
 2. Strict order: Calendar → Plan → Suggestions
-3. Calendar format EXACTLY: "Calendar: X days from today(then the title to the calendar Event, no articles!).!."
+3. Calendar format EXACTLY: "Calendar: X days from today EVENT_TITLE.!." where EVENT_TITLE is just the clean event name with no articles and no additional commentary or explanations in parentheses or brackets
 4. Plan format EXACTLY:
-   "Plan:
-      Step 1: [Direct action]
-      Step 2: [Direct action]
-      Step 3: [Direct action]
+   - If Plan is used: "Plan: [TITLE]
+      Step 1: [Time: X hours] | [Title: Step title] | [Description: Brief description] | [Completion: X%] | [Day: X days from today]
+      Step 2: [Time: X hours] | [Title: Step title] | [Description: Brief description] | [Completion: X%] | [Day: X days from today]
+      (Include as many steps as necessary to complete the plan, typically 2-7 steps)
       ..!."
-5. Suggestions format EXACTLY: "Suggestions: [Item1, Item2]..!."
+   - If Plan is NOT used: "Plan X!@: [None]
+      Step 1: [None]
+      ..!."
+   - Maximum 5 hours per day for development plans, 4 hours for recreational plans
+   - Development/serious plans should be scheduled on weekdays
+   - Recreational plans should be scheduled on weekends
+   - Day recommendations should be expressed as number of days from today (not weekday names)
+   - TITLE must be concise (3-5 words maximum) and clearly describe the overall plan purpose
+5. Suggestions format EXACTLY:
+   - If Suggestions are used: "Suggestions: [Item1, Item2]..!."
+   - If Suggestions are NOT used: "Suggestions X!@: [None]..!."
 6. Required header: "**Part 3: Categories**" (exactly like this)
 
-Example:
+Example (All categories used):
 **Part 3: Categories**
-Calendar: 14 days from today Presentation(*not part just explanations do not include this* just presentation not "a presentation" no articles).!..!.
-Plan:
-   Step 1: Outline presentation
-   Step 2: Create slides
-   Step 3: Practice delivery
+Calendar: 14 days from today Presentation.!..!.
+Plan: [Presentation Preparation Plan]
+   Step 1: [Time: 2 hours] | [Title: Research] | [Description: Gather information and sources] | [Completion: 25%] | [Day: 3 days from today]
+   Step 2: [Time: 3 hours] | [Title: Create slides] | [Description: Design presentation slides] | [Completion: 60%] | [Day: 5 days from today]
+   Step 3: [Time: 2 hours] | [Title: Practice delivery] | [Description: Rehearse presentation] | [Completion: 100%] | [Day: 10 days from today]
    ..!.
 Suggestions: [Duolingo, Babbel, SpanishDict]..!.
+
+Example (Only Calendar used):
+**Part 3: Categories**
+Calendar: 14 days from today Wedding.!..!.
+Plan X!@: [None]
+   Step 1: [None]
+   ..!.
+Suggestions X!@: [None]..!.
 
 === STRICT PENALTIES ===
 FAILURE WILL RESULT IN INVALID RESPONSE:
@@ -83,4 +101,4 @@ Before responding, VERIFY:
 4. Part 3: Perfect formatting with ..!. separators
 5. NO extra text exists anywhere
 
-User Input:
+User Input & Today is: [DAY_OF_WEEK] the [DAY] of [MONTH] [YEAR]

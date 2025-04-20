@@ -319,3 +319,40 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.plan-title-box {
+  margin-top: 10px;
+  border-top: 1px solid #eaeaea;
+  padding-top: 15px;
+}
+
+.plan-title-display {
+  padding: 8px 12px;
+  background-color: #f0f7ff;
+  border-left: 3px solid #3b82f6;
+  border-radius: 4px;
+  color: #2563eb;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.plan-title-button {
+  width: 100%;
+  padding: 10px 15px;
+  background-color: #f0f7ff;
+  border: none;
+  border-left: 3px solid #3b82f6;
+  border-radius: 4px;
+  color: #2563eb;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.plan-title-button:hover {
+  background-color: #e1effe;
+  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.1);
+}

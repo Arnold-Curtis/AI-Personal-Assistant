@@ -103,6 +103,9 @@ public class CalendarController {
             if (updatedEvent.getEventColor() != null) {
                 existingEvent.setEventColor(updatedEvent.getEventColor());
             }
+            if (updatedEvent.getPlanTitle() != null) {
+                existingEvent.setPlanTitle(updatedEvent.getPlanTitle());
+            }
             
             entityManager.merge(existingEvent);
             
@@ -254,6 +257,7 @@ public class CalendarController {
         dto.put("description", event.getDescription());
         dto.put("isAllDay", event.getAllDay());
         dto.put("eventColor", event.getEventColor());
+        dto.put("planTitle", event.getPlanTitle());
         return dto;
     }
 

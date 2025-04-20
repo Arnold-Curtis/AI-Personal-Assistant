@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-export const Textbox = ({ onCalendarEventDetected }) => {
+export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
     const [input, setInput] = useState('');
     const [response, setResponse] = useState('');
     const [loading, setLoading] = useState(false);
-    const [hasCalendarEvent, setHasCalendarEvent] = useState(false);
+    // Keep chat history in state but don't display it
+    const [chatHistory, setChatHistory] = useState([]);
     const abortControllerRef = useRef(null);
     const intervalRef = useRef(null);
     const responseBuilder = useRef('');
@@ -55,8 +56,50 @@ export const Textbox = ({ onCalendarEventDetected }) => {
             });
         }
         
-        setHasCalendarEvent(events.length > 0);
+        const hasEvents = events.length > 0;
         return events;
+    };
+    
+    const extractPlanSteps = (text) => {
+        // Check if plan exists and is not marked with X!@
+        if (text.includes("Plan X!@:") || !text.includes("Plan:")) {
+            return [];
+        }
+        
+        try {
+            // Extract the plan section
+            const planRegex = /Plan: \[(.*?)\]([\s\S]*?)\.\.!\./;
+            const planMatch = planRegex.exec(text);
+            
+            if (!planMatch || !planMatch[1]) return [];
+            
+            const planTitle = planMatch[1].trim();
+            const planContent = planMatch[2].trim();
+            const steps = [];
+            
+            // Parse each step
+            const stepRegex = /Step \d+: \[Time: ([^\]]+)\] \| \[Title: ([^\]]+)\] \| \[Description: ([^\]]+)\] \| \[Completion: ([^\]]+)\] \| \[Day: ([^\]]+)\]/g;
+            let stepMatch;
+            
+            while ((stepMatch = stepRegex.exec(planContent)) !== null) {
+                steps.push({
+                    time: stepMatch[1].trim(),
+                    title: stepMatch[2].trim(),
+                    description: stepMatch[3].trim(),
+                    completion: stepMatch[4].trim(),
+                    day: stepMatch[5].trim()
+                });
+            }
+            
+            // Return both title and steps
+            return {
+                title: planTitle,
+                steps: steps
+            };
+        } catch (error) {
+            console.error('Error parsing plan steps:', error);
+            return { title: '', steps: [] };
+        }
     };
 
     const extractResponse = (responseData) => {
@@ -68,6 +111,12 @@ export const Textbox = ({ onCalendarEventDetected }) => {
             const calendarEvents = extractCalendarEvents(responseText);
             if (calendarEvents.length > 0 && onCalendarEventDetected) {
                 onCalendarEventDetected(calendarEvents);
+            }
+            
+            // Extract plan data
+            const planData = extractPlanSteps(responseText);
+            if (planData.steps && planData.steps.length > 0 && onPlanDetected) {
+                onPlanDetected(planData);
             }
 
             const part2Match = responseText.match(/\*\*Part 2: Response\*\*([\s\S]*?)(?:\*\*Part 3:|$)/i);
@@ -85,7 +134,7 @@ export const Textbox = ({ onCalendarEventDetected }) => {
         return text
             .replace(/\*\*Part \d+:.*?\*\*/g, '')
             .replace(/\)\*!/g, '')
-            .replace(/[\*■#!→\-]/g, '')
+            .replace(/[*■#!→\-]/g, '')
             .replace(/\\n/g, '\n')
             .replace(/\\"/g, '"')
             .replace(/\\u[\dA-F]{4}/gi, m => 
@@ -111,6 +160,9 @@ export const Textbox = ({ onCalendarEventDetected }) => {
                 index++;
             } else {
                 clearInterval(intervalRef.current);
+                // Add the AI response to chat history when streaming completes
+                // but don't display it in the UI
+                setChatHistory(prev => [...prev, { text, isUser: false }]);
             }
         }, 20);
     };
@@ -118,17 +170,24 @@ export const Textbox = ({ onCalendarEventDetected }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (abortControllerRef.current) abortControllerRef.current.abort();
+        if (!input.trim()) return;
         
         const controller = new AbortController();
         abortControllerRef.current = controller;
         setLoading(true);
         setResponse('');
-        setHasCalendarEvent(false);
+        
+        // Add user message to history (for context) but don't display it
+        const userMessage = input.trim();
+        setChatHistory(prev => [...prev, { text: userMessage, isUser: true }]);
 
         try {
-            // Using relative URL instead of absolute URL to ensure auth token is included
+            // Send the current message along with the chat history
             const response = await axios.post('/api/generate', 
-                { prompt: input }, 
+                { 
+                    prompt: userMessage,
+                    history: chatHistory
+                }, 
                 { signal: controller.signal }
             );
 
@@ -150,10 +209,17 @@ export const Textbox = ({ onCalendarEventDetected }) => {
                     position: 'bottom-right',
                     autoClose: 5000
                 });
+                
+                // Add error message to chat history
+                setChatHistory(prev => [...prev, { 
+                    text: `ERROR: ${error.message || 'Unknown error'}`, 
+                    isUser: false 
+                }]);
             }
         } finally {
             setLoading(false);
             abortControllerRef.current = null;
+            setInput(''); // Clear input field after submission
         }
     };
 
@@ -162,8 +228,13 @@ export const Textbox = ({ onCalendarEventDetected }) => {
         if (intervalRef.current) clearInterval(intervalRef.current);
         setInput('');
         setResponse('');
-        setHasCalendarEvent(false);
         responseBuilder.current = '';
+        // Clear chat history when user resets
+        setChatHistory([]);
+        // Also clear plan data
+        if (onPlanDetected) {
+            onPlanDetected([]);
+        }
     };
 
     return (
@@ -193,14 +264,14 @@ export const Textbox = ({ onCalendarEventDetected }) => {
                 <div style={{ display: 'flex', gap: '10px' }}>
                     <button 
                         type="submit" 
-                        disabled={loading}
+                        disabled={loading || !input.trim()}
                         style={{
                             padding: '12px 24px',
-                            background: loading ? '#6c757d' : '#007bff',
+                            background: loading || !input.trim() ? '#6c757d' : '#007bff',
                             color: 'white',
                             border: 'none',
                             borderRadius: '4px',
-                            cursor: 'pointer',
+                            cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
                             fontSize: '16px',
                             transition: 'background 0.3s ease',
                             flex: 1,
