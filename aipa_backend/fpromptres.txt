@@ -6146,3 +6146,572 @@ Since it specifies a scheduled future event (wedding in 2 weeks), it's considere
 
 ========================
 
+=== Analysis Result ===
+Timestamp: 2025-04-18T09:38:42.873508600Z
+User Input: Hey man i have a wedding in 2 weels 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weels"
+
+Thinking Space:
+No explicit actionable verb, but a scheduled event (a wedding) is mentioned.
+Timeframe: The wedding is in two weeks, which is a definite future event.
+Same-Day Conflict: Not applicable without further context.
+Priority Severity: Not applicable without further context, but weddings are generally high priority.
+Time Flexibility: The event is most likely on a fixed date.
+Resource Availability: Attending a wedding usually requires resources (travel, gift, attire), but the prompt itself doesn't indicate any lack of resources.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No specific dependencies mentioned.
+Since it's a scheduled event, it's considered actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-18T10:14:17.166673200Z
+User Input: Hey man i have a wedding in 2 weels 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weels"
+
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-18T10:15:22.397157800Z
+User Input: Hey man i have a wedding in 2 weels 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weels"
+
+Thinking Space:
+No actionable verb is stated in the sentence, but a scheduled event (a wedding) is mentioned.
+Timeframe: The wedding is in two weeks, which falls into the timeframe of a scheduled event.
+Same-Day Conflict: There is no mention of same-day conflict.
+Priority Severity: There is no mention of priority severity.
+Time Flexibility: There is no time flexibility mentioned since this is a scheduled event.
+Resource Availability: Resource availability is not applicable.
+Goal Specificity: The goal (attend wedding) is clear.
+Dependency Check: This task is not dependent on other factors.
+Since the input mentions a future scheduled event, it should be considered actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-18T10:16:01.979476Z
+User Input: Hey man i have a wedding in 2 weels 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weels"
+
+Thinking Space:
+- Actionable Verb: No explicit actionable verb is present.
+- Timeframe: The wedding is in 2 weeks, which establishes a timeframe. Since it’s a scheduled event in the future, it’s considered actionable.
+- Same-Day Conflict: Not applicable, as it’s just the mention of an upcoming event.
+- Priority Severity: Not applicable.
+- Time Flexibility: Not Applicable.
+- Resource Availability: Not applicable.
+- Goal Specificity: The goal (attending a wedding) is implied and clear.
+- Dependency Check: No specific dependencies are indicated.
+- Historical Context: Irrelevant.
+- Special Case - Calendar Events: The input specifies a scheduled event (wedding in 2 weeks), making it actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:23:46.055031400Z
+User Input: Hey man I have a wedding in 2 weeks 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I have a wedding in 2 weeks"
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:27:57.087754700Z
+User Input: Hey man I have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I have a wedding in 2 weeks"
+
+Thinking Space:
+No actionable verb is explicitly stated, but the input mentions a scheduled event: "a wedding in 2 weeks."
+Timeframe: The wedding is in two weeks, which constitutes a defined future event.
+Same-Day Conflict: Not applicable in this isolated statement.
+Priority Severity: The event itself isn't blocked by a higher priority.
+Time Flexibility: The wedding date is fixed.
+Resource Availability: Attending the wedding might require resources (travel, attire), but the statement itself doesn't indicate a lack of resources.
+Goal Specificity: The event (attending the wedding) is a clear goal.
+Dependency Check: No dependencies are explicitly mentioned in the statement.
+Based on the "Calendar Events" rule, this is an actionable input.
+
+Final Decision: ).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:32:35.012467400Z
+User Input: Hey man i have a wedding in 3 weeks 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 3 weeks"
+
+Thinking Space:
+No explicit actionable verb is present. However, the input mentions a scheduled event (a wedding).
+Timeframe: The wedding is in 3 weeks, placing it within a defined timeframe.
+Same-Day Conflict: Not applicable at this point as no other tasks or events are mentioned.
+Priority Severity: Not applicable.
+Time Flexibility: The wedding date is fixed.
+Resource Availability: Not directly applicable, although resources might be needed closer to the date (e.g., travel, accommodation).
+Goal Specificity: The goal is to attend the wedding, which is clear.
+Dependency Check: No immediate dependencies for simply acknowledging the event, but travel and accommodation might become dependencies later.
+Following the "Special Case - Calendar Events" rule, this qualifies as actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:33:35.328018600Z
+User Input: Hey man I have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Yo I need to decide whether to go to the gym today or tomorrow"
+
+Thinking Space:
+Actionable Verb: "Decide" is an actionable verb.
+Timeframe: The decision needs to be made today or tomorrow so that's within 3 days.
+Same-Day Conflict: There is no mention of any conflicting same-day events.
+Priority Severity: There is no mention of any high-priority conflicts.
+Time Flexibility: There is flexibility within one day (today or tomorrow).
+Resource Availability: It's implied that the gym and necessary resources are available.
+Goal Specificity: The goal is to decide when to go to the gym.
+Dependency Check: There are no stated dependencies.
+Historical Context: Not relevant.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:39:33.852902900Z
+User Input: Hey man I  have a wedding in 2 weeeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I have a wedding in 2 weeeks"
+
+Thinking Space:
+No explicit action verb is present, but the mention of a wedding in two weeks qualifies as a scheduled event.
+Timeframe: The wedding is in two weeks.
+Same-Day Conflict: Not applicable.
+Priority Severity: Not applicable.
+Time Flexibility: Not particularly flexible.
+Resource Availability: Not applicable in determining actionability.
+Goal Specificity: Attending the wedding is the implicit goal.
+Dependency Check: Not applicable, as it is a statement of an event.
+Historical Context: Not relevant.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:44:18.978032100Z
+User Input: Hey man I have  a wedding in 2 weeks 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I have a wedding in 2 weeks"
+
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another conflicting task is mentioned.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:48:50.891289300Z
+User Input: Hey man I have a wedding in 2weeks 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I have a wedding in 2weeks"
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:49:23.557609Z
+User Input: Hey man I have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+Hey man I have a wedding in 2 weeks
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:53:07.720508400Z
+User Input: Hey I have a wedding in 2 weeks 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey I have a wedding in 2 weeks"
+
+Thinking Space:
+No actionable verb is present, but the mention of a wedding in two weeks signifies a scheduled event.
+Timeframe: Specified as "in 2 weeks," making it a future scheduled event.
+Same-Day Conflict: No conflicts specified.
+Priority Severity: Not directly applicable.
+Time Flexibility: The wedding date is fixed.
+Resource Availability: Not applicable.
+Goal Specificity: The event (attending the wedding) is clearly defined.
+Dependency Check: No dependencies mentioned.
+Based on the criteria, a scheduled event like this is considered actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T05:56:08.667947900Z
+User Input: Hey man I have a wedding in 2 weeks 
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man I have a wedding in 2 weeks"
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T06:00:06.860171400Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks."
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T06:05:42.234628Z
+User Input: Hey man u have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man u have a wedding in 2 weeks"
+
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T06:06:22.478298100Z
+User Input: Hey mna i have a wedding in 2 weeks 
+Final Decision: yes
+Response Analysis:
+Input:
+"My computer is very slow today. I need to call IT to fix it so I can approve the sales proposals ASAP."
+Output:
+Thinking Space:
+Actionable Verb: "fix" implies action. "Call" is also an action verb. "Approve" is also an action.
+Timeframe: "Today" and "ASAP" suggest urgency.
+Same-Day Conflict: Not explicitly mentioned, but "ASAP" implies a need to act quickly.
+Priority Severity: Approving sales proposals sounds like a high priority, and the slow computer is blocking that.
+Time Flexibility: Limited flexibility; "ASAP" indicates a need to resolve the issue quickly.
+Resource Availability: Assumes IT is available.
+Goal Specificity: The goal is clear: approve sales proposals.
+Dependency Check: The task is dependent on the computer being fixed.
+Historical Context: Not applicable.
+
+Final Decision:
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T06:07:00.974081700Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks."
+
+Thinking Space:
+No explicit actionable verb. However, the input mentions a wedding in two weeks, which qualifies as a scheduled event. According to the instructions, scheduled events are considered actionable, even without an explicit action verb.
+Timeframe: The wedding is in two weeks, defining a future event.
+Same-Day Conflict: Not applicable.
+Priority Severity: Not applicable.
+Time Flexibility: The wedding date is fixed.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending the wedding, or at least acknowledging it) is clear.
+Dependency Check: No dependencies needed to acknowledge the event.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T06:09:20.902407400Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks"
+
+Thinking Space:
+No explicit actionable verb is present, such as plan, book, or arrange.
+Timeframe: The wedding is in 2 weeks, which is a defined future event and thus actionable under the calendar event rule.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T06:09:51.075133900Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks"
+Thinking Space:
+No actionable verb present, but a scheduled event is mentioned.
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T06:10:22.512625300Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+Hey man i have a wedding in 2 weeks.
+Thinking Space:
+No actionable verb is present, but the input mentions a scheduled event (a wedding).
+Timeframe: The wedding is in 2 weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task conflicts with the wedding date.
+Priority Severity: Not relevant since it’s an event, not a task.
+Time Flexibility: The wedding is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending the wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event, it qualifies as actionable under the "Special Case - Calendar Events" rule.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:08:35.306369400Z
+User Input: Hello whats up man 
+Final Decision: no
+Response Analysis:
+Input:
+"Hello whats up man"
+Thinking Space:
+No actionable verb detected.
+No timeframe mentioned.
+No indication of resources, specific goals, or dependencies.
+This is purely conversational with no task to complete.
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:08:50.257227400Z
+User Input: hey Whats good bro
+Final Decision: no
+Response Analysis:
+Input:
+"hey Whats good bro"
+Thinking Space:
+No actionable verb detected.
+No timeframe mentioned.
+No indication of resources, specific goals, or dependencies.
+This is purely conversational with no clear task to complete.
+).* NO
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:09:27.429101800Z
+User Input: Hey I have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man, please help me with understanding this new quantum physics concept. I'm free all day."
+
+Thinking Space:
+- Actionable Verb: "Help" and "understanding" imply action.
+- Timeframe: "I'm free all day" implies same-day availability.
+- Same-Day Conflict: No conflict mentioned.
+- Priority Severity: Not mentioned, so assuming no blockers.
+- Time Flexibility: Flexible, indicated by "free all day".
+- Resource Availability: Assumed necessary quantum physics information is available.
+- Goal Specificity: Clear goal: Understanding the quantum physics concept.
+- Dependency Check: Assuming person providing help has the knowledge.
+- Historical Context: Not known, but providing help is generally feasible.
+
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:10:00.914978200Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks."
+Thinking Space:
+No explicit actionable verb is present.
+Timeframe: The wedding is scheduled in "2 weeks," which is a defined future event.
+Same-Day Conflict: No conflict mentioned.
+Priority Severity: Not applicable in this context.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is implied.
+Dependency Check: No immediate dependencies are mentioned.
+Because it is a scheduled event, it is considered actionable.
+).* YES
+
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-04-20T07:10:40.238935600Z
+User Input: Hey man i have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input:
+"Hey man i have a wedding in 2 weeks"
+
+Thinking Space:
+No explicit action verb is present, but the mention of a wedding in two weeks suggests an actionable item (a scheduled event).
+Timeframe: The wedding is in two weeks, which is a defined future event.
+Same-Day Conflict: Not applicable unless another task is in conflict.
+Priority Severity: Not relevant since it's an event, not a task.
+Time Flexibility: The event is on a fixed date.
+Resource Availability: Not applicable.
+Goal Specificity: The goal (attending a wedding) is clear.
+Dependency Check: No dependencies needed for recognizing the event.
+Since it is a scheduled event in the future, it qualifies as actionable.
+
+).* YES
+
+========================
+

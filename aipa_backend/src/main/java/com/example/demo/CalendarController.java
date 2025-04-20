@@ -147,6 +147,31 @@ public class CalendarController {
         }
     }
 
+    @GetMapping("/events/check/{id}")
+    public ResponseEntity<?> checkEventExists(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            // First authenticate the user
+            String token = extractToken(request);
+            String email = jwtUtil.extractUsername(token);
+            User user = userRepository.findByEmail(email);
+            
+            if (user == null) {
+                return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+            }
+
+            // Check if the event exists
+            CalendarEvent event = entityManager.find(CalendarEvent.class, id);
+            boolean exists = event != null && event.getUser().equals(user);
+            
+            return ResponseEntity.ok(Map.of("exists", exists));
+            
+        } catch (Exception e) {
+            logger.severe("Error checking event existence: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "Error checking event: " + e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/events/{id}")
     @Transactional
     public ResponseEntity<?> deleteEvent(@PathVariable Long id, HttpServletRequest request) {

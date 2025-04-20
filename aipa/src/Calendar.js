@@ -6,6 +6,94 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import './Calendar.css';
 
+// Add auth token to all axios requests
+axios.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => Promise.reject(error)
+);
+
+// Create singleton for event deletion queue
+const eventDeletionQueue = {
+  queue: [],
+  processing: false,
+  processedIds: new Set(), // Track already processed IDs to avoid duplicates
+  
+  isEventInQueue: (eventId) => eventDeletionQueue.queue.some(e => e.id === eventId),
+  
+  addEvent: (event) => {
+    const eventId = event.extendedProps?.id;
+    // Don't add if it's already in the queue or was recently processed
+    if (!eventId || eventDeletionQueue.isEventInQueue(eventId) || 
+        eventDeletionQueue.processedIds.has(eventId)) {
+      return;
+    }
+    eventDeletionQueue.queue.push({
+      id: eventId,
+      title: event.title,
+      event: event
+    });
+  },
+  
+  processNext: async () => {
+    if (eventDeletionQueue.processing || eventDeletionQueue.queue.length === 0) return;
+    
+    eventDeletionQueue.processing = true;
+    const next = eventDeletionQueue.queue.shift();
+    
+    // Add to processed set to prevent duplicates
+    eventDeletionQueue.processedIds.add(next.id);
+    
+    try {
+      await axios.delete(`/api/calendar/events/${next.id}`);
+      console.log(`Event ${next.id} deleted successfully`);
+      return { status: 'success', id: next.id };
+    } catch (error) {
+      const status = error.response?.status;
+      if (status === 404) {
+        console.log(`Event ${next.id} already deleted or not found`);
+        return { status: 'not_found', id: next.id };
+      } else if (status === 401 || status === 403) {
+        console.log(`Authentication error for event ${next.id} - refreshing token`);
+        // Refresh token or handle auth errors - session might have expired
+        window.dispatchEvent(new CustomEvent('auth-refresh-needed'));
+        return { status: 'auth_error', id: next.id };
+      } else {
+        console.error(`Error deleting event ${next.id}:`, error.message);
+        return { status: 'error', id: next.id, message: error.message };
+      }
+    } finally {
+      eventDeletionQueue.processing = false;
+      
+      // Process next item if any
+      if (eventDeletionQueue.queue.length > 0) {
+        setTimeout(() => eventDeletionQueue.processNext(), 300);
+      }
+      
+      // Clear processed IDs after some time to prevent memory leaks
+      // But only clear IDs that aren't in the current queue
+      if (eventDeletionQueue.processedIds.size > 100) {
+        const currentQueueIds = new Set(eventDeletionQueue.queue.map(e => e.id));
+        eventDeletionQueue.processedIds.forEach(id => {
+          if (!currentQueueIds.has(id)) {
+            eventDeletionQueue.processedIds.delete(id);
+          }
+        });
+      }
+    }
+  },
+  
+  clear: () => {
+    eventDeletionQueue.queue = [];
+    // Don't clear processedIds to maintain deleted event history
+  }
+};
+
 const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
   const calendarRef = useRef(null);
   const [internalEvents, setInternalEvents] = useState([]);
@@ -113,6 +201,21 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     };
   }, [isEditModalOpen]);
 
+  // Process event queue when we detect auth events
+  useEffect(() => {
+    const handleAuthRefresh = () => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        setTimeout(() => {
+          eventDeletionQueue.processNext();
+        }, 1000);
+      }
+    };
+    
+    window.addEventListener('auth-refresh-needed', handleAuthRefresh);
+    return () => window.removeEventListener('auth-refresh-needed', handleAuthRefresh);
+  }, []);
+
   // Clean up timer when component unmounts
   useEffect(() => {
     return () => {
@@ -125,7 +228,7 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     if (showUndoButton) {
       const timer = setTimeout(() => {
         // Actually delete from backend when undo timeout expires
-        finalizeEventDeletion();
+        permanentlyDeleteEvent();
       }, 10000);
       
       setUndoTimerId(timer);
@@ -133,49 +236,16 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     }
   }, [showUndoButton]);
 
-  // Simple deletion function that only tries once and suppresses expected errors
-  const deleteEvent = async (eventId) => {
-    if (!eventId) return;
-    
-    try {
-      await axios.delete(`/api/calendar/events/${eventId}`);
-      console.log(`Successfully deleted event ${eventId}`);
-      return true;
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        // Event already deleted or doesn't exist - this is an expected case
-        console.log(`Event ${eventId} was already deleted or doesn't exist`);
-        return true; // Consider it a success
+  // Handle event deletion on unmount
+  useEffect(() => {
+    return () => {
+      if (lastDeletedEvent && lastDeletedEvent.extendedProps?.id) {
+        // Handle pending deletion when component unmounts
+        eventDeletionQueue.addEvent(lastDeletedEvent);
+        eventDeletionQueue.processNext();
       }
-      // Only log actual errors, don't show them to the user
-      console.error(`Error deleting event ${eventId}:`, error);
-      return false;
-    }
-  };
-  
-  // Finalize event deletion - called when undo timer expires
-  const finalizeEventDeletion = async () => {
-    if (!lastDeletedEvent || !lastDeletedEvent.extendedProps?.id) return;
-    
-    try {
-      setIsProcessing(true);
-      
-      // Simple one-time deletion attempt
-      await deleteEvent(lastDeletedEvent.extendedProps.id);
-      
-      // Reset state
-      setLastDeletedEvent(null);
-      setShowUndoButton(false);
-      if (undoTimerId) {
-        clearTimeout(undoTimerId);
-        setUndoTimerId(null);
-      }
-    } catch (error) {
-      console.error('Error finalizing event deletion:', error);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+    };
+  }, [lastDeletedEvent]);
 
   // Manual refresh method that can be called from parent
   const refreshEvents = () => {
@@ -187,8 +257,8 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     refreshEvents
   }));
 
-  // Helper to reliably remove event instances from calendar
-  const removeEventFromUI = (event) => {
+  // Helper to reliably remove all instances of an event from calendar
+  const removeAllEventInstances = (event) => {
     try {
       const eventId = event.id;
       const extendedId = event.extendedProps?.id;
@@ -219,9 +289,62 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     }
   };
   
+  // Function to permanently delete the event in the backend
+  const permanentlyDeleteEvent = async () => {
+    if (!lastDeletedEvent) return;
+    
+    try {
+      setIsProcessing(true);
+      
+      // Check if we have a valid event ID to delete
+      if (!lastDeletedEvent.extendedProps?.id) {
+        console.warn("Attempted to delete event without a valid ID", lastDeletedEvent);
+        // Still clear the UI state since we can't delete anything
+        setLastDeletedEvent(null);
+        setShowUndoButton(false);
+        if (undoTimerId) {
+          clearTimeout(undoTimerId);
+          setUndoTimerId(null);
+        }
+        return;
+      }
+      
+      // Add to event deletion queue
+      eventDeletionQueue.addEvent(lastDeletedEvent);
+      
+      // Start processing the queue
+      eventDeletionQueue.processNext()
+        .then(result => {
+          if (result && (result.status === 'success' || result.status === 'not_found')) {
+            toast.info(`Event removed permanently`);
+          } else if (result && result.status === 'auth_error') {
+            toast.error('Authentication error. Try refreshing the page.');
+          } else {
+            toast.error('Failed to remove event. Try again later.');
+          }
+        })
+        .catch(() => {
+          toast.error('Network error. Check your connection.');
+        });
+      
+      // Clear undo state immediately (queue will handle actual deletion)
+      setLastDeletedEvent(null);
+      setShowUndoButton(false);
+      if (undoTimerId) {
+        clearTimeout(undoTimerId);
+        setUndoTimerId(null);
+      }
+    } catch (error) {
+      console.error('Error queueing event deletion:', error);
+      toast.error(`Failed to delete event: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // Calendar event handlers
   const handleEventClick = (info) => {
-    // If there's a pending deletion, finalize it first
+    // If there's a pending deletion, finalize it instead of canceling
     if (showUndoButton && lastDeletedEvent) {
       // Clear the undo timer
       if (undoTimerId) {
@@ -229,8 +352,13 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
         setUndoTimerId(null);
       }
       
-      // Finalize the deletion immediately
-      finalizeEventDeletion();
+      // Permanently delete the event
+      eventDeletionQueue.addEvent(lastDeletedEvent);
+      eventDeletionQueue.processNext();
+      
+      // Reset the undo UI state
+      setShowUndoButton(false);
+      setLastDeletedEvent(null);
     }
     
     // Now select the new event
@@ -249,7 +377,7 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     setIsProcessing(true);
     
     try {
-      // Handle UNDO: Restore the deleted event
+      // Handle UNDO: Restore the last deleted event
       if (showUndoButton && lastDeletedEvent) {
         // Cancel the undo timer
         if (undoTimerId) {
@@ -337,8 +465,8 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
         // Store reference before removing
         setLastDeletedEvent(selectedEvent);
         
-        // Remove from UI
-        removeEventFromUI(selectedEvent);
+        // Enhanced event removal that works more reliably with restored events
+        removeAllEventInstances(selectedEvent);
         
         // Show undo UI
         setShowUndoButton(true);
@@ -399,27 +527,6 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     }
   };
 
-  // Handle component unmount cleanup
-  useEffect(() => {
-    return () => {
-      // On unmount, silently cleanup any pending deletion without notifications
-      if (lastDeletedEvent && lastDeletedEvent.extendedProps?.id) {
-        // Use a synchronous XMLHttpRequest to ensure deletion happens before unmount
-        try {
-          const xhr = new XMLHttpRequest();
-          xhr.open('DELETE', `/api/calendar/events/${lastDeletedEvent.extendedProps.id}`, false);
-          xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('jwtToken') || ''}`);
-          xhr.setRequestHeader('Content-Type', 'application/json');
-          xhr.send();
-          console.log(`Unmount cleanup: attempted to delete event ${lastDeletedEvent.extendedProps.id}`);
-        } catch (e) {
-          // Silence any errors during unmount
-          console.log('Unmount cleanup: event may already be deleted');
-        }
-      }
-    };
-  }, [lastDeletedEvent]);
-
   return (
     <div className="calendar-container">
       {isLoading && (
@@ -461,7 +568,16 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
             info.el.style.backgroundColor = info.event.backgroundColor || '#f0f7ff';
             info.el.style.color = 'black';
           }}
-          noEventsText="No events to display"
+          noEventsContent={() => (
+            <div style={{
+              padding: "20px",
+              textAlign: "center",
+              color: "#666",
+              fontStyle: "italic"
+            }}>
+              No events to display
+            </div>
+          )}
         />
       </div>
 
