@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.file.*;
+import java.nio.file.StandardCopyOption;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -177,6 +178,196 @@ public class DemoApplication {
         return ResponseEntity.ok(createUserResponse(user));
     }
 
+    @PutMapping("/api/auth/update-profile")
+    public ResponseEntity<?> updateProfile(
+            HttpServletRequest request,
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String currentPassword,
+            @RequestParam(required = false) String newPassword,
+            @RequestParam(required = false) MultipartFile profileImage) {
+        
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        
+        String token = authHeader.substring(7);
+        if (!jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
+        
+        String email = jwtUtil.extractUsername(token);
+        User user = userRepository.findByEmail(email);
+        
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+        }
+        
+        try {
+            // Update full name if provided
+            if (fullName != null && !fullName.trim().isEmpty()) {
+                user.setFullName(fullName.trim());
+            }
+            
+            // Update password if provided
+            if (newPassword != null && !newPassword.trim().isEmpty()) {
+                if (currentPassword == null || !passwordEncoder().matches(currentPassword, user.getPassword())) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Current password is incorrect"));
+                }
+                user.setPassword(passwordEncoder().encode(newPassword));
+            }
+            
+            // Handle profile image upload
+            if (profileImage != null && !profileImage.isEmpty()) {
+                String filename = handleImageUpload(profileImage);
+                if (filename != null) {
+                    user.setProfileImage(filename);
+                }
+            }
+            
+            userRepository.save(user);
+            
+            return ResponseEntity.ok(createUserResponse(user));
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to update profile: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/api/auth/set-memory-password")
+    public ResponseEntity<?> setMemoryPassword(
+            HttpServletRequest request,
+            @RequestBody Map<String, String> payload) {
+        
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        
+        String token = authHeader.substring(7);
+        if (!jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
+        
+        String email = jwtUtil.extractUsername(token);
+        User user = userRepository.findByEmail(email);
+        
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+        }
+        
+        String password = payload.get("password");
+        if (password == null || password.length() < 6) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Password must be at least 6 characters long"));
+        }
+        
+        try {
+            user.setMemoryPassword(passwordEncoder().encode(password));
+            userRepository.save(user);
+            
+            return ResponseEntity.ok(Map.of("success", true, "message", "Memory password set successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to set memory password"));
+        }
+    }
+
+    @PostMapping("/api/auth/verify-memory-password")
+    public ResponseEntity<?> verifyMemoryPassword(
+            HttpServletRequest request,
+            @RequestBody Map<String, String> payload) {
+        
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        
+        String token = authHeader.substring(7);
+        if (!jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
+        
+        String email = jwtUtil.extractUsername(token);
+        User user = userRepository.findByEmail(email);
+        
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+        }
+        
+        String password = payload.get("password");
+        if (password == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Password is required"));
+        }
+        
+        boolean isValid = user.getMemoryPassword() != null && 
+                         passwordEncoder().matches(password, user.getMemoryPassword());
+        
+        return ResponseEntity.ok(Map.of("valid", isValid));
+    }
+
+    @GetMapping("/api/auth/memory-password-status")
+    public ResponseEntity<?> getMemoryPasswordStatus(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        
+        String token = authHeader.substring(7);
+        if (!jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
+        
+        String email = jwtUtil.extractUsername(token);
+        User user = userRepository.findByEmail(email);
+        
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+        }
+        
+        boolean hasPassword = user.getMemoryPassword() != null && !user.getMemoryPassword().isEmpty();
+        return ResponseEntity.ok(Map.of("hasPassword", hasPassword));
+    }
+
+    @PostMapping("/api/user/settings")
+    public ResponseEntity<?> saveUserSettings(
+            HttpServletRequest request,
+            @RequestBody Map<String, Object> payload) {
+        
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        
+        String token = authHeader.substring(7);
+        if (!jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
+        
+        String email = jwtUtil.extractUsername(token);
+        User user = userRepository.findByEmail(email);
+        
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+        }
+        
+        try {
+            // For now, we'll just acknowledge the settings save
+            // In a production system, you'd store these in a UserSettings entity
+            @SuppressWarnings("unchecked")
+            Map<String, Object> settings = (Map<String, Object>) payload.get("settings");
+            
+            // Log the settings for debugging
+            System.out.println("Saving settings for user " + user.getEmail() + ": " + settings);
+            
+            return ResponseEntity.ok(Map.of(
+                "message", "Settings saved successfully",
+                "timestamp", java.time.Instant.now().toString()
+            ));
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to save settings: " + e.getMessage()));
+        }
+    }
+
     @GetMapping("/api/info")
     public String appInfo() {
         return "{\"name\":\"Calendar API\",\"version\":\"1.0\",\"status\":\"running\"}";
@@ -215,5 +406,31 @@ public class DemoApplication {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    private String handleImageUpload(MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            return null;
+        }
+        
+        // Create uploads directory if it doesn't exist
+        Path uploadDir = Paths.get("uploads");
+        if (!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
+        }
+        
+        // Generate unique filename
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        String filename = UUID.randomUUID().toString() + fileExtension;
+        
+        // Save file
+        Path filePath = uploadDir.resolve(filename);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        
+        return filename;
     }
 }

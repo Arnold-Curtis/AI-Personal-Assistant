@@ -12,11 +12,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import org.hibernate.Session;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/calendar")
@@ -151,7 +147,7 @@ public class CalendarController {
     }
 
     @GetMapping("/events/check/{id}")
-    public ResponseEntity<?> checkEventExists(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<?> checkEventExists(@PathVariable UUID id, HttpServletRequest request) {
         try {
             // First authenticate the user
             String token = extractToken(request);
@@ -177,7 +173,7 @@ public class CalendarController {
 
     @DeleteMapping("/events/{id}")
     @Transactional
-    public ResponseEntity<?> deleteEvent(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<?> deleteEvent(@PathVariable UUID id, HttpServletRequest request) {
         try {
             // First authenticate the user
             String token = extractToken(request);
@@ -188,27 +184,32 @@ public class CalendarController {
                 return ResponseEntity.status(404).body(Map.of("error", "User not found"));
             }
 
-            // Verify the event belongs to this user
-            CalendarEvent event = entityManager.find(CalendarEvent.class, id);
+            // Use bulk delete which is more efficient for SQLite
+            int deletedCount = entityManager.createQuery(
+                "DELETE FROM CalendarEvent e WHERE e.id = :id AND e.user = :user")
+                .setParameter("id", id)
+                .setParameter("user", user)
+                .executeUpdate();
             
-            if (event == null) {
-                return ResponseEntity.status(404).body(Map.of("error", "Event not found"));
+            if (deletedCount > 0) {
+                logger.info("Event deleted successfully via bulk delete: " + id);
+                return ResponseEntity.ok(Map.of("message", "Event deleted successfully", "deletedCount", deletedCount));
+            } else {
+                // Event not found - return 404 but with informative message
+                logger.info("Event not found for deletion: " + id);
+                return ResponseEntity.status(404).body(Map.of("error", "Event not found or already deleted"));
             }
-            
-            if (!event.getUser().equals(user)) {
-                return ResponseEntity.status(403).body(Map.of("error", "You don't have permission to delete this event"));
-            }
-            
-            // Use JPA to delete the event - this is safer and handles transactions correctly
-            entityManager.remove(event);
-            entityManager.flush(); // Force immediate execution of the delete
-            
-            logger.info("Event deleted successfully via JPA: " + id);
-            return ResponseEntity.ok(Map.of("message", "Event deleted successfully"));
             
         } catch (Exception e) {
             logger.severe("Error deleting event: " + e.getMessage());
             e.printStackTrace();
+            
+            // Check if this is a locking issue
+            if (e.getMessage().contains("database table is locked") || 
+                e.getMessage().contains("SQLITE_LOCKED")) {
+                return ResponseEntity.status(409).body(Map.of("error", "Database busy, please try again"));
+            }
+            
             return ResponseEntity.status(500).body(Map.of("error", "Database error: " + e.getMessage()));
         }
     }
@@ -253,19 +254,40 @@ public class CalendarController {
         Map<String, Object> dto = new HashMap<>();
         dto.put("id", event.getId());
         dto.put("title", event.getTitle());
-        dto.put("start", event.getStart().toString());
+        dto.put("start", event.getStart());
         dto.put("description", event.getDescription());
-        dto.put("isAllDay", event.getAllDay());
+        dto.put("allDay", event.getAllDay());
         dto.put("eventColor", event.getEventColor());
         dto.put("planTitle", event.getPlanTitle());
         return dto;
     }
 
-    private String extractToken(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("Invalid authorization header");
+    /**
+     * Get all calendar events for a user directly (for internal use)
+     * This method is used by session context service to avoid HTTP complexity
+     */
+    public List<CalendarEvent> getUserCalendarEventsDirect(UUID userId) {
+        try {
+            User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            return entityManager
+                .createQuery("SELECT e FROM CalendarEvent e WHERE e.user = :user ORDER BY e.start", CalendarEvent.class)
+                .setParameter("user", user)
+                .getResultList();
+                
+        } catch (Exception e) {
+            logger.severe("Error fetching calendar events directly: " + e.getMessage());
+            e.printStackTrace();
+            return List.of(); // Return empty list on error
         }
-        return authHeader.substring(7);
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        throw new RuntimeException("Invalid or missing Authorization header");
     }
 }

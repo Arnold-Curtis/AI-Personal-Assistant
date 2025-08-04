@@ -1,11 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { VoiceInputButton } from './components/VoiceInputButton';
+import { isUserCurrentlyScrolling } from './utils/scrollUtils';
 
-export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
+export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = false }) => {
     const [input, setInput] = useState('');
     const [response, setResponse] = useState('');
     const [loading, setLoading] = useState(false);
+    const [lastVoiceTranscript, setLastVoiceTranscript] = useState('');
+    const [baseTextBeforeVoice, setBaseTextBeforeVoice] = useState('');
+    const isVoiceSessionActiveRef = useRef(false);
+    const baseTextBeforeVoiceRef = useRef(''); // Add ref to track current base text
     // Keep chat history in state but don't display it
     const [chatHistory, setChatHistory] = useState([]);
     const abortControllerRef = useRef(null);
@@ -13,6 +19,11 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
     const responseBuilder = useRef('');
     const responseEndRef = useRef(null);
     const responseContainerRef = useRef(null);
+
+    // Sync ref with state
+    useEffect(() => {
+        baseTextBeforeVoiceRef.current = baseTextBeforeVoice;
+    }, [baseTextBeforeVoice]);
 
     // Cleanup intervals on unmount
     useEffect(() => {
@@ -27,7 +38,8 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
             const container = responseContainerRef.current;
             const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
             
-            if (isNearBottom || loading) {
+            // Only auto-scroll if user is near bottom, loading, AND not currently scrolling manually
+            if ((isNearBottom || loading) && !isUserCurrentlyScrolling()) {
                 responseEndRef.current.scrollIntoView({ 
                     behavior: 'auto',
                     block: 'nearest'
@@ -36,27 +48,504 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
         }
     }, [response, loading]);
 
-    const extractCalendarEvents = (text) => {
-        const calendarRegex = /Calendar: (\d+) days (?:from today|a) (.+?)\.!\./g;
-        const events = [];
-        let match;
+    // Helper function to detect problematic event titles that shouldn't be events
+    const isProblematicTitle = (title) => {
+        if (!title) return true;
         
-        while ((match = calendarRegex.exec(text)) !== null) {
-            const days = parseInt(match[1]);
-            const title = match[2].trim();
-            const startDate = new Date();
-            startDate.setDate(startDate.getDate() + days);
-            
-            events.push({
-                title,
-                start: startDate.toISOString().split('T')[0],
-                isAllDay: true,
-                eventColor: "#3b82f6", // Default blue color
-                description: `Event generated from AI: ${title}`
-            });
+        const lowerTitle = title.toLowerCase().trim();
+        
+        // Common problematic titles that indicate parsing errors - made less aggressive
+        const problematicTitles = [
+            'with', 'from', 'to', 'in', 'on', 'at', 'by', 'for',
+            'the', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'was', 'were',
+            'when', 'what', 'where', 'who', 'how', 'why',
+            'upcoming', 'auto detect', 'with auto', 'auto',
+            'none', 'null', 'undefined', 'calendar'
+        ];
+        
+        // Only check for exact matches or when the title is ONLY these words
+        // Don't filter out valid events that happen to contain these words
+        for (const problematic of problematicTitles) {
+            if (lowerTitle === problematic) {
+                console.log('❌ Rejecting problematic title (exact match):', title);
+                return true;
+            }
         }
         
-        const hasEvents = events.length > 0;
+        // Reject titles containing both "X days" and another phrase (malformed parsing)
+        if (lowerTitle.match(/\d+\s*days?/) && lowerTitle.match(/\s+\w{3,}\s+/)) {
+            console.log('❌ Rejecting malformed title with days and extra text:', title);
+            return true;
+        }
+        
+        // Reject titles that are just punctuation or numbers
+        if (/^[^\w]*$/.test(title) || /^\d+$/.test(title)) {
+            console.log('❌ Rejecting title with only punctuation/numbers:', title);
+            return true;
+        }
+        
+        // Reject titles that are too short (but allow 2+ characters now)
+        if (title.trim().length < 2) {
+            console.log('❌ Rejecting title too short:', title);
+            return true;
+        }
+        
+        return false;
+    };
+
+    // Helper function to detect if user input is asking for information rather than creating events
+    const isQuestionAboutExistingInfo = (userInput) => {
+        if (!userInput) return false;
+        
+        const lowerInput = userInput.toLowerCase().trim();
+        
+        // Common question patterns that indicate information requests, not event creation
+        const questionPatterns = [
+            'when is my',
+            'what is my', 
+            'what\'s my',
+            'when\'s my',
+            'what time is',
+            'what day is',
+            'tell me about',
+            'what are the details',
+            'remind me about',
+            'do you know when',
+            'do you remember when',
+            'can you tell me',
+            'what is the name of',
+            'what\'s the name of',
+            'who is my',
+            'who\'s my',
+            'where is my',
+            'where\'s my',
+            'how old is',
+            'what date is'
+        ];
+        
+        // Check for question patterns
+        for (const pattern of questionPatterns) {
+            if (lowerInput.startsWith(pattern) || lowerInput.includes(pattern)) {
+                console.log('🤔 Detected question pattern:', pattern, 'in input:', userInput);
+                return true;
+            }
+        }
+        
+        // Check for question words at the beginning
+        const questionWords = ['when', 'what', 'where', 'who', 'how', 'which', 'why'];
+        for (const qWord of questionWords) {
+            if (lowerInput.startsWith(qWord + ' ')) {
+                console.log('🤔 Detected question word:', qWord, 'at start of input:', userInput);
+                return true;
+            }
+        }
+        
+        // Check for question marks (obvious questions)
+        if (lowerInput.includes('?')) {
+            console.log('🤔 Detected question mark in input:', userInput);
+            return true;
+        }
+        
+        return false;
+    };
+
+    const extractCalendarEvents = (text, originalUserInput = '') => {
+        const events = [];
+        console.log('🔍 Starting calendar event extraction from text:', text.substring(0, 200));
+        
+        // FIRST: Check if the original user input was a question asking for information
+        // This helps prevent false positives like "when is my birthday" creating events
+        if (originalUserInput && isQuestionAboutExistingInfo(originalUserInput)) {
+            console.log('❌ Skipping calendar extraction - user input was an information question:', originalUserInput);
+            return events;
+        }
+        
+        // Clean up the text first to remove formatting artifacts
+        const cleanText = text.replace(/\)\*!/g, '').replace(/\.!\.\./g, '');
+        
+        // Enhanced regex patterns for more robust extraction - Redesigned to prevent duplicates
+        const patterns = [
+            // Primary format: "Calendar: X days from today EVENT.!." - Most specific first
+            /Calendar:\s*(\d+)\s*days?\s*from\s*today\s+([^.!\n\r]+?)\.!\.(?:\.!\.)?/gi,
+            // Secondary format: "Calendar: X days from today EVENT" (without punctuation)
+            // Modified to avoid overlapping with the first pattern
+            /Calendar:\s*(\d+)\s*days?\s*from\s*today\s+([^\n\r.!]+?)(?=\s*(?:Plan|Suggestions|$))/gi
+        ];
+        
+        // Look for calendar events in the Categories section first
+        const categoriesRegex = /\*\*Part 3: Categories\*\*([\s\S]*?)(?:\*\*|$)/i;
+        const categoriesMatch = categoriesRegex.exec(cleanText);
+        
+        let searchText = categoriesMatch ? categoriesMatch[1] : cleanText;
+        console.log('🔍 Searching in categories section:', searchText.substring(0, 300));
+        
+        // Process events with strict deduplication
+        const seenEvents = new Set(); // Track event signatures to prevent duplicates
+        
+        // Try each pattern in order of specificity
+        for (let patternIndex = 0; patternIndex < patterns.length; patternIndex++) {
+            const pattern = patterns[patternIndex];
+            pattern.lastIndex = 0; // Reset regex
+            let match;
+            
+            while ((match = pattern.exec(searchText)) !== null) {
+                const days = parseInt(match[1]);
+                let title = match[2].trim();
+                
+                console.log(`📅 Pattern ${patternIndex + 1} found potential event:`, { days, rawTitle: title, fullMatch: match[0] });
+                
+                // Enhanced title cleaning - more aggressive to prevent artifacts
+                title = title
+                    .replace(/\.!\.\./g, '')
+                    .replace(/\)\*!/g, '')
+                    .replace(/Plan X!@:.*$/i, '')
+                    .replace(/Step \d+:.*$/i, '')
+                    .replace(/Suggestions X!@:.*$/i, '')
+                    .replace(/\[None\]/g, '')
+                    .replace(/^[.!]+|[.!]+$/g, '') // Remove leading/trailing punctuation
+                    .replace(/\s+/g, ' ') // Normalize whitespace
+                    .replace(/\s*from\s*today\s*/gi, '') // Remove any remaining "from today" text
+                    .replace(/\s*calendar\s*/gi, '') // Remove "calendar" word
+                    .replace(/\b\d+\s*days?\b/gi, '') // Remove day references like "2 days"
+                    .replace(/\s+\d+\s+/g, ' ') // Remove standalone numbers with spaces around them
+                    .trim();
+                
+                // Create a unique signature for this event
+                const eventSignature = `${title.toLowerCase()}_${days}`;
+                
+                // Enhanced validation - ensure it's a real event and not a duplicate
+                const isValidEvent = title && 
+                    title.length > 2 && // Minimum length
+                    title.length < 100 && // Reasonable length
+                    !title.toLowerCase().includes('none') &&
+                    !title.includes('Part ') && 
+                    !title.includes('X!@') &&
+                    !title.match(/^(plan|suggestions?|step|calendar)\s*\d*/i) &&
+                    !title.match(/^\d+\s*(days?|weeks?|months?)/i) && // Not just a time reference
+                    !isProblematicTitle(title) && // Additional check for problematic titles
+                    !isNaN(days) && 
+                    days >= 0 && 
+                    days <= 365 && // Reasonable date range
+                    !seenEvents.has(eventSignature); // Not already processed
+                
+                if (isValidEvent) {
+                    // Mark this event signature as seen
+                    seenEvents.add(eventSignature);
+                    
+                    const startDate = new Date();
+                    startDate.setDate(startDate.getDate() + days);
+                    
+                    // Enhanced description generation with more context awareness
+                    let description = generateEventDescription(title, days);
+                    
+                    // Determine event color based on type and urgency
+                    let eventColor = determineEventColor(title, days);
+                    
+                    const eventData = {
+                        title: formatEventTitle(title),
+                        start: startDate.toISOString().split('T')[0],
+                        isAllDay: true,
+                        eventColor: eventColor,
+                        description: description,
+                        daysFromToday: days, // Store for deduplication
+                        signature: eventSignature // Store signature for debugging
+                    };
+                    
+                    console.log('✅ Added unique event:', eventData);
+                    events.push(eventData);
+                } else {
+                    console.log('❌ Invalid or duplicate event filtered out:', { 
+                        title, 
+                        days, 
+                        signature: eventSignature,
+                        alreadySeen: seenEvents.has(eventSignature),
+                        reasons: getValidationErrors(title, days) 
+                    });
+                }
+            }
+        }
+        
+        // Additional deduplication pass - check for any remaining duplicates by title similarity
+        const finalEvents = [];
+        const finalSignatures = new Set();
+        
+        for (const event of events) {
+            // Clean the title further to catch more malformed titles before final processing
+            let cleanedTitle = event.title
+                .replace(/\s*calendar\s*/gi, '')  // Remove "calendar" word
+                .replace(/\b\d+\s*days?\b/gi, '') // Remove day references like "2 days"
+                .trim();
+            
+            // Skip events with now-empty titles or titles that became too short
+            if (cleanedTitle.length < 3) {
+                console.log('🗑️ Skipping event with too short title after cleaning:', event.title);
+                continue;
+            }
+            
+            // Update the event title with the cleaned version
+            event.title = cleanedTitle;
+            
+            // Create a more flexible signature for final deduplication
+            const flexibleSignature = cleanedTitle.toLowerCase().replace(/[^a-z0-9]/g, '') + '_' + event.daysFromToday;
+            
+            if (!finalSignatures.has(flexibleSignature)) {
+                finalSignatures.add(flexibleSignature);
+                finalEvents.push(event);
+            } else {
+                console.log('🗑️ Removed duplicate in final pass:', event.title);
+            }
+        }
+        
+        // Fallback: Look for events mentioned in the response text AND the original user input
+        if (finalEvents.length === 0) {
+            console.log('🔍 No structured events found, trying fallback extraction...');
+            
+            // First try extracting from the AI response
+            const fallbackEvents = extractEventsFromNaturalLanguage(text);
+            finalEvents.push(...fallbackEvents);
+            
+            // If still no events found, try extracting from the original user input
+            if (finalEvents.length === 0 && originalUserInput) {
+                console.log('🔍 No events in response, trying original user input...');
+                const userInputEvents = extractEventsFromNaturalLanguage(originalUserInput);
+                finalEvents.push(...userInputEvents);
+            }
+        }
+        
+        console.log(`🎯 Final extracted events (${finalEvents.length}):`, finalEvents);
+        return finalEvents;
+    };
+
+    // Helper function to generate intelligent descriptions
+    const generateEventDescription = (title, days) => {
+        const lowerTitle = title.toLowerCase();
+        const urgency = days <= 3 ? 'urgent' : days <= 7 ? 'upcoming' : 'scheduled';
+        
+        if (lowerTitle.includes('wedding')) {
+            return days <= 7 ? 'Wedding celebration (soon!)' : 'Wedding celebration';
+        } else if (lowerTitle.includes('meeting') || lowerTitle.includes('meet')) {
+            return `${urgency.charAt(0).toUpperCase() + urgency.slice(1)} meeting`;
+        } else if (lowerTitle.includes('appointment')) {
+            return `${urgency.charAt(0).toUpperCase() + urgency.slice(1)} appointment`;
+        } else if (lowerTitle.includes('birthday')) {
+            return 'Birthday celebration 🎂';
+        } else if (lowerTitle.includes('party')) {
+            return 'Party event 🎉';
+        } else if (lowerTitle.includes('conference') || lowerTitle.includes('call')) {
+            return 'Conference/call';
+        } else if (lowerTitle.includes('vacation') || lowerTitle.includes('trip')) {
+            return 'Travel/vacation ✈️';
+        } else if (lowerTitle.includes('exam') || lowerTitle.includes('test')) {
+            return days <= 7 ? 'Important exam (prepare!)' : 'Scheduled exam';
+        } else if (lowerTitle.includes('interview')) {
+            return 'Job interview';
+        } else if (lowerTitle.includes('date')) {
+            return 'Personal date';
+        } else if (days <= 3) {
+            return `Upcoming ${lowerTitle}`;
+        } else {
+            return `Scheduled event: ${title}`;
+        }
+    };
+
+    // Helper function to determine event color based on type and urgency
+    const determineEventColor = (title, days) => {
+        const lowerTitle = title.toLowerCase();
+        
+        // Urgent events (red)
+        if (days <= 1) return "#ef4444";
+        
+        // Important personal events (purple)
+        if (lowerTitle.includes('wedding') || lowerTitle.includes('birthday')) {
+            return "#8b5cf6";
+        }
+        
+        // Work/professional events (blue)
+        if (lowerTitle.includes('meeting') || lowerTitle.includes('conference') || 
+            lowerTitle.includes('interview') || lowerTitle.includes('call')) {
+            return "#3b82f6";
+        }
+        
+        // Health/appointments (green)
+        if (lowerTitle.includes('appointment') || lowerTitle.includes('doctor')) {
+            return "#10b981";
+        }
+        
+        // Education/exams (orange)
+        if (lowerTitle.includes('exam') || lowerTitle.includes('test') || lowerTitle.includes('school')) {
+            return "#f59e0b";
+        }
+        
+        // Social events (pink)
+        if (lowerTitle.includes('party') || lowerTitle.includes('date') || lowerTitle.includes('meet')) {
+            return "#ec4899";
+        }
+        
+        // Default (blue)
+        return "#3b82f6";
+    };
+
+    // Helper function to format event titles consistently
+    const formatEventTitle = (title) => {
+        // Capitalize first letter of each word for important words
+        return title.replace(/\b\w+/g, (word) => {
+            // Don't capitalize articles, prepositions, etc. unless they're the first word
+            const lowercaseWords = ['a', 'an', 'the', 'at', 'by', 'for', 'in', 'of', 'on', 'to', 'up', 'and', 'or'];
+            return lowercaseWords.includes(word.toLowerCase()) ? 
+                word.toLowerCase() : 
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        });
+    };
+
+    // Helper function to get validation error reasons (for debugging)
+    const getValidationErrors = (title, days) => {
+        const errors = [];
+        if (!title || title.length === 0) errors.push('empty title');
+        if (title && title.length < 2) errors.push('title too short');
+        if (title && title.length >= 100) errors.push('title too long');
+        if (title && title.toLowerCase().includes('none')) errors.push('contains "none"');
+        if (title && title.includes('X!@')) errors.push('contains formatting artifacts');
+        if (title && title.match(/^(plan|suggestions?|step|calendar)\s*\d*/i)) errors.push('starts with reserved word');
+        if (title && title.match(/^\d+\s*(days?|weeks?|months?)/i)) errors.push('just a time reference');
+        if (title && isProblematicTitle(title)) errors.push('problematic title');
+        if (isNaN(days)) errors.push('invalid days');
+        if (days < 0) errors.push('negative days');
+        if (days > 365) errors.push('days too far in future');
+        return errors;
+    };
+
+    // Fallback function to extract events from natural language when structured extraction fails
+    const extractEventsFromNaturalLanguage = (text) => {
+        const events = [];
+        console.log('🔍 Starting natural language extraction from text:', text.substring(0, 300));
+        
+        const naturalPatterns = [
+            // "I have a wedding in 2 weeks" - Fixed to correctly capture number and unit
+            /(?:i have|there's|there is)\s+(?:a|an)?\s*(\w+)\s+in\s+(\d+)\s+(days?|weeks?|months?)/gi,
+            // "I have an event in two weeks" - Handle written numbers
+            /(?:i have|there's|there is)\s+(?:a|an)?\s*(\w+)\s+in\s+(one|two|three|four|five|six|seven|eight|nine|ten)\s+(days?|weeks?|months?)/gi,
+            // "wedding tomorrow"
+            /(\w+)\s+(tomorrow|today|next week|next month)/gi,
+            // "meeting on Monday"
+            /(\w+)\s+on\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/gi,
+            // "wedding in a week" - Handle "a" as 1
+            /(\w+)\s+in\s+a\s+(day|week|month)/gi
+        ];
+        
+        // Map written numbers to digits
+        const numberMap = {
+            'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+            'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+            'a': 1, 'an': 1
+        };
+        
+        for (let patternIndex = 0; patternIndex < naturalPatterns.length; patternIndex++) {
+            const pattern = naturalPatterns[patternIndex];
+            pattern.lastIndex = 0;
+            let match;
+            
+            while ((match = pattern.exec(text)) !== null) {
+                const eventType = match[1].trim();
+                let days = 0;
+                
+                console.log(`🔍 Pattern ${patternIndex + 1} matched:`, match);
+                
+                // Handle different pattern structures
+                if (patternIndex === 0) {
+                    // "I have a wedding in 2 weeks" - number is in match[2], unit in match[3]
+                    const number = parseInt(match[2]);
+                    const unit = match[3].toLowerCase();
+                    
+                    if (unit.includes('day')) days = number;
+                    else if (unit.includes('week')) days = number * 7;
+                    else if (unit.includes('month')) days = number * 30;
+                    
+                    console.log('📅 Pattern 1 - Number format:', { number, unit, calculatedDays: days });
+                    
+                } else if (patternIndex === 1) {
+                    // "I have an event in two weeks" - written number in match[2], unit in match[3]
+                    const writtenNumber = match[2].toLowerCase();
+                    const number = numberMap[writtenNumber] || 1;
+                    const unit = match[3].toLowerCase();
+                    
+                    if (unit.includes('day')) days = number;
+                    else if (unit.includes('week')) days = number * 7;
+                    else if (unit.includes('month')) days = number * 30;
+                    
+                    console.log('📅 Pattern 2 - Written number format:', { writtenNumber, number, unit, calculatedDays: days });
+                    
+                } else if (patternIndex === 2) {
+                    // "wedding tomorrow" - time reference in match[2]
+                    const timeRef = match[2].toLowerCase();
+                    
+                    if (timeRef === 'tomorrow') days = 1;
+                    else if (timeRef === 'today') days = 0;
+                    else if (timeRef === 'next week') days = 7;
+                    else if (timeRef === 'next month') days = 30;
+                    
+                    console.log('📅 Pattern 3 - Time reference format:', { timeRef, calculatedDays: days });
+                    
+                } else if (patternIndex === 3) {
+                    // "meeting on Monday" - day reference in match[2]
+                    const dayRef = match[2].toLowerCase();
+                    const today = new Date();
+                    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                    
+                    const dayMap = {
+                        'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
+                        'thursday': 4, 'friday': 5, 'saturday': 6
+                    };
+                    
+                    const targetDay = dayMap[dayRef];
+                    if (targetDay !== undefined) {
+                        days = (targetDay - currentDay + 7) % 7;
+                        if (days === 0) days = 7; // If it's the same day, assume next week
+                    }
+                    
+                    console.log('📅 Pattern 4 - Day reference format:', { dayRef, targetDay, currentDay, calculatedDays: days });
+                    
+                } else if (patternIndex === 4) {
+                    // "wedding in a week" - unit in match[2]
+                    const unit = match[2].toLowerCase();
+                    
+                    if (unit === 'day') days = 1;
+                    else if (unit === 'week') days = 7;
+                    else if (unit === 'month') days = 30;
+                    
+                    console.log('📅 Pattern 5 - Article format:', { unit, calculatedDays: days });
+                }
+                
+                // Validate and create event
+                if (days >= 0 && days <= 365 && eventType.length > 1 && !isProblematicTitle(eventType)) {
+                    const startDate = new Date();
+                    startDate.setDate(startDate.getDate() + days);
+                    
+                    const eventData = {
+                        title: formatEventTitle(eventType),
+                        start: startDate.toISOString().split('T')[0],
+                        isAllDay: true,
+                        eventColor: determineEventColor(eventType, days),
+                        description: generateEventDescription(eventType, days) + ' (auto-detected)',
+                        daysFromToday: days
+                    };
+                    
+                    events.push(eventData);
+                    console.log('✅ Auto-detected event from natural language:', eventData);
+                    console.log('📅 Event will be scheduled for:', startDate.toDateString());
+                } else {
+                    console.log('❌ Invalid natural language event filtered out:', { 
+                        eventType, 
+                        days, 
+                        eventTypeLength: eventType.length,
+                        isProblematic: isProblematicTitle(eventType),
+                        validDaysRange: days >= 0 && days <= 365,
+                        reasons: getValidationErrors(eventType, days) 
+                    });
+                }
+            }
+        }
+        
+        console.log(`🎯 Natural language extraction found ${events.length} events:`, events);
         return events;
     };
     
@@ -102,48 +591,132 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
         }
     };
 
-    const extractResponse = (responseData) => {
+    const extractResponse = (responseData, originalUserInput = '') => {
         try {
             const responseText = typeof responseData === 'string' 
                 ? responseData 
                 : JSON.stringify(responseData, null, 2);
 
-            const calendarEvents = extractCalendarEvents(responseText);
-            if (calendarEvents.length > 0 && onCalendarEventDetected) {
-                onCalendarEventDetected(calendarEvents);
+            console.log('🔍 Processing response for calendar/plan extraction:', responseText.substring(0, 500));
+
+            // Enhanced calendar event extraction with detailed logging
+            const calendarEvents = extractCalendarEvents(responseText, originalUserInput);
+            if (calendarEvents.length > 0) {
+                console.log(`📅 Successfully extracted ${calendarEvents.length} calendar events:`, calendarEvents);
+                if (onCalendarEventDetected) {
+                    try {
+                        onCalendarEventDetected(calendarEvents);
+                        toast.success(`Added ${calendarEvents.length} event(s) to your calendar!`, {
+                            position: "bottom-right",
+                            autoClose: 3000
+                        });
+                    } catch (error) {
+                        console.error('❌ Error in calendar event callback:', error);
+                        toast.error('Failed to add events to calendar');
+                    }
+                }
+            } else {
+                console.log('📅 No calendar events detected in response');
+                
+                // Enhanced diagnostic check - see if events were mentioned but parsing failed
+                const eventKeywords = ['wedding', 'meeting', 'appointment', 'birthday', 'event', 'party', 'conference', 'interview'];
+                const foundKeywords = eventKeywords.filter(keyword => 
+                    responseText.toLowerCase().includes(keyword) || 
+                    (originalUserInput && originalUserInput.toLowerCase().includes(keyword))
+                );
+                
+                if (foundKeywords.length > 0) {
+                    console.warn('⚠️ Event keywords found but no events parsed - possible parsing issue');
+                    console.log('📋 Found keywords:', foundKeywords);
+                    console.log('📋 Original user input:', originalUserInput);
+                    console.log('📋 Response text sample:', responseText.substring(0, 500));
+                    
+                    // Try one more direct extraction attempt from user input
+                    if (originalUserInput && !isQuestionAboutExistingInfo(originalUserInput)) {
+                        console.log('🔄 Attempting direct extraction from user input as last resort...');
+                        const directEvents = extractEventsFromNaturalLanguage(originalUserInput);
+                        if (directEvents.length > 0) {
+                            console.log('✅ Direct extraction successful:', directEvents);
+                            if (onCalendarEventDetected) {
+                                onCalendarEventDetected(directEvents);
+                                toast.success(`Added ${directEvents.length} event(s) to your calendar!`, {
+                                    position: "bottom-right",
+                                    autoClose: 3000
+                                });
+                            }
+                        }
+                    }
+                }
             }
             
-            // Extract plan data
+            // Enhanced plan extraction with better error handling
             const planData = extractPlanSteps(responseText);
-            if (planData.steps && planData.steps.length > 0 && onPlanDetected) {
-                onPlanDetected(planData);
+            if (planData.steps && planData.steps.length > 0) {
+                console.log(`📋 Successfully extracted plan with ${planData.steps.length} steps:`, planData);
+                if (onPlanDetected) {
+                    try {
+                        onPlanDetected(planData);
+                        toast.success(`Created plan: ${planData.title}`, {
+                            position: "bottom-right",
+                            autoClose: 3000
+                        });
+                    } catch (error) {
+                        console.error('❌ Error in plan callback:', error);
+                        toast.error('Failed to create plan');
+                    }
+                }
             }
 
+            // Extract and clean the main response text
             const part2Match = responseText.match(/\*\*Part 2: Response\*\*([\s\S]*?)(?:\*\*Part 3:|$)/i);
-            return part2Match && part2Match[1] 
+            const extractedResponse = part2Match && part2Match[1] 
                 ? cleanResponseText(part2Match[1]) 
                 : cleanResponseText(responseText);
 
+            console.log('✅ Response extraction complete');
+            return extractedResponse;
+
         } catch (e) {
-            console.error("Response parsing error:", e);
+            console.error("❌ Response parsing error:", e);
+            toast.error("Error processing response");
             return "An error occurred while processing the response";
         }
     };
 
     const cleanResponseText = (text) => {
-        return text
+        // Preserve code blocks by temporarily replacing them
+        const codeBlocks = [];
+        let processedText = text.replace(/```[\s\S]*?```/g, (match) => {
+            codeBlocks.push(match);
+            return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+        });
+        
+        // Process the non-code parts more aggressively
+        processedText = processedText
             .replace(/\*\*Part \d+:.*?\*\*/g, '')
             .replace(/\)\*!/g, '')
-            .replace(/[*■#!→\-]/g, '')
+            .replace(/\.!\.\./g, '')
+            .replace(/Plan X!@:.*?(?=\n|$)/g, '')
+            .replace(/Step \d+:.*?(?=\n|$)/g, '')
+            .replace(/Suggestions X!@:.*?(?=\n|$)/g, '')
+            .replace(/\[None\]/g, '')
+            .replace(/[*■#!→-]/g, '')
             .replace(/\\n/g, '\n')
             .replace(/\\"/g, '"')
             .replace(/\\u[\dA-F]{4}/gi, m => 
                 String.fromCharCode(parseInt(m.replace(/\\u/g, ''), 16)))
             .split('\n')
             .map(line => line.trim())
-            .filter(line => line && !line.match(/^[0-9.]+/) && !line.startsWith('-'))
+            .filter(line => line && !line.match(/^[0-9.]+$/) && !line.startsWith('-') && !line.includes('X!@'))
             .join('\n')
             .trim();
+            
+        // Put code blocks back
+        codeBlocks.forEach((block, i) => {
+            processedText = processedText.replace(`__CODE_BLOCK_${i}__`, block);
+        });
+        
+        return processedText;
     };
 
     const simulateStreaming = (text) => {
@@ -160,11 +733,82 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
                 index++;
             } else {
                 clearInterval(intervalRef.current);
+                
                 // Add the AI response to chat history when streaming completes
                 // but don't display it in the UI
                 setChatHistory(prev => [...prev, { text, isUser: false }]);
             }
         }, 20);
+    };    // Voice input handlers
+    const handleVoiceTranscript = (transcript, isFinal) => {
+        console.log('📝 Textbox received transcript:', { 
+            transcript, 
+            isFinal, 
+            lastVoiceTranscript, 
+            baseTextBeforeVoice: baseTextBeforeVoiceRef.current,
+            isVoiceSessionActive: isVoiceSessionActiveRef.current,
+            currentInput: input
+        });
+        
+        if (!isFinal) {
+            // For interim results, replace the voice portion, don't append
+            const cleanTranscript = transcript.trim();
+            
+            if (cleanTranscript) {
+                // If this is the start of a new voice session, save the base text
+                if (!isVoiceSessionActiveRef.current) {
+                    console.log('📝 Starting new voice session, saving base text:', input.trim());
+                    const currentInput = input.trim();
+                    setBaseTextBeforeVoice(currentInput);
+                    baseTextBeforeVoiceRef.current = currentInput;
+                    isVoiceSessionActiveRef.current = true;
+                    
+                    // Build new text: current input (as base) + interim transcript
+                    const newText = currentInput + (currentInput ? ' ' : '') + cleanTranscript;
+                    console.log('📝 Updating input with interim (new session):', newText);
+                    setInput(newText);
+                } else {
+                    // Build new text: saved base + current interim transcript
+                    // Use ref to get current value, not stale closure value
+                    const currentBase = baseTextBeforeVoiceRef.current;
+                    const newText = currentBase + (currentBase ? ' ' : '') + cleanTranscript;
+                    console.log('📝 Updating input with interim (existing session):', newText);
+                    setInput(newText);
+                }
+            }
+        }
+    };    const handleVoiceFinalTranscript = (transcript) => {
+        console.log('✨ Textbox received final transcript:', transcript);
+        const cleanTranscript = transcript.trim();
+        
+        // Prevent duplicate final transcripts
+        if (cleanTranscript && cleanTranscript !== lastVoiceTranscript) {
+            setLastVoiceTranscript(cleanTranscript);
+            
+            // Use the saved base text + final transcript
+            const currentBase = baseTextBeforeVoiceRef.current;
+            const newText = currentBase + (currentBase ? ' ' : '') + cleanTranscript;
+            console.log('✨ Setting final input text:', newText);
+            
+            // Update both state and ref to include this final transcript for continuity
+            setBaseTextBeforeVoice(newText);
+            baseTextBeforeVoiceRef.current = newText;
+            setInput(newText);
+            
+            // Don't reset voice session - keep it active for continuation
+            // isVoiceSessionActiveRef.current remains true
+            
+            toast.success('Voice input completed!');
+        } else {
+            console.log('✨ Transcript duplicate or empty, skipping');
+        }
+    };    const handleVoiceStop = () => {
+        console.log('🛑 Voice input manually stopped, clearing voice tracking');
+        // Only clear voice tracking when user manually stops
+        setBaseTextBeforeVoice('');
+        baseTextBeforeVoiceRef.current = '';
+        setLastVoiceTranscript('');
+        isVoiceSessionActiveRef.current = false;
     };
 
     const handleSubmit = async (e) => {
@@ -196,7 +840,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
                 ? response.data
                 : JSON.stringify(response.data, null, 2);
 
-            const processed = extractResponse(responseText);
+            const processed = extractResponse(responseText, userMessage);
             simulateStreaming(processed);
 
         } catch (error) {
@@ -220,14 +864,17 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
             setLoading(false);
             abortControllerRef.current = null;
             setInput(''); // Clear input field after submission
+            
         }
-    };
-
-    const handleReset = () => {
+    };    const handleReset = () => {
         if (abortControllerRef.current) abortControllerRef.current.abort();
         if (intervalRef.current) clearInterval(intervalRef.current);
         setInput('');
         setResponse('');
+        setLastVoiceTranscript(''); // Reset voice transcript tracking
+        setBaseTextBeforeVoice(''); // Reset voice base text tracking
+        baseTextBeforeVoiceRef.current = ''; // Reset ref as well
+        isVoiceSessionActiveRef.current = false; // Reset voice session
         responseBuilder.current = '';
         // Clear chat history when user resets
         setChatHistory([]);
@@ -238,46 +885,101 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
     };
 
     return (
-        <div style={{ 
-            padding: '20px', 
-            margin: '0 auto',
-            fontFamily: 'Arial, sans-serif'
+        <div className="textbox-container" style={{ 
+            padding: '28px', 
+            margin: '0 auto 30px auto',
+            fontFamily: 'Inter, Arial, sans-serif',
+            backgroundColor: darkMode ? 'var(--card-bg)' : 'var(--card-bg)',
+            borderRadius: '16px',
+            boxShadow: 'var(--shadow-lg)',
+            border: 'var(--card-border)',
+            position: 'relative',
+            overflow: 'hidden',
+            backgroundImage: darkMode ? 
+              'linear-gradient(45deg, rgba(31, 41, 55, 0.8) 0%, rgba(31, 41, 55, 1) 100%)' : 
+              'linear-gradient(45deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 1) 100%)',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            overflowX: 'hidden', 
+            display: 'flex',
+            flexDirection: 'column'
         }}>
             <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
                 <textarea 
                     value={input} 
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => {
+                        setInput(e.target.value);
+                        // Reset voice tracking when user manually types
+                        if (e.target.value !== input) {
+                            setLastVoiceTranscript('');
+                            setBaseTextBeforeVoice('');
+                            baseTextBeforeVoiceRef.current = '';
+                            isVoiceSessionActiveRef.current = false;
+                        }
+                    }}
+                    onKeyDown={(e) => {
+                        // Submit on Enter key press, but allow Shift+Enter for new lines
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault(); // Prevent default to avoid adding a new line
+                            if (input.trim() && !loading) {
+                                handleSubmit(e);
+                            }
+                        }
+                    }}
                     placeholder="What's on your mind? I'm here to help..."
                     style={{ 
                         width: '100%',
-                        padding: '12px',
+                        padding: '20px',
                         fontSize: '16px',
-                        marginBottom: '15px',
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        minHeight: '120px',
+                        marginBottom: '20px',
+                        border: `1px solid ${darkMode ? 'var(--border-color)' : 'rgba(226, 232, 240, 0.8)'}`,
+                        borderRadius: '12px',
+                        minHeight: '140px',
                         resize: 'vertical',
-                        fontFamily: 'inherit'
+                        fontFamily: 'inherit',
+                        backgroundColor: darkMode ? 'rgba(17, 24, 39, 0.6)' : 'rgba(255, 255, 255, 0.8)',
+                        color: darkMode ? 'var(--text-primary)' : '#1e293b',
+                        transition: 'all 0.3s ease',
+                        boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)',
+                        backdropFilter: 'blur(8px)',
+                        lineHeight: '1.6'
                     }}
                     disabled={loading}
-                />
-                <div style={{ display: 'flex', gap: '10px' }}>
+                /><div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <button 
                         type="submit" 
                         disabled={loading || !input.trim()}
                         style={{
                             padding: '12px 24px',
-                            background: loading || !input.trim() ? '#6c757d' : '#007bff',
+                            background: loading || !input.trim() 
+                                ? darkMode ? '#475569' : '#94a3b8'
+                                : darkMode ? 'var(--accent-color)' : '#4f46e5',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '4px',
+                            borderRadius: '8px',
                             cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
                             fontSize: '16px',
-                            transition: 'background 0.3s ease',
+                            fontWeight: '600',
+                            transition: 'all 0.3s ease',
                             flex: 1,
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            boxShadow: 'var(--shadow-sm)',
+                            transform: loading || !input.trim() ? 'none' : 'translateY(0)'
+                        }}
+                        onMouseOver={(e) => {
+                            if (!loading && input.trim()) {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                            }
+                        }}
+                        onMouseOut={(e) => {
+                            if (!loading && input.trim()) {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                            }
                         }}
                     >
                         {loading ? (
@@ -296,8 +998,13 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
                                 />
                                 Processing...
                             </>
-                        ) : "Get Help"}
-                    </button>
+                        ) : "Send"}
+                    </button>                    <VoiceInputButton
+                        onTranscript={handleVoiceTranscript}
+                        onFinalTranscript={handleVoiceFinalTranscript}
+                        onStop={handleVoiceStop}
+                        disabled={loading}
+                    />
                     <button
                         type="button"
                         onClick={handleReset}
@@ -318,29 +1025,44 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected }) => {
             
             <div 
                 ref={responseContainerRef}
+                className="textbox-response-container response-container"
                 style={{
-                    padding: '20px',
-                    background: '#f8f9fa',
-                    borderRadius: '8px',
+                    padding: '28px',
+                    background: darkMode ? 
+                      'linear-gradient(135deg, rgba(31, 41, 55, 0.95), rgba(17, 24, 39, 0.95))' : 
+                      'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.95))',
                     minHeight: '200px',
                     maxHeight: '60vh',
                     overflowY: 'auto',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    border: '1px solid #dee2e6',
-                    textAlign: 'right',
-                    direction: 'rtl'
+                    overflowX: 'hidden',
+                    boxShadow: 'var(--shadow-lg)',
+                    border: 'var(--card-border)',
+                    marginTop: '24px',
+                    backgroundSize: '400% 400%',
+                    animation: 'gradientShift 15s ease infinite',
+                    width: '100%',
+                    maxWidth: '100%',
+                    boxSizing: 'border-box'
                 }}
             >
-                <div style={{ 
-                    whiteSpace: 'pre-wrap',
-                    lineHeight: '1.6',
-                    fontSize: '16px',
-                    color: '#212529',
-                    fontFamily: 'monospace',
-                    direction: 'ltr',
-                    unicodeBidi: 'bidi-override',
-                    textAlign: 'left'
-                }}>
+                <div 
+                    className="textbox-response-content"
+                    style={{ 
+                        lineHeight: '1.7',
+                        fontSize: '16px',
+                        color: darkMode ? 'var(--text-primary)' : '#1e293b',
+                        fontFamily: 'Inter, Arial, sans-serif', /* Changed from monospace to match UI font */
+                        width: '100%',
+                        maxWidth: '100%',
+                        overflowWrap: 'break-word',
+                        wordWrap: 'break-word',
+                        wordBreak: 'break-word',
+                        boxSizing: 'border-box',
+                        hyphens: 'auto',
+                        padding: '0',
+                        margin: '0'
+                    }}
+                >
                     {response || (loading ? "Analyzing your request and crafting response..." : "Your response will appear here...")}
                     <div ref={responseEndRef} />
                 </div>

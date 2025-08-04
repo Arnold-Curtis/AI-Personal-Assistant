@@ -7,6 +7,13 @@
   animation: fadeIn 0.5s ease-in-out;
 }
 
+/* Dark mode support for plan container */
+.dark-mode .plan-container {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -20,6 +27,10 @@
   padding-bottom: 10px;
 }
 
+.dark-mode .plan-title {
+  color: var(--text-primary);
+}
+
 .plan-subtitle {
   font-size: 20px;
   color: #007bff;
@@ -29,6 +40,11 @@
   font-style: italic;
   border-bottom: 2px solid #f0f0f0;
   padding-bottom: 15px;
+}
+
+.dark-mode .plan-subtitle {
+  color: var(--accent-color);
+  border-bottom-color: var(--border-color);
 }
 
 .plan-table {
@@ -45,10 +61,19 @@
   border-bottom: 2px solid #e9ecef;
 }
 
+.dark-mode .plan-header {
+  background-color: var(--bg-primary);
+  border-bottom-color: var(--border-color);
+}
+
 .plan-row {
   display: flex;
   border-bottom: 1px solid #e9ecef;
   transition: background-color 0.2s;
+}
+
+.dark-mode .plan-row {
+  border-bottom-color: var(--border-color);
 }
 
 .plan-row:last-child {
@@ -58,6 +83,10 @@
 
 .plan-row:hover {
   background-color: #f8f9fa;
+}
+
+.dark-mode .plan-row:hover {
+  background-color: var(--bg-primary);
 }
 
 .plan-cell {
@@ -74,6 +103,10 @@
   letter-spacing: 0.5px;
 }
 
+.dark-mode .plan-header .plan-cell {
+  color: var(--text-primary);
+}
+
 .editable {
   cursor: pointer;
   padding: 8px;
@@ -84,6 +117,10 @@
 
 .editable:hover {
   background-color: #e9ecef;
+}
+
+.dark-mode .editable:hover {
+  background-color: var(--bg-primary);
 }
 
 .editable:hover::after {
@@ -103,6 +140,12 @@ input, textarea {
   font-size: 14px;
   font-family: inherit;
   outline: none;
+}
+
+.dark-mode input, .dark-mode textarea {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--accent-color);
 }
 
 textarea {
@@ -125,6 +168,10 @@ textarea {
   margin-top: 4px;
 }
 
+.dark-mode .day-name {
+  color: var(--text-secondary);
+}
+
 .plan-actions {
   margin-top: 20px;
   display: flex;
@@ -132,7 +179,7 @@ textarea {
   gap: 15px;
 }
 
-.update-btn, .agree-btn {
+.update-btn, .agree-btn, .cancel-btn {
   padding: 12px 24px;
   font-size: 16px;
   border: none;
@@ -140,6 +187,17 @@ textarea {
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s ease;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
 .update-btn {

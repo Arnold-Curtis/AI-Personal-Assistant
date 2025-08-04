@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { toast as reactToastify } from 'react-toastify';
+import { toast } from './utils/toastUtils';
 import './Calendar.css';
 
 // Add auth token to all axios requests
@@ -18,88 +21,15 @@ axios.interceptors.request.use(
   error => Promise.reject(error)
 );
 
-// Create singleton for event deletion queue
-const eventDeletionQueue = {
-  queue: [],
-  processing: false,
-  processedIds: new Set(), // Track already processed IDs to avoid duplicates
-  
-  isEventInQueue: (eventId) => eventDeletionQueue.queue.some(e => e.id === eventId),
-  
-  addEvent: (event) => {
-    const eventId = event.extendedProps?.id;
-    // Don't add if it's already in the queue or was recently processed
-    if (!eventId || eventDeletionQueue.isEventInQueue(eventId) || 
-        eventDeletionQueue.processedIds.has(eventId)) {
-      return;
-    }
-    eventDeletionQueue.queue.push({
-      id: eventId,
-      title: event.title,
-      event: event
-    });
-  },
-  
-  processNext: async () => {
-    if (eventDeletionQueue.processing || eventDeletionQueue.queue.length === 0) return;
-    
-    eventDeletionQueue.processing = true;
-    const next = eventDeletionQueue.queue.shift();
-    
-    // Add to processed set to prevent duplicates
-    eventDeletionQueue.processedIds.add(next.id);
-    
-    try {
-      await axios.delete(`/api/calendar/events/${next.id}`);
-      console.log(`Event ${next.id} deleted successfully`);
-      return { status: 'success', id: next.id };
-    } catch (error) {
-      const status = error.response?.status;
-      if (status === 404) {
-        console.log(`Event ${next.id} already deleted or not found`);
-        return { status: 'not_found', id: next.id };
-      } else if (status === 401 || status === 403) {
-        console.log(`Authentication error for event ${next.id} - refreshing token`);
-        // Refresh token or handle auth errors - session might have expired
-        window.dispatchEvent(new CustomEvent('auth-refresh-needed'));
-        return { status: 'auth_error', id: next.id };
-      } else {
-        console.error(`Error deleting event ${next.id}:`, error.message);
-        return { status: 'error', id: next.id, message: error.message };
-      }
-    } finally {
-      eventDeletionQueue.processing = false;
-      
-      // Process next item if any
-      if (eventDeletionQueue.queue.length > 0) {
-        setTimeout(() => eventDeletionQueue.processNext(), 300);
-      }
-      
-      // Clear processed IDs after some time to prevent memory leaks
-      // But only clear IDs that aren't in the current queue
-      if (eventDeletionQueue.processedIds.size > 100) {
-        const currentQueueIds = new Set(eventDeletionQueue.queue.map(e => e.id));
-        eventDeletionQueue.processedIds.forEach(id => {
-          if (!currentQueueIds.has(id)) {
-            eventDeletionQueue.processedIds.delete(id);
-          }
-        });
-      }
-    }
-  },
-  
-  clear: () => {
-    eventDeletionQueue.queue = [];
-    // Don't clear processedIds to maintain deleted event history
-  }
-};
-
-const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
+const Calendar = React.forwardRef(({ events, backendOnline, darkMode = false }, ref) => {
   const calendarRef = useRef(null);
   const [internalEvents, setInternalEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [currentView, setCurrentView] = useState(
+    localStorage.getItem('calendarDefaultView') || 'dayGridMonth'
+  );
   
   // Event management state
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -111,10 +41,11 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
   const [undoTimerId, setUndoTimerId] = useState(null);
   const [showUndoButton, setShowUndoButton] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [deletingEventIds, setDeletingEventIds] = useState(new Set()); // Track events being deleted
   const modalRef = useRef(null);
   
   // Format events for FullCalendar
-  const formatEvents = (rawEvents) => {
+  const formatEvents = useCallback((rawEvents) => {
     if (!rawEvents || !Array.isArray(rawEvents)) {
       console.warn('Invalid events data received:', rawEvents);
       return [];
@@ -130,10 +61,35 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
       borderColor: event.eventColor || '#3b82f6',
       backgroundColor: event.eventColor ? `${event.eventColor}22` : '#f0f7ff'
     }));
-  };
+  }, []);
+
+  // Listen for calendar view changes from settings
+  useEffect(() => {
+    const handleViewChange = (event) => {
+      const newView = event.detail.view;
+      setCurrentView(newView);
+      if (calendarRef.current) {
+        const calendarApi = calendarRef.current.getApi();
+        calendarApi.changeView(newView);
+      }
+    };
+
+    window.addEventListener('calendarViewChange', handleViewChange);
+    return () => {
+      window.removeEventListener('calendarViewChange', handleViewChange);
+    };
+  }, []);
+
+  // Update view when currentView changes
+  useEffect(() => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.changeView(currentView);
+    }
+  }, [currentView]);
 
   // Fetch events from backend with improved error handling
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async (silent = false) => {
     if (!backendOnline) {
       setIsLoading(false);
       return;
@@ -158,21 +114,27 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     } catch (error) {
       console.error('Error fetching events:', error);
       setHasError(true);
-      toast.error(`Failed to refresh calendar events: ${error.message || 'Unknown error'}`, {
-        toastId: 'calendar-fetch-error',
-        autoClose: 5000
-      });
+      
+      // Only show error toast if not in silent mode (used after successful deletion)
+      if (!silent) {
+        toast.error(`Failed to refresh calendar events: ${error.message || 'Unknown error'}`, {
+          toastId: 'calendar-fetch-error',
+          autoClose: 5000
+        });
+      }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [backendOnline, formatEvents]);
+  
+  // Function was moved above before useEffect
 
   // Initial load and periodic refresh
   useEffect(() => {
     fetchEvents();
     const interval = setInterval(fetchEvents, 60000); // Refresh every minute
     return () => clearInterval(interval);
-  }, [backendOnline]);
+  }, [fetchEvents, backendOnline]);
 
   // Update when parent events change
   useEffect(() => {
@@ -184,7 +146,7 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
         return [...prev, ...newEvents];
       });
     }
-  }, [events]);
+  }, [events, formatEvents]);
 
   // Handle click outside modal to close it
   useEffect(() => {
@@ -207,43 +169,59 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     const handleAuthRefresh = () => {
       const token = localStorage.getItem('authToken');
       if (token) {
+        // Refresh events when auth is refreshed
         setTimeout(() => {
-          eventDeletionQueue.processNext();
+          fetchEvents();
         }, 1000);
       }
     };
     
     window.addEventListener('auth-refresh-needed', handleAuthRefresh);
     return () => window.removeEventListener('auth-refresh-needed', handleAuthRefresh);
-  }, []);
+  }, [fetchEvents]);
 
-  // Clean up timer when component unmounts
+  // Initialize timer on mount
+  useEffect(() => {
+    // When the component mounts, ensure no lingering timers
+    setUndoTimerId(null);
+  }, []);
+  
+  // Clean up timer when component unmounts or when undoTimerId changes
   useEffect(() => {
     return () => {
-      if (undoTimerId) clearTimeout(undoTimerId);
+      if (undoTimerId) {
+        console.log('Cleanup: clearing timer', undoTimerId);
+        clearTimeout(undoTimerId);
+      }
     };
   }, [undoTimerId]);
 
-  // Auto-hide undo button after timeout
+  // Monitor undo state to ensure we clear timers properly
   useEffect(() => {
-    if (showUndoButton) {
-      const timer = setTimeout(() => {
-        // Actually delete from backend when undo timeout expires
-        permanentlyDeleteEvent();
-      }, 10000);
-      
-      setUndoTimerId(timer);
-      return () => clearTimeout(timer);
+    // This useEffect no longer creates timers - it only monitors for cleanup
+    if (!showUndoButton && undoTimerId) {
+      // Clear timer if undo button is no longer shown
+      console.log('No undo button shown - clearing existing timer:', undoTimerId);
+      clearTimeout(undoTimerId);
+      setUndoTimerId(null);
     }
-  }, [showUndoButton]);
+    
+    // Cleanup function
+    return () => {
+      if (undoTimerId) {
+        console.log('Cleanup: Clearing auto-delete timer:', undoTimerId);
+        clearTimeout(undoTimerId);
+      }
+    };
+  }, [showUndoButton, undoTimerId]);
 
   // Handle event deletion on unmount
   useEffect(() => {
     return () => {
       if (lastDeletedEvent && lastDeletedEvent.extendedProps?.id) {
         // Handle pending deletion when component unmounts
-        eventDeletionQueue.addEvent(lastDeletedEvent);
-        eventDeletionQueue.processNext();
+        axios.delete(`/api/calendar/events/${lastDeletedEvent.extendedProps.id}`)
+          .catch(error => console.error('Error deleting event on unmount:', error));
       }
     };
   }, [lastDeletedEvent]);
@@ -290,76 +268,70 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     }
   };
   
-  // Function to permanently delete the event in the backend
-  const permanentlyDeleteEvent = async () => {
-    if (!lastDeletedEvent) return;
-    
-    try {
-      setIsProcessing(true);
-      
-      // Check if we have a valid event ID to delete
-      if (!lastDeletedEvent.extendedProps?.id) {
-        console.warn("Attempted to delete event without a valid ID", lastDeletedEvent);
-        // Still clear the UI state since we can't delete anything
-        setLastDeletedEvent(null);
-        setShowUndoButton(false);
-        if (undoTimerId) {
-          clearTimeout(undoTimerId);
-          setUndoTimerId(null);
-        }
-        return;
-      }
-      
-      // Add to event deletion queue
-      eventDeletionQueue.addEvent(lastDeletedEvent);
-      
-      // Start processing the queue
-      eventDeletionQueue.processNext()
-        .then(result => {
-          if (result && (result.status === 'success' || result.status === 'not_found')) {
-            toast.info(`Event removed permanently`);
-          } else if (result && result.status === 'auth_error') {
-            toast.error('Authentication error. Try refreshing the page.');
-          } else {
-            toast.error('Failed to remove event. Try again later.');
-          }
-        })
-        .catch(() => {
-          toast.error('Network error. Check your connection.');
-        });
-      
-      // Clear undo state immediately (queue will handle actual deletion)
-      setLastDeletedEvent(null);
-      setShowUndoButton(false);
-      if (undoTimerId) {
-        clearTimeout(undoTimerId);
-        setUndoTimerId(null);
-      }
-    } catch (error) {
-      console.error('Error queueing event deletion:', error);
-      toast.error(`Failed to delete event: ${error.message || 'Unknown error'}`);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   // Calendar event handlers
   const handleEventClick = (info) => {
-    // If there's a pending deletion, finalize it instead of canceling
+    // If there's a pending deletion, auto-delete it immediately when clicking on another event
     if (showUndoButton && lastDeletedEvent) {
-      // Clear the undo timer
+      // Clear the undo timer completely
       if (undoTimerId) {
+        console.log('Clearing undo timer in handleEventClick:', undoTimerId);
         clearTimeout(undoTimerId);
         setUndoTimerId(null);
       }
       
-      // Permanently delete the event
-      eventDeletionQueue.addEvent(lastDeletedEvent);
-      eventDeletionQueue.processNext();
-      
-      // Reset the undo UI state
-      setShowUndoButton(false);
-      setLastDeletedEvent(null);
+      // Auto-delete the pending event from backend
+      if (lastDeletedEvent.extendedProps?.id) {
+        const eventId = lastDeletedEvent.extendedProps.id;
+        
+        // Check if already being deleted
+        if (!deletingEventIds.has(eventId)) {
+          setDeletingEventIds(prev => new Set(prev).add(eventId));
+          
+          // Clear undo state immediately
+          setShowUndoButton(false);
+          setLastDeletedEvent(null);
+          
+          // Add small delay to prevent rapid requests
+          setTimeout(() => {
+            axios.delete(`/api/calendar/events/${eventId}`)
+              .then(() => {
+                console.log('Previous pending event deleted from backend');
+                toast.success('Event permanently deleted', { 
+                  autoClose: 3000
+                });
+                // Refresh calendar after a delay with silent mode
+                setTimeout(() => fetchEvents(true), 1000);
+              })
+              .catch((error) => {
+                const status = error.response?.status;
+                if (status === 404) {
+                  // Event already deleted
+                  console.log('Previous event was already deleted');
+                } else if (status === 409) {
+                  // Database busy
+                  console.warn('Database busy during auto-delete');
+                  setTimeout(() => fetchEvents(true), 1000); // Silent refresh
+                } else {
+                  console.error('Error auto-deleting previous event:', error);
+                }
+              })
+              .finally(() => {
+                // Remove from deleting set after delay
+                setTimeout(() => {
+                  setDeletingEventIds(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(eventId);
+                    return newSet;
+                  });
+                }, 2000);
+              });
+          }, 200);
+        }
+      } else {
+        // No valid ID, just clear the state
+        setShowUndoButton(false);
+        setLastDeletedEvent(null);
+      }
     }
     
     // Now select the new event
@@ -371,7 +343,16 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
 
   const handleDateClick = (arg) => {
     setSelectedEvent(null);
-    setShowUndoButton(false);
+    
+    // Clear any pending undo state
+    if (showUndoButton && lastDeletedEvent) {
+      if (undoTimerId) {
+        clearTimeout(undoTimerId);
+        setUndoTimerId(null);
+      }
+      setShowUndoButton(false);
+      setLastDeletedEvent(null);
+    }
   };
 
   const handleDelete = async () => {
@@ -381,109 +362,192 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
     setIsProcessing(true);
     
     try {
-      // Handle UNDO: Restore the last deleted event
-      if (showUndoButton && lastDeletedEvent) {
-        // Cancel the undo timer
+      // Handle DELETE: Remove the selected event with undo option
+      if (selectedEvent) {
+        // Clear any existing undo state first
         if (undoTimerId) {
           clearTimeout(undoTimerId);
           setUndoTimerId(null);
         }
         
-        try {
-          // First restore the event in the backend
-          const eventToRestore = {
-            ...lastDeletedEvent.extendedProps,
-            title: lastDeletedEvent.title,
-            start: lastDeletedEvent.start,
-            allDay: lastDeletedEvent.allDay || true
-          };
-          
-          // Make sure to remove the ID property so the backend doesn't try to update
-          delete eventToRestore.id;
-          
-          // Add a small timestamp to the title to avoid duplicate detection
-          // This will be invisible to the user but prevents backend duplicate errors
-          const timestamp = new Date().getTime();
-          const uniqueTitle = `${eventToRestore.title} [${timestamp}]`;
-          const originalTitle = lastDeletedEvent.title;
-          
-          // Create a new event with a slightly modified title to avoid duplicate detection
-          const modifiedEvent = {
-            ...eventToRestore,
-            title: uniqueTitle,
-            originalTitle: originalTitle // Keep track of the original title
-          };
-          
-          // Create a new event in the backend
-          const response = await axios.post('/api/calendar/add-event', modifiedEvent);
-          
-          // Get the newly created event with its new ID
-          const newEventData = response.data;
-          
-          // Create a formatted event object with the NEW backend ID to add to the calendar
-          const restoredEventObject = {
-            id: `restored-${timestamp}`, // Use a completely new frontend ID to avoid conflicts
-            title: originalTitle, // Use the clean original title for display (not the unique one)
-            start: lastDeletedEvent.start,
-            allDay: lastDeletedEvent.allDay,
-            extendedProps: {
-              ...lastDeletedEvent.extendedProps,
-              id: newEventData.id, // Update with the NEW backend ID
-              title: originalTitle, // Store the clean original title
-              _backendTitle: uniqueTitle // Store the unique backend title separately
-            },
-            textColor: 'black',
-            borderColor: lastDeletedEvent.extendedProps.eventColor || '#3b82f6',
-            backgroundColor: lastDeletedEvent.extendedProps.eventColor ? 
-              `${lastDeletedEvent.extendedProps.eventColor}22` : '#f0f7ff'
-          };
-          
-          // Add the event back to the calendar UI
-          const calendarApi = calendarRef.current.getApi();
-          calendarApi.addEvent(restoredEventObject);
-          
-          // Add back to our state
-          setInternalEvents(prev => {
-            if (prev.some(e => e.id === restoredEventObject.id)) {
-              return prev;
-            }
-            return [...prev, restoredEventObject];
-          });
-          
-          // Reset undo-related state
-          setLastDeletedEvent(null);
-          setShowUndoButton(false);
-          
-          toast.success('Event restored successfully!');
-        } catch (error) {
-          console.error('Error restoring event:', error);
-          toast.error(`Failed to restore event: ${error.message || 'Unknown error'}`);
-          
-          // Clean up the undo state to avoid further errors
-          setLastDeletedEvent(null);
-          setShowUndoButton(false);
-        }
-      } 
-      // Handle DELETE: Remove the selected event
-      else if (selectedEvent) {
-        // Store reference before removing
-        setLastDeletedEvent(selectedEvent);
+        // Store reference to the event with ALL its properties preserved
+        const eventToStore = {
+          id: selectedEvent.id,
+          title: selectedEvent.title || 'Untitled Event', // Ensure title is preserved
+          start: selectedEvent.start,
+          startStr: selectedEvent.startStr, // Preserve string format
+          allDay: selectedEvent.allDay,
+          borderColor: selectedEvent.borderColor,
+          backgroundColor: selectedEvent.backgroundColor,
+          textColor: selectedEvent.textColor,
+          extendedProps: {
+            id: selectedEvent.extendedProps?.id || selectedEvent.id,
+            description: selectedEvent.extendedProps?.description || '',
+            planTitle: selectedEvent.extendedProps?.planTitle || '',
+            eventColor: selectedEvent.extendedProps?.eventColor || selectedEvent.borderColor || '#3b82f6'
+          }
+        };
         
-        // Enhanced event removal that works more reliably with restored events
+        console.log('Storing deleted event with preserved properties:', eventToStore);
+        setLastDeletedEvent(eventToStore);
+        
+        // Remove from UI immediately (visual feedback)
         removeAllEventInstances(selectedEvent);
         
         // Show undo UI
         setShowUndoButton(true);
         setSelectedEvent(null);
         
-        toast.success('Event deleted - click Undo to restore', { 
-          autoClose: 10000 
+        // First dismiss any existing toasts to avoid conflicts
+        reactToastify.dismiss();
+        
+        // Use our custom toast utility which respects notification settings
+        toast.success('Event deleted - click Undo to restore (10 seconds)', { 
+          autoClose: 10000
         });
+        
+        // Start the auto-delete countdown (independent of notifications)
+        console.log('Starting auto-delete countdown');
+        
+        // Create and store the auto-delete timer
+        const timer = setTimeout(async () => {
+          try {
+            console.log('Auto-delete timer fired for event:', eventToStore.extendedProps.id);
+            setIsProcessing(true);
+            
+            const eventId = eventToStore.extendedProps.id;
+            console.log('Auto-deleting event from backend:', eventId);
+            
+            // Check if this event is already being deleted
+            if (deletingEventIds.has(eventId)) {
+              console.log("Event is already being deleted:", eventId);
+              return;
+            }
+            
+            // Mark as being deleted
+            setDeletingEventIds(prev => new Set(prev).add(eventId));
+            
+            // Actually delete the event from backend now
+            console.log('Sending DELETE request to backend for event ID:', eventId);
+            const response = await axios.delete(`/api/calendar/events/${eventId}`);
+            console.log('Backend delete response:', response.data);
+            
+            // Clear undo state completely
+            setLastDeletedEvent(null);
+            setShowUndoButton(false);
+            setUndoTimerId(null);
+            
+            // Show confirmation
+            toast.success('Event permanently deleted', {
+              toastId: 'auto-delete-success', // Prevent duplicate toasts
+              autoClose: 3000
+            });
+            
+            // Refresh the calendar silently
+            setTimeout(() => fetchEvents(true), 500);
+            
+          } catch (error) {
+            console.error('Error during handleDelete auto-delete:', error);
+            toast.error('Failed to permanently delete event');
+            
+            // Clear undo state
+            setLastDeletedEvent(null);
+            setShowUndoButton(false);
+            setUndoTimerId(null);
+            
+            // Still refresh to check current state
+            setTimeout(() => fetchEvents(true), 1000);
+          } finally {
+            setIsProcessing(false);
+            
+            // Remove from deleting set after a delay
+            if (eventToStore?.extendedProps?.id) {
+              setTimeout(() => {
+                setDeletingEventIds(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(eventToStore.extendedProps.id);
+                  return newSet;
+                });
+              }, 2000);
+            }
+          }
+        }, 10000); // 10 seconds
+        
+        console.log('Storing timer ID in handleDelete:', timer);
+        setUndoTimerId(timer);
       }
     } catch (error) {
-      console.error('Error handling event action:', error);
+      console.error('Error handling event deletion:', error);
       toast.error(`Error: ${error.message || 'Unknown error'}`);
+      
+      // Clear any stuck state
+      setLastDeletedEvent(null);
+      setShowUndoButton(false);
+      setUndoTimerId(null);
+      
       fetchEvents(); // Try to recover state
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Separate function for undo functionality
+  const handleUndo = async () => {
+    if (!lastDeletedEvent || isProcessing) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      // Cancel the auto-delete timer immediately
+      if (undoTimerId) {
+        console.log('Canceling auto-delete timer in handleUndo:', undoTimerId);
+        clearTimeout(undoTimerId);
+        setUndoTimerId(null);
+      }
+      
+      // Dismiss any existing toasts immediately
+      toast.dismiss();
+      
+      // Restore the event to the calendar UI with ALL preserved properties
+      const calendarApi = calendarRef.current.getApi();
+      const restoredEvent = {
+        id: lastDeletedEvent.id,
+        title: lastDeletedEvent.title, // Use preserved title
+        start: lastDeletedEvent.startStr || lastDeletedEvent.start, // Use preserved date
+        allDay: lastDeletedEvent.allDay,
+        extendedProps: lastDeletedEvent.extendedProps, // Use preserved extendedProps
+        textColor: lastDeletedEvent.textColor || 'black',
+        borderColor: lastDeletedEvent.borderColor || lastDeletedEvent.extendedProps?.eventColor || '#3b82f6',
+        backgroundColor: lastDeletedEvent.backgroundColor || (lastDeletedEvent.extendedProps?.eventColor ? `${lastDeletedEvent.extendedProps.eventColor}22` : '#f0f7ff')
+      };
+      
+      console.log('Restoring event with preserved title:', restoredEvent.title);
+      console.log('Restoring event with preserved date:', restoredEvent.start);
+      console.log('Restoring event with preserved extendedProps:', restoredEvent.extendedProps);
+      
+      // Add back to calendar UI
+      calendarApi.addEvent(restoredEvent);
+      
+      // Add back to our state
+      setInternalEvents(prev => [...prev, restoredEvent]);
+      
+      // Clear undo state completely
+      setLastDeletedEvent(null);
+      setShowUndoButton(false);
+      
+      toast.success('Event restored!');
+      
+    } catch (error) {
+      console.error('Error during undo operation:', error);
+      toast.error('Failed to restore event');
+      
+      // Still clear the undo state to prevent stuck UI
+      setLastDeletedEvent(null);
+      setShowUndoButton(false);
+      if (undoTimerId) {
+        clearTimeout(undoTimerId);
+        setUndoTimerId(null);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -555,12 +619,12 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
       <div className={`calendar-content ${isLoading ? 'loading' : ''}`}>
         <FullCalendar
           ref={calendarRef}
-          plugins={[dayGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
+          plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+          initialView={currentView}
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,dayGridWeek,dayGridDay'
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
           }}
           height="auto"
           events={internalEvents}
@@ -574,9 +638,27 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
             meridiem: false
           }}
           eventDidMount={(info) => {
-            info.el.style.borderLeft = `4px solid ${info.event.borderColor || '#3b82f6'}`;
-            info.el.style.backgroundColor = info.event.backgroundColor || '#f0f7ff';
-            info.el.style.color = 'black';
+            const borderColor = info.event.borderColor || '#3b82f6';
+            const backgroundColor = info.event.backgroundColor || (darkMode ? '#4c566a' : '#f0f7ff');
+            const textColor = darkMode ? '#eceff4' : '#1e293b';
+            
+            info.el.style.borderLeft = `4px solid ${borderColor}`;
+            info.el.style.backgroundColor = backgroundColor;
+            info.el.style.color = textColor;
+            info.el.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            info.el.style.borderRadius = '4px';
+            info.el.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+            
+            // Add hover effect
+            info.el.addEventListener('mouseenter', () => {
+              info.el.style.transform = 'translateY(-2px)';
+              info.el.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+            });
+            
+            info.el.addEventListener('mouseleave', () => {
+              info.el.style.transform = 'translateY(0)';
+              info.el.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            });
           }}
           noEventsContent={() => (
             <div style={{
@@ -595,7 +677,7 @@ const Calendar = React.forwardRef(({ events, backendOnline }, ref) => {
       {showUndoButton && (
         <div className="calendar-event-actions">
           <button 
-            onClick={handleDelete} 
+            onClick={handleUndo} 
             className="event-action-button undo-button"
             disabled={isProcessing}
           >

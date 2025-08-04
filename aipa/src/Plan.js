@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import './Plan.css';
+import { scrollAfterResponse } from './utils/scrollUtils';
 
-export const Plan = ({ planData, onUpdatePlan }) => {
+export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
   const [steps, setSteps] = useState([]);
   const [planTitle, setPlanTitle] = useState('');
   const [editMode, setEditMode] = useState({}); // Track which fields are being edited
@@ -20,12 +21,8 @@ export const Plan = ({ planData, onUpdatePlan }) => {
         setEditMode({});
         setEditValues({});
         
-        // Scroll to plan section when it appears
-        if (planContainerRef.current) {
-          setTimeout(() => {
-            planContainerRef.current.scrollIntoView({ behavior: 'smooth' });
-          }, 500);
-        }
+        // Use scroll after response completes
+        scrollAfterResponse(planContainerRef.current);
       } else if (Array.isArray(planData) && planData.length > 0) {
         // Backward compatibility with older format without title
         setSteps(planData);
@@ -33,11 +30,7 @@ export const Plan = ({ planData, onUpdatePlan }) => {
         setEditMode({});
         setEditValues({});
         
-        if (planContainerRef.current) {
-          setTimeout(() => {
-            planContainerRef.current.scrollIntoView({ behavior: 'smooth' });
-          }, 500);
-        }
+        scrollAfterResponse(planContainerRef.current);
       }
     }
   }, [planData]);
@@ -99,6 +92,14 @@ export const Plan = ({ planData, onUpdatePlan }) => {
     toast.success('Plan updated successfully!');
   };
   
+  const handleCancel = () => {
+    if (onUpdatePlan) {
+      // Clear the plan by sending empty array to hide the component
+      onUpdatePlan([]);
+    }
+    toast.success('Plan cancelled');
+  };
+  
   const handleAgree = async () => {
     try {
       let addedCount = 0;
@@ -137,13 +138,11 @@ export const Plan = ({ planData, onUpdatePlan }) => {
       
       toast.success(`Added ${addedCount} events to your calendar!`);
       
-      // Scroll to calendar
-      setTimeout(() => {
-        const calendarElement = document.querySelector('.calendar-container');
-        if (calendarElement) {
-          calendarElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 500);
+      // Scroll to calendar after plan events are added
+      const calendarElement = document.querySelector('.calendar-container');
+      if (calendarElement) {
+        scrollAfterResponse(calendarElement);
+      }
       
     } catch (error) {
       console.error('Error adding plan to calendar:', error);
@@ -274,6 +273,9 @@ export const Plan = ({ planData, onUpdatePlan }) => {
       </div>
       
       <div className="plan-actions">
+        <button className="cancel-btn" onClick={handleCancel}>
+          Cancel Plan
+        </button>
         <button className="update-btn" onClick={handleUpdatePlan}>
           Update Plan
         </button>

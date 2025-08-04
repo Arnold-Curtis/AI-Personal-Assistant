@@ -53,6 +53,7 @@ public class SecurityConfig {
                     "/api/health",
                     "/api/info",
                     "/api/generate",  // Added this line to fix the authorization issue
+                    "/api/public/**", // Added for public test endpoints
                     "/error",
                     "/uploads/**",
                     "/api/upload"

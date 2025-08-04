@@ -17,8 +17,8 @@ import java.util.UUID;
 public class User {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @NotBlank
     @Size(max = 50)
@@ -34,6 +34,9 @@ public class User {
 
     @Column(name = "profile_image")
     private String profileImage;
+
+    @Column(name = "memory_password")
+    private String memoryPassword;
 
     @Column(name = "account_created", updatable = false)
     private LocalDateTime accountCreated;
@@ -80,8 +83,12 @@ public class User {
     }
 
     // Getters and Setters
-    public Long getId() {
+    public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -182,6 +189,14 @@ public class User {
 
     public void setProvider(AuthProvider provider) {
         this.provider = provider;
+    }
+
+    public String getMemoryPassword() {
+        return memoryPassword;
+    }
+
+    public void setMemoryPassword(String memoryPassword) {
+        this.memoryPassword = memoryPassword;
     }
 
     // Helper methods

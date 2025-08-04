@@ -1,13 +1,12 @@
-Generated at: 2025-04-20T13:41:17.512222Z
+Generated at: 2025-08-04T10:04:58.380210700Z
 )*!
 **Part 1: Analysis**
-- "wedding in 2 days" → Calendar: 2 days a wedding
-)*!
+* "I have a wedding in 2 weeks" → Calendar: 14 days from today Wedding, NO plan needed.!.)*!
 **Part 2: Response**
-I see you have a wedding coming up in two days! I have added the event to your calendar. I hope you have a wonderful time celebrating.
+I've noted your wedding and added it to your calendar for 14 days from now so you don't forget!
 )*!
 **Part 3: Categories**
-Calendar: 2 days from today wedding.!..!.
+Calendar: 14 days from today Wedding.!..!.
 Plan X!@: [None]
    Step 1: [None]
    ..!.

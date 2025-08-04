@@ -1,8 +1,0 @@
-$headers = @{ "Content-Type" = "application/json" }
-$body = @{
-    "model" = "phi3:3.8b"
-    "prompt" = "How old are you"
-} | ConvertTo-Json -Compress
-
-Invoke-RestMethod -Uri "https://2e7f-41-90-184-126.ngrok-free.app/api/generate
-" -Method Post -Headers $headers -Body $body

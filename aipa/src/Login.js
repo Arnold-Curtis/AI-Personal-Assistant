@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
-export const Login = ({ onLogin }) => {
+export const Login = ({ onLogin, darkMode = true }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
@@ -89,8 +89,11 @@ export const Login = ({ onLogin }) => {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
+        <div className={`auth-container ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+            <div className={`auth-card ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+                <div className="auth-logo">
+                    <span className="auth-logo-text">AIPA</span>
+                </div>
                 <h2>{isSignup ? 'Create Account' : 'Welcome Back'}</h2>
                 <p className="auth-subtitle">
                     {isSignup ? 'Join us to get started' : 'Sign in to continue'}
