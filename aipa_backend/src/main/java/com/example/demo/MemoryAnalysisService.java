@@ -10,10 +10,12 @@ import java.util.regex.Matcher;
 public class MemoryAnalysisService {
     
     private final MemoryFilterService memoryFilterService;
+    private final InputRoutingService inputRoutingService;
     
     @Autowired
-    public MemoryAnalysisService(MemoryFilterService memoryFilterService) {
+    public MemoryAnalysisService(MemoryFilterService memoryFilterService, InputRoutingService inputRoutingService) {
         this.memoryFilterService = memoryFilterService;
+        this.inputRoutingService = inputRoutingService;
     }
     
     // Enhanced prompt for better memory detection
@@ -62,20 +64,33 @@ public class MemoryAnalysisService {
     
     public MemoryAnalysisResult analyzeForMemory(String userInput, List<String> existingCategories) {
         try {
-            // FIRST: Check if this input is worthy of being stored as memory
+            // FIRST: Use the routing service to determine if this should go to memory
+            InputRoutingService.RoutingDecision routingDecision = inputRoutingService.routeInput(userInput);
+            
+            if (!routingDecision.shouldProcessMemory()) {
+                String reason = routingDecision.getDestination() == InputRoutingService.RoutingDestination.CALENDAR_ONLY 
+                    ? "routed_to_calendar" : "not_memory_worthy";
+                return new MemoryAnalysisResult("None", "None", "None", reason, "None");
+            }
+            
+            // SECOND: Check memory worthiness (for additional filtering)
+            // If routing has high confidence (>= 0.8), trust it completely
+            if (routingDecision.getConfidence() >= 0.8) {
+                // Skip memory filter for high-confidence routing decisions
+                if (containsPersonalInfo(userInput)) {
+                    return createHighConfidenceResult(userInput, existingCategories);
+                } else {
+                    return extractMemoryUsingPatterns(userInput, existingCategories);
+                }
+            }
+            
+            // For lower confidence routing decisions, apply additional filtering
             MemoryFilterService.MemoryWorthinessResult worthinessResult = 
                 memoryFilterService.analyzeMemoryWorthiness(userInput);
             
             if (!worthinessResult.isWorthy()) {
-                System.out.println("🚫 Memory filtered out: " + worthinessResult.getReason() + 
-                                 " (Score: " + String.format("%.2f", worthinessResult.getScore()) + 
-                                 ") - Input: " + userInput.substring(0, Math.min(50, userInput.length())) + "...");
                 return new MemoryAnalysisResult("None", "None", "None", "filtered", "None");
             }
-            
-            System.out.println("✅ Memory passed filter: " + worthinessResult.getReason() + 
-                             " (Score: " + String.format("%.2f", worthinessResult.getScore()) + 
-                             ") - Input: " + userInput.substring(0, Math.min(50, userInput.length())) + "...");
             
             // Pre-process input to detect obvious personal information patterns
             if (containsPersonalInfo(userInput)) {

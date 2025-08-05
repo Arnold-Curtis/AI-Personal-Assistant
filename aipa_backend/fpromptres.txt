@@ -265,3 +265,249 @@ Event has a fixed date and should be tracked.
 ).* YES
 ========================
 
+=== Analysis Result ===
+Timestamp: 2025-08-04T17:42:57.193909800Z
+User Input: whats good my fathers name is Andrew
+Final Decision: no
+Response Analysis:
+Thinking Space:
+The input "whats good my fathers name is Andrew" is a greeting followed by a statement of fact. While it includes a name, it doesn't imply any action or goal. It's a simple conversational exchange and doesn't meet any of the actionable criteria. It falls under the 'Basic Greetings' non-actionable criteria. The user memories are irrelevant to the actionability of the current input.
+
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-04T17:43:39.329378800Z
+User Input: Hey man my dads name is Andrew
+Final Decision: no
+Response Analysis:
+Thinking Space:
+The input "Hey man my dads name is Andrew" is a simple statement or greeting followed by a piece of information. It doesn't involve any complex goals, scheduled events, multi-step tasks, or skill development. It's a simple conversational exchange. Therefore, it falls under the 'Basic Greetings' non-actionable criteria.
+
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-04T17:45:00.481731100Z
+User Input: My birthday is on the 23 march please remember that
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "My birthday is on the 23 march please remember that" is a statement indicating a calendar event. While it's not a question, it implies a reminder to be set. This falls under the 'Calendar Events' actionable criteria. The inclusion of the date makes it something that can be tracked and acted upon.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-04T17:45:30.491013700Z
+User Input: hey man when is my birthday again
+Final Decision: no
+Response Analysis:
+Thinking Space:
+The input is a question about the user's birthday. However, the relevant user memories contain the user's birthday. Therefore, this is a question that can be answered directly using information already available. It doesn't require any complex planning, skill development, or sustained effort. It is essentially an information request that can be fulfilled immediately.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-04T17:45:56.709956300Z
+User Input: also I have a book reading event in 3 weeks
+Final Decision: yes
+Response Analysis:
+Input: "also I have a book reading event in 3 weeks"
+Output:
+Thinking Space:
+This is a scheduled event with a specific timeframe (3 weeks).
+Meets 'Calendar Events' actionable criteria.
+Event has a fixed date and should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-04T17:46:18.940210300Z
+User Input: Please add the book reading event to my calendar
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "Please add the book reading event to my calendar" is a request to schedule an event. Based on the user memories, the event is "in 3 weeks". This qualifies as a 'Calendar Event' because it's a scheduled event with a date (relative, but still a date).
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-04T17:46:45.556680900Z
+User Input: I have another  wedding in 4 weeks
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+This input describes a scheduled event with a specific timeframe (4 weeks). It meets the 'Calendar Events' actionable criteria. While it's similar to a previous event, it's a distinct occurrence that should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-04T17:50:51.050980900Z
+User Input: I would like to learn java
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I would like to learn java" is a statement of intent to acquire a new skill.
+Learning Java programming is a complex goal requiring sustained effort over weeks/months.
+It involves skill development, multiple sequential learning steps.
+It cannot be completed in a single session - needs a structured approach.
+Meets 'Complex Goals' and 'Skill Development' actionable criteria.
+
+Final Decision:
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T07:47:01.150268800Z
+User Input: Hye man I have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "Hye man I have a wedding in 2 weeks" describes a scheduled event with a specific timeframe (2 weeks). This meets the 'Calendar Events' actionable criteria. The event has a fixed date and should be tracked.
+
+Final Decision:
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T07:47:31.040469700Z
+User Input: I also have a car meet in 2 weeks 3 days please work on that for me
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I also have a car meet in 2 weeks 3 days please work on that for me" describes a scheduled event with a specific timeframe (2 weeks 3 days). This satisfies the 'Calendar Events' actionable criterion. The request to "work on that for me" implies that the user wants some action taken regarding this event, suggesting that it's not just a statement of fact but a request for assistance with planning or preparation.
+
+Final Decision:
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T08:12:43.287701800Z
+User Input: Hey man I have a car meet in 2 weeks 4 days man
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "Hey man I have a car meet in 2 weeks 4 days man" describes a scheduled event with a specific timeframe (2 weeks and 4 days). This falls under the 'Calendar Events' actionable criteria. The event has a fixed date and can be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T08:19:45.355059100Z
+User Input: Hey man I have a book reading event in 2 weeks 2 days
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "Hey man I have a book reading event in 2 weeks 2 days" describes a scheduled event with a specific timeframe (2 weeks and 2 days). This meets the 'Calendar Events' actionable criteria.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T08:25:54.234018200Z
+User Input: Hey man I have a book reading event in 2 weeks 2 days
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input describes a scheduled event with a specific timeframe (2 weeks and 2 days).
+Meets the 'Calendar Events' actionable criteria.
+The event has a fixed date and should be tracked.
+
+Final Decision:
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T08:47:10.455412600Z
+User Input: Hey man I have a book reading event in 2 weeks 2 daysHey man I have a book reading event in 2 weeks 2 days
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input describes a scheduled event (book reading) with a specific timeframe (2 weeks 2 days).
+This falls under the 'Calendar Events' actionable criteria.
+The event has a fixed date and could be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T08:49:41.864532400Z
+User Input: Also my girl friends name is Jane
+Final Decision: no
+Response Analysis:
+Input: "Also my girl friends name is Jane"
+Output:
+Thinking Space:
+This input is a statement of fact. It does not involve a complex goal, calendar event, multi-step task, or skill development. It doesn't require any planning or sustained effort. It's simply providing information. It falls under none of the actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T08:50:49.691970200Z
+User Input: My dads name is Paul
+Final Decision: no
+Response Analysis:
+Input: My dads name is Paul
+Output:
+Thinking Space:
+This is a statement of fact. It does not require any action, planning, or skill development. It's simply providing information. It does not meet any of the actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T08:59:12.403074Z
+User Input: My dads name is Paul bytheway
+Final Decision: no
+Response Analysis:
+Input: "My dads name is Paul bytheway"
+Output:
+Thinking Space:
+This is a statement of fact. It doesn't require any action, planning, or skill development. It's not a calendar event or a complex goal. It falls outside the actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T08:59:57.501202500Z
+User Input: Hye man my dads name is Paul
+Final Decision: no
+Response Analysis:
+Thinking Space:
+The input "Hye man my dads name is Paul" is a basic greeting and a statement of fact. It doesn't involve complex goals, calendar events, multi-step tasks, or skill development. It falls under the 'Basic Greetings' non-actionable criteria. It is a simple conversational exchange without a clear objective or sustained effort.
+
+Final Decision:
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T09:00:45.216936600Z
+User Input: My girlfirends name is Jane
+Final Decision: no
+Response Analysis:
+Input: "My girlfirends name is Jane"
+Output:
+Thinking Space:
+This is a statement of fact. It doesn't require any action, planning, or skill development. It falls under the category of a basic statement or piece of information.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T09:09:22.187580400Z
+User Input: Hye man my dads name is Paul
+Final Decision: no
+Response Analysis:
+Thinking Space:
+The input "Hye man my dads name is Paul" is a statement of fact. It's a piece of information, but it doesn't require any action, planning, or sustained effort. It doesn't fit any of the actionable criteria. It's not a complex goal, a calendar event, a multi-step task, or related to skill development.
+
+Final Decision:
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-05T09:09:49.588825600Z
+User Input: I have a car meet in 2 weeks
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I have a car meet in 2 weeks" describes a scheduled event with a specific timeframe (2 weeks). This falls under the 'Calendar Events' actionable criteria. The event has a fixed date and could be tracked.
+
+Final Decision:
+).* YES
+========================
+

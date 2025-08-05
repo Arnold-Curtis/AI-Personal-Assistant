@@ -7,7 +7,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.io.IOException;
@@ -22,8 +21,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.UUID;
-import com.example.demo.User;
-import com.example.demo.UserRepository;
 
 @RestController
 @RequestMapping("/api")
@@ -104,11 +101,13 @@ public class LLMController {
     private final CalendarEventEnhancementService calendarEventEnhancementService;
     private final CalendarResponseValidationService calendarValidationService;
     private final SessionMemoryService sessionMemoryService;
+    private final InputRoutingService inputRoutingService;
+    private final CalendarEventCreationService calendarEventCreationService;
 
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
-    public LLMController(WebClient.Builder webClientBuilder, MemoryService memoryService, UserRepository userRepository, PlanAnalysisService planAnalysisService, CalendarEventEnhancementService calendarEventEnhancementService, CalendarResponseValidationService calendarValidationService, SessionMemoryService sessionMemoryService) {
+    public LLMController(WebClient.Builder webClientBuilder, MemoryService memoryService, UserRepository userRepository, PlanAnalysisService planAnalysisService, CalendarEventEnhancementService calendarEventEnhancementService, CalendarResponseValidationService calendarValidationService, SessionMemoryService sessionMemoryService, InputRoutingService inputRoutingService, CalendarEventCreationService calendarEventCreationService) {
         this.webClient = webClientBuilder
             .baseUrl("https://generativelanguage.googleapis.com/v1beta/models/")
             .defaultHeader("Content-Type", "application/json")
@@ -119,6 +118,8 @@ public class LLMController {
         this.calendarEventEnhancementService = calendarEventEnhancementService;
         this.calendarValidationService = calendarValidationService;
         this.sessionMemoryService = sessionMemoryService;
+        this.inputRoutingService = inputRoutingService;
+        this.calendarEventCreationService = calendarEventCreationService;
     }
 
     private void storeResponse(String response) {
@@ -212,13 +213,44 @@ public class LLMController {
             
             System.out.println("📊 Session Context: " + sessionContext.toString());
             
-            // Enhanced memory analysis and storage
-            MemoryAnalysisService.MemoryAnalysisResult memoryAnalysis = 
-                memoryService.analyzeAndStoreMemory(userId, userInput);
+            // NEW: Use Input Routing Service for mutual exclusivity
+            InputRoutingService.RoutingDecision routingDecision = inputRoutingService.routeInput(userInput);
+            System.out.println("🎯 Routing Decision: " + routingDecision.toString());
             
-            // NEW: Enhanced calendar event detection and analysis
-            CalendarEventEnhancementService.CalendarEventAnalysis calendarAnalysis = 
-                calendarEventEnhancementService.analyzeForCalendarEvents(userInput);
+            // Handle calendar events directly if routed to calendar
+            if (routingDecision.shouldProcessCalendar()) {
+                CalendarEventCreationService.EventCreationResult eventCreationResult = 
+                    calendarEventCreationService.createEventsFromInput(userId, userInput);
+                
+                if (eventCreationResult.hasEvents()) {
+                    System.out.println("📅 Created " + eventCreationResult.getCreatedEvents().size() + " calendar events directly");
+                }
+                
+                if (eventCreationResult.hasErrors()) {
+                    System.out.println("⚠️ Calendar event creation errors: " + eventCreationResult.getErrors());
+                }
+            }
+            
+            // Enhanced memory analysis and storage (only if routed to memory)
+            MemoryAnalysisService.MemoryAnalysisResult memoryAnalysis = null;
+            if (routingDecision.shouldProcessMemory()) {
+                memoryAnalysis = memoryService.analyzeAndStoreMemory(userId, userInput);
+            } else {
+                // Create a placeholder result indicating why memory was skipped
+                String reason = routingDecision.getDestination() == InputRoutingService.RoutingDestination.CALENDAR_ONLY 
+                    ? "routed_to_calendar" : "not_memory_worthy";
+                memoryAnalysis = new MemoryAnalysisService.MemoryAnalysisResult("None", "None", "None", reason, "None");
+            }
+            
+            // NEW: Enhanced calendar event detection and analysis (for response formatting only if not already processed)
+            final CalendarEventEnhancementService.CalendarEventAnalysis calendarAnalysis;
+            if (!routingDecision.shouldProcessCalendar()) {
+                // Only analyze for response formatting, not creation
+                calendarAnalysis = calendarEventEnhancementService.analyzeForCalendarEvents(userInput);
+            } else {
+                // Create empty analysis since we already processed the calendar events
+                calendarAnalysis = new CalendarEventEnhancementService.CalendarEventAnalysis(false, new ArrayList<>(), "");
+            }
             
             // NEW: Enhanced plan analysis to determine if this truly needs a plan
             PlanAnalysisService.PlanAnalysisResult planAnalysis = 

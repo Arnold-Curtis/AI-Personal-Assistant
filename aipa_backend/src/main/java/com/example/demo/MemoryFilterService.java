@@ -228,7 +228,7 @@ public class MemoryFilterService {
     
     private boolean containsNameInformation(String input) {
         return input.matches(".*\\b(my name|i'm|i am|call me|named|known as)\\s+[A-Za-z]+.*") ||
-               input.matches(".*\\b(my \\w+('s)? name is|my \\w+ is called)\\s+[A-Za-z]+.*");
+               input.matches(".*\\b(my \\w+('?s)? name is|my \\w+ is called|my \\w+ is named)\\s+[A-Za-z]+.*");
     }
     
     private boolean containsLocationInformation(String input) {
@@ -237,7 +237,8 @@ public class MemoryFilterService {
     }
     
     private boolean containsRelationshipInformation(String input) {
-        return input.matches(".*\\b(my wife|my husband|my partner|my boyfriend|my girlfriend|my family|my parents|my children|my kids|my mom|my dad|my mother|my father|my sister|my brother)\\b.*");
+        return input.matches(".*\\b(my wife|my husband|my partner|my boyfriend|my girlfriend|my family|my parents|my children|my kids|my mom|my dad|my mother|my father|my sister|my brother)\\b.*") ||
+               input.matches(".*\\b(my \\w+('?s)? (name is|is named|is called))\\b.*");
     }
     
     private boolean containsPreferenceInformation(String input) {
