@@ -3,12 +3,8 @@ package com.example.demo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 import java.time.LocalDateTime;
 
 @Service
@@ -17,18 +13,32 @@ public class MemoryService {
     private final EncryptionUtil encryptionUtil;
     private final UserRepository userRepository;
     private final MemoryAnalysisService memoryAnalysisService;
+    private final MemoryDeduplicationService memoryDeduplicationService;
 
     @Autowired
     public MemoryService(MemoryRepository memoryRepository, EncryptionUtil encryptionUtil, 
-                        UserRepository userRepository, MemoryAnalysisService memoryAnalysisService) {
+                        UserRepository userRepository, MemoryAnalysisService memoryAnalysisService,
+                        MemoryDeduplicationService memoryDeduplicationService) {
         this.memoryRepository = memoryRepository;
         this.encryptionUtil = encryptionUtil;
         this.userRepository = userRepository;
         this.memoryAnalysisService = memoryAnalysisService;
+        this.memoryDeduplicationService = memoryDeduplicationService;
     }
 
     @Transactional
     public Memory storeMemory(UUID userId, String category, String content) {
+        // Check for duplicates before storing
+        MemoryDeduplicationService.DuplicationCheckResult duplicationCheck = 
+            memoryDeduplicationService.checkForDuplicate(userId, category, content);
+        
+        if (duplicationCheck.isDuplicate()) {
+            // Update the existing memory's timestamp to show it's still relevant
+            Memory existingMemory = duplicationCheck.getDuplicateMemory();
+            existingMemory.setUpdatedAt(LocalDateTime.now());
+            return memoryRepository.save(existingMemory);
+        }
+        
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
             
@@ -36,6 +46,7 @@ public class MemoryService {
         memory.setUser(user);
         memory.setCategory(category);
         memory.setEncryptedContent(encryptionUtil.encrypt(content));
+        
         return memoryRepository.save(memory);
     }
 
@@ -176,14 +187,11 @@ public class MemoryService {
                     
                 if (!categoryToUse.equals("None")) {
                     storeMemory(userId, categoryToUse, analysis.getMemoryToStore());
-                    System.out.println("Memory stored - Category: " + categoryToUse + 
-                                     ", Content: " + analysis.getMemoryToStore());
                 }
             }
             
             return analysis;
         } catch (Exception e) {
-            System.err.println("Error in memory analysis and storage: " + e.getMessage());
             return new MemoryAnalysisService.MemoryAnalysisResult("None", "None", "None", "low", "None");
         }
     }
@@ -286,5 +294,75 @@ public class MemoryService {
         stats.append("Categories: ").append(String.join(", ", categories)).append("\n");
         
         return stats.toString();
+    }
+    
+    /**
+     * Clean up existing duplicate memories
+     */
+    @Transactional
+    public Map<String, Object> cleanupDuplicates(UUID userId) {
+        List<Map<String, Object>> allMemories = getAllMemoriesWithDetails(userId);
+        int originalCount = allMemories.size();
+        int duplicatesRemoved = 0;
+        
+        // Group memories by category
+        Map<String, List<Map<String, Object>>> memoriesByCategory = new HashMap<>();
+        for (Map<String, Object> memory : allMemories) {
+            String category = (String) memory.get("category");
+            memoriesByCategory.computeIfAbsent(category, k -> new ArrayList<>()).add(memory);
+        }
+        
+        // Check each category for duplicates
+        for (Map.Entry<String, List<Map<String, Object>>> entry : memoriesByCategory.entrySet()) {
+            String category = entry.getKey();
+            List<Map<String, Object>> memories = entry.getValue();
+            
+            // Sort by creation date (oldest first)
+            memories.sort((m1, m2) -> 
+                ((LocalDateTime) m1.get("createdAt"))
+                .compareTo((LocalDateTime) m2.get("createdAt"))
+            );
+            
+            Set<UUID> processedMemories = new HashSet<>();
+            
+            for (int i = 0; i < memories.size(); i++) {
+                Map<String, Object> memory1 = memories.get(i);
+                UUID memory1Id = (UUID) memory1.get("id");
+                
+                if (processedMemories.contains(memory1Id)) continue;
+                
+                // Check all subsequent memories for duplicates
+                for (int j = i + 1; j < memories.size(); j++) {
+                    Map<String, Object> memory2 = memories.get(j);
+                    UUID memory2Id = (UUID) memory2.get("id");
+                    
+                    if (processedMemories.contains(memory2Id)) continue;
+                    
+                    String content2 = (String) memory2.get("content");
+                    
+                    // Check if this is a duplicate
+                    MemoryDeduplicationService.DuplicationCheckResult result = 
+                        memoryDeduplicationService.checkForDuplicate(userId, category, content2);
+                    
+                    if (result.isDuplicate() && result.getDuplicateMemory() != null && 
+                        result.getDuplicateMemory().getId().equals(memory1Id)) {
+                        // Deactivate the newer duplicate
+                        deactivateMemory(memory2Id);
+                        processedMemories.add(memory2Id);
+                        duplicatesRemoved++;
+                    }
+                }
+                
+                processedMemories.add(memory1Id);
+            }
+        }
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("originalMemoryCount", originalCount);
+        result.put("duplicatesRemoved", duplicatesRemoved);
+        result.put("finalMemoryCount", originalCount - duplicatesRemoved);
+        result.put("message", "Cleaned up " + duplicatesRemoved + " duplicate memories");
+        
+        return result;
     }
 } 

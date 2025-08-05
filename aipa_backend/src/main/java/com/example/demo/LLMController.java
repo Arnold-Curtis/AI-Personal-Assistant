@@ -211,11 +211,8 @@ public class LLMController {
             SessionMemoryService.SessionContextResult sessionContext = 
                 sessionMemoryService.trackChatAndGetContext(userId, sessionId, userInput);
             
-            System.out.println("📊 Session Context: " + sessionContext.toString());
-            
             // NEW: Use Input Routing Service for mutual exclusivity
             InputRoutingService.RoutingDecision routingDecision = inputRoutingService.routeInput(userInput);
-            System.out.println("🎯 Routing Decision: " + routingDecision.toString());
             
             // Handle calendar events directly if routed to calendar
             if (routingDecision.shouldProcessCalendar()) {
@@ -223,11 +220,11 @@ public class LLMController {
                     calendarEventCreationService.createEventsFromInput(userId, userInput);
                 
                 if (eventCreationResult.hasEvents()) {
-                    System.out.println("📅 Created " + eventCreationResult.getCreatedEvents().size() + " calendar events directly");
+                    
                 }
                 
                 if (eventCreationResult.hasErrors()) {
-                    System.out.println("⚠️ Calendar event creation errors: " + eventCreationResult.getErrors());
+                    
                 }
             }
             
@@ -306,13 +303,6 @@ public class LLMController {
             }
             contextWithMemories.append("================================\n");
             
-            // Log all analyses for debugging
-            System.out.println("Memory analysis result: " + memoryAnalysis.getConfidence() + 
-                             ", Type: " + memoryAnalysis.getMemoryType() + 
-                             ", Should store: " + memoryAnalysis.shouldStore());
-            System.out.println("Calendar analysis result: " + calendarAnalysis.toString());
-            System.out.println("Plan analysis result: " + planAnalysis.toString());
-                        
             // Continue with actionable/non-actionable check
             return webClient.post()
                 .uri(uriBuilder -> uriBuilder
@@ -331,10 +321,8 @@ public class LLMController {
                 .flatMapMany(analysisResponse -> {
                     try {
                         String fullResponse = extractGeminiResponse(analysisResponse);
-                        System.out.println("Full Analysis Response:\n" + fullResponse);
                         
                         String finalDecision = parseFinalDecision(fullResponse);
-                        System.out.println("Parsed Decision: " + finalDecision);
                         
                         storeAnalysisResult(fullResponse, finalDecision, userInput);
 

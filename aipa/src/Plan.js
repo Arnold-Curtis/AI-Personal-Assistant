@@ -104,9 +104,6 @@ export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
     try {
       let addedCount = 0;
       
-      // Log the current plan title for debugging
-      console.log('Adding events with plan title:', planTitle);
-      
       // Add each step as a calendar event
       for (const step of steps) {
         // Extract day number from the day string (e.g. "3 days from today")

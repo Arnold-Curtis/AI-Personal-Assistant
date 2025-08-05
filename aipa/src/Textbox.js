@@ -247,8 +247,8 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                         isAllDay: true,
                         eventColor: eventColor,
                         description: description,
-                        daysFromToday: days, // Store for deduplication
-                        signature: eventSignature // Store signature for debugging
+                        daysFromToday: days,
+                        signature: eventSignature
                     };
                     
                     console.log('✅ Added unique event:', eventData);
@@ -397,7 +397,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         });
     };
 
-    // Helper function to get validation error reasons (for debugging)
+    // Helper function to get validation error reasons
     const getValidationErrors = (title, days) => {
         const errors = [];
         if (!title || title.length === 0) errors.push('empty title');

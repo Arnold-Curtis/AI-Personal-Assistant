@@ -355,9 +355,6 @@ public class DemoApplication {
             @SuppressWarnings("unchecked")
             Map<String, Object> settings = (Map<String, Object>) payload.get("settings");
             
-            // Log the settings for debugging
-            System.out.println("Saving settings for user " + user.getEmail() + ": " + settings);
-            
             return ResponseEntity.ok(Map.of(
                 "message", "Settings saved successfully",
                 "timestamp", java.time.Instant.now().toString()

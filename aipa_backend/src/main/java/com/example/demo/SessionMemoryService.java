@@ -46,8 +46,6 @@ public class SessionMemoryService {
             if (shouldSendContext) {
                 calendarContext = calendarContextService.generateCalendarEventsContext(userId, sessionId);
                 session.markContextSent();
-                System.out.println(String.format("📅 Session Memory: Sending calendar context for user %s, session %s, chat #%d", 
-                    userId.toString().substring(0, 8), sessionId, session.getChatCount()));
             }
             
             // Save session
@@ -132,7 +130,6 @@ public class SessionMemoryService {
             // Set chat count to a multiple of 10 minus 1, so next increment triggers context
             s.setChatCount(9);
             sessionRepository.save(s);
-            System.out.println("Forced context for next message in session: " + sessionId);
         }
     }
     
