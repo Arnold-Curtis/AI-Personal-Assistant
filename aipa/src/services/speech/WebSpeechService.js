@@ -22,7 +22,7 @@ export class WebSpeechService extends BaseSpeechService {
     }    try {
       console.log('🎤 WebSpeech: Starting recognition...');
       
-      // Reset duplicate tracking
+      
       this.lastFinalTranscript = '';
       
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -106,3 +106,4 @@ export class WebSpeechService extends BaseSpeechService {
     return this.recording;
   }
 }
+

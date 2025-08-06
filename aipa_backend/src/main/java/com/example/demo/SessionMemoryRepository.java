@@ -26,3 +26,4 @@ public interface SessionMemoryRepository extends JpaRepository<SessionMemory, UU
     @Query("SELECT COUNT(s) FROM SessionMemory s WHERE s.user.id = ?1 AND s.isActive = true")
     long countActiveSessionsByUser(UUID userId);
 }
+

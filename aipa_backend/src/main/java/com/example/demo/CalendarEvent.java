@@ -34,10 +34,10 @@ public class CalendarEvent {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore  // Add this annotation to break the circular reference
+    @JsonIgnore  
     private User user;
 
-    // Constructors
+    
     public CalendarEvent() {
     }
 
@@ -52,7 +52,7 @@ public class CalendarEvent {
         this.user = user;
     }
 
-    // Getters and Setters
+    
     public UUID getId() {
         return id;
     }
@@ -117,10 +117,7 @@ public class CalendarEvent {
         this.user = user;
     }
 
-    /**
-     * Updates this event's properties from another event
-     * @param updatedEvent The event containing updated properties
-     */
+    
     public void updateFrom(CalendarEvent updatedEvent) {
         if (updatedEvent.getTitle() != null) {
             this.title = updatedEvent.getTitle();

@@ -26,27 +26,27 @@ public class CalendarEventCreationService {
         this.userRepository = userRepository;
     }
     
-    // Enhanced patterns for direct event extraction from user input
+    
     private static final List<EventPattern> EVENT_EXTRACTION_PATTERNS = Arrays.asList(
         new EventPattern(
             Pattern.compile("(?:i have|there'?s|i'?ve got)\\s+(?:a|an)?\\s*([^\\s]+(?:\\s+[^\\s]+)*)\\s+in\\s+(\\d+)\\s+(days?|weeks?|months?)", Pattern.CASE_INSENSITIVE),
-            new int[]{1, 2, 3} // title, number, unit
+            new int[]{1, 2, 3} 
         ),
         new EventPattern(
             Pattern.compile("(?:i have|there'?s|i'?ve got)\\s+(?:a|an)?\\s*([^\\s]+(?:\\s+[^\\s]+)*)\\s+(tomorrow|today)", Pattern.CASE_INSENSITIVE),
-            new int[]{1, 2, -1} // title, timeword, none
+            new int[]{1, 2, -1} 
         ),
         new EventPattern(
             Pattern.compile("(?:i have|there'?s|i'?ve got)\\s+(?:a|an)?\\s*([^\\s]+(?:\\s+[^\\s]+)*)\\s+next\\s+(week|month|monday|tuesday|wednesday|thursday|friday|saturday|sunday)", Pattern.CASE_INSENSITIVE),
-            new int[]{1, 2, -1} // title, timeword, none
+            new int[]{1, 2, -1} 
         ),
         new EventPattern(
             Pattern.compile("(?:i'm going|i'll be)\\s+(?:to\\s+)?(?:a|an)?\\s*([^\\s]+(?:\\s+[^\\s]+)*)\\s+(?:in\\s+)?(\\d+)\\s+(days?|weeks?|months?)", Pattern.CASE_INSENSITIVE),
-            new int[]{1, 2, 3} // title, number, unit
+            new int[]{1, 2, 3} 
         ),
         new EventPattern(
             Pattern.compile("([^\\s]+(?:\\s+[^\\s]+)*)\\s+(?:is\\s+)?(?:on\\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)\\s+(\\d{1,2})(?:st|nd|rd|th)?", Pattern.CASE_INSENSITIVE),
-            new int[]{1, 2, 3} // title, month, day
+            new int[]{1, 2, 3} 
         )
     );
     
@@ -76,14 +76,12 @@ public class CalendarEventCreationService {
         int currentDayOfWeek = today.getDayOfWeek().getValue();
         int daysUntil = targetDayOfWeek - currentDayOfWeek;
         if (daysUntil <= 0) {
-            daysUntil += 7; // Next week
+            daysUntil += 7; 
         }
         return daysUntil;
     }
     
-    /**
-     * Creates calendar events directly from user input with enhanced reliability
-     */
+    
     @Transactional
     public EventCreationResult createEventsFromInput(UUID userId, String userInput) {
         logger.info("Creating events from input: " + userInput);
@@ -155,13 +153,13 @@ public class CalendarEventCreationService {
     private LocalDate calculateEventDate(Matcher matcher, EventPattern pattern) {
         try {
             if (pattern.groups[1] == -1) {
-                // No second group, must be a time word
+                
                 return LocalDate.now();
             }
             
             String secondGroup = matcher.group(pattern.groups[1]).toLowerCase();
             
-            // Check if it's a number (relative time)
+            
             if (secondGroup.matches("\\d+")) {
                 int number = Integer.parseInt(secondGroup);
                 String unit = matcher.group(pattern.groups[2]).toLowerCase();
@@ -182,7 +180,7 @@ public class CalendarEventCreationService {
                 }
             }
             
-            // Check if it's a month name
+            
             if (MONTH_TO_NUMBER.containsKey(secondGroup)) {
                 int month = MONTH_TO_NUMBER.get(secondGroup);
                 int day = Integer.parseInt(matcher.group(pattern.groups[2]));
@@ -190,7 +188,7 @@ public class CalendarEventCreationService {
                 LocalDate today = LocalDate.now();
                 LocalDate eventDate = LocalDate.of(today.getYear(), month, day);
                 
-                // If the date has passed this year, assume next year
+                
                 if (eventDate.isBefore(today)) {
                     eventDate = eventDate.plusYears(1);
                 }
@@ -198,11 +196,11 @@ public class CalendarEventCreationService {
                 return eventDate;
             }
             
-            // Check if it's a time word
+            
             if (TIME_WORD_TO_DAYS.containsKey(secondGroup)) {
                 int daysToAdd = TIME_WORD_TO_DAYS.get(secondGroup);
                 if (secondGroup.equals("week") || secondGroup.equals("month")) {
-                    // "next week" or "next month"
+                    
                     if (secondGroup.equals("week")) {
                         return LocalDate.now().plusWeeks(1);
                     } else {
@@ -234,7 +232,7 @@ public class CalendarEventCreationService {
         
         String lowerTitle = title.toLowerCase().trim();
         
-        // Check against problematic titles
+        
         Set<String> problematicTitles = Set.of(
             "with", "from", "to", "in", "on", "at", "by", "for",
             "the", "a", "an", "and", "or", "but", "is", "are", "was", "were",
@@ -270,14 +268,14 @@ public class CalendarEventCreationService {
         event.setDescription("Created from: \"" + parsedEvent.title + "\"");
         event.setEventColor(determineEventColor(parsedEvent.title));
         
-        // Persist the event directly
+        
         entityManager.persist(event);
         
         return event;
     }
     
     private String formatEventTitle(String title) {
-        // Capitalize first letter of each word
+        
         return Arrays.stream(title.split("\\s+"))
                     .map(word -> word.substring(0, 1).toUpperCase() + 
                                (word.length() > 1 ? word.substring(1).toLowerCase() : ""))
@@ -294,13 +292,13 @@ public class CalendarEventCreationService {
         if (lowerTitle.contains("wedding") || lowerTitle.contains("party")) return "#96CEB4";
         if (lowerTitle.contains("exam") || lowerTitle.contains("test")) return "#FFEAA7";
         
-        return "#DDA0DD"; // Default purple
+        return "#DDA0DD"; 
     }
     
-    // Helper classes
+    
     private static class EventPattern {
         final Pattern pattern;
-        final int[] groups; // indices of matcher groups to extract
+        final int[] groups; 
         
         EventPattern(Pattern pattern, int[] groups) {
             this.pattern = pattern;
@@ -344,3 +342,4 @@ public class CalendarEventCreationService {
         }
     }
 }
+

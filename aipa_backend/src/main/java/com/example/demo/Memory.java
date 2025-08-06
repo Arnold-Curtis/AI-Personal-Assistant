@@ -30,14 +30,14 @@ public class Memory {
     @Column(nullable = false)
     private boolean isActive;
 
-    // Default constructor
+    
     public Memory() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.isActive = true;
     }
 
-    // Getters and Setters
+    
     public UUID getId() {
         return id;
     }

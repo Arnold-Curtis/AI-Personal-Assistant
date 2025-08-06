@@ -47,7 +47,7 @@ public class PlanTestController {
     public Map<String, Object> getPlanExamples() {
         Map<String, Object> examples = new HashMap<>();
         
-        // Test cases that SHOULD trigger plans
+        
         String[] planWorthy = {
             "I want to learn Java programming",
             "I'd like to start a fitness routine",
@@ -58,7 +58,7 @@ public class PlanTestController {
             "I want to improve my cooking skills"
         };
         
-        // Test cases that should NOT trigger plans
+        
         String[] notPlanWorthy = {
             "What is 1 + 1?",
             "How do I cook pasta?",
@@ -78,3 +78,4 @@ public class PlanTestController {
         return examples;
     }
 }
+

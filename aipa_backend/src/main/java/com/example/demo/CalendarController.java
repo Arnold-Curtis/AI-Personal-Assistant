@@ -44,12 +44,12 @@ public class CalendarController {
                 return ResponseEntity.status(404).body(Map.of("error", "User not found"));
             }
 
-            // If event has an ID, it's an update
+            
             if (event.getId() != null) {
                 return updateEvent(event, user);
             }
 
-            // Check for duplicate events
+            
             List<CalendarEvent> existingEvents = entityManager
                 .createQuery("SELECT e FROM CalendarEvent e WHERE e.title = :title AND e.start = :start AND e.user = :user", CalendarEvent.class)
                 .setParameter("title", event.getTitle())
@@ -65,7 +65,7 @@ public class CalendarController {
             event.setUser(user);
             entityManager.persist(event);
             
-            // Return a converted DTO to avoid circular references
+            
             Map<String, Object> eventDto = convertToDto(event);
             return ResponseEntity.ok(eventDto);
             
@@ -85,7 +85,7 @@ public class CalendarController {
                 return ResponseEntity.status(404).body(Map.of("error", "Event not found"));
             }
             
-            // Update fields
+            
             existingEvent.setTitle(updatedEvent.getTitle());
             if (updatedEvent.getDescription() != null) {
                 existingEvent.setDescription(updatedEvent.getDescription());
@@ -131,7 +131,7 @@ public class CalendarController {
                 .setParameter("user", user)
                 .getResultList();
             
-            // Convert to DTOs to prevent serialization issues
+            
             List<Map<String, Object>> eventDtos = new ArrayList<>();
             for (CalendarEvent event : events) {
                 eventDtos.add(convertToDto(event));
@@ -149,7 +149,7 @@ public class CalendarController {
     @GetMapping("/events/check/{id}")
     public ResponseEntity<?> checkEventExists(@PathVariable UUID id, HttpServletRequest request) {
         try {
-            // First authenticate the user
+            
             String token = extractToken(request);
             String email = jwtUtil.extractUsername(token);
             User user = userRepository.findByEmail(email);
@@ -158,7 +158,7 @@ public class CalendarController {
                 return ResponseEntity.status(404).body(Map.of("error", "User not found"));
             }
 
-            // Check if the event exists
+            
             CalendarEvent event = entityManager.find(CalendarEvent.class, id);
             boolean exists = event != null && event.getUser().equals(user);
             
@@ -175,7 +175,7 @@ public class CalendarController {
     @Transactional
     public ResponseEntity<?> deleteEvent(@PathVariable UUID id, HttpServletRequest request) {
         try {
-            // First authenticate the user
+            
             String token = extractToken(request);
             String email = jwtUtil.extractUsername(token);
             User user = userRepository.findByEmail(email);
@@ -184,7 +184,7 @@ public class CalendarController {
                 return ResponseEntity.status(404).body(Map.of("error", "User not found"));
             }
 
-            // Use bulk delete which is more efficient for SQLite
+            
             int deletedCount = entityManager.createQuery(
                 "DELETE FROM CalendarEvent e WHERE e.id = :id AND e.user = :user")
                 .setParameter("id", id)
@@ -195,7 +195,7 @@ public class CalendarController {
                 logger.info("Event deleted successfully via bulk delete: " + id);
                 return ResponseEntity.ok(Map.of("message", "Event deleted successfully", "deletedCount", deletedCount));
             } else {
-                // Event not found - return 404 but with informative message
+                
                 logger.info("Event not found for deletion: " + id);
                 return ResponseEntity.status(404).body(Map.of("error", "Event not found or already deleted"));
             }
@@ -204,7 +204,7 @@ public class CalendarController {
             logger.severe("Error deleting event: " + e.getMessage());
             e.printStackTrace();
             
-            // Check if this is a locking issue
+            
             if (e.getMessage().contains("database table is locked") || 
                 e.getMessage().contains("SQLITE_LOCKED")) {
                 return ResponseEntity.status(409).body(Map.of("error", "Database busy, please try again"));
@@ -232,7 +232,7 @@ public class CalendarController {
                 .setParameter("today", today)
                 .getResultList();
             
-            // Convert to DTOs to prevent serialization issues
+            
             List<Map<String, Object>> eventDtos = new ArrayList<>();
             for (CalendarEvent event : upcomingEvents) {
                 eventDtos.add(convertToDto(event));
@@ -247,9 +247,7 @@ public class CalendarController {
         }
     }
 
-    /**
-     * Converts a CalendarEvent entity to a Map DTO to avoid circular reference issues
-     */
+    
     private Map<String, Object> convertToDto(CalendarEvent event) {
         Map<String, Object> dto = new HashMap<>();
         dto.put("id", event.getId());
@@ -262,10 +260,7 @@ public class CalendarController {
         return dto;
     }
 
-    /**
-     * Get all calendar events for a user directly (for internal use)
-     * This method is used by session context service to avoid HTTP complexity
-     */
+    
     public List<CalendarEvent> getUserCalendarEventsDirect(UUID userId) {
         try {
             User user = userRepository.findById(userId)
@@ -279,7 +274,7 @@ public class CalendarController {
         } catch (Exception e) {
             logger.severe("Error fetching calendar events directly: " + e.getMessage());
             e.printStackTrace();
-            return List.of(); // Return empty list on error
+            return List.of(); 
         }
     }
 

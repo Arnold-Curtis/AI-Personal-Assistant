@@ -10,7 +10,7 @@ export const VoiceInputButton = ({ onTranscript, onFinalTranscript, onStop, disa
   const [lastFinalTranscript, setLastFinalTranscript] = useState('');
   const speechServiceRef = useRef(null);
   useEffect(() => {
-    // Check for speech service availability
+    
     console.log('🔍 Checking speech service availability...');
     console.log('Environment AssemblyAI key:', process.env.REACT_APP_ASSEMBLYAI_API_KEY ? 'Present' : 'Missing');
     
@@ -32,21 +32,21 @@ export const VoiceInputButton = ({ onTranscript, onFinalTranscript, onStop, disa
     }
 
     try {
-      console.log('🎤 Starting voice recording with provider:', currentProvider);      // Reset fallback flag when starting fresh
+      console.log('🎤 Starting voice recording with provider:', currentProvider);      
       if (!isRecording) {
         setFallbackAttempted(false);
-        setLastFinalTranscript(''); // Reset duplicate tracking
+        setLastFinalTranscript(''); 
       }
       
-      // Create speech service instance
+      
       speechServiceRef.current = SpeechServiceFactory.createService(currentProvider);
       console.log('✅ Speech service created:', speechServiceRef.current);
       
-      // Set up event handlers
+      
       speechServiceRef.current.on(SpeechEvents.START, () => {
         console.log('🎙️ Recording started event received');
         setIsRecording(true);
-        // Reset transcript tracking when recording starts
+        
         setLastFinalTranscript('');
         toast.info('🎤 Listening...', { autoClose: 2000 });
       });
@@ -59,7 +59,7 @@ export const VoiceInputButton = ({ onTranscript, onFinalTranscript, onStop, disa
       });      speechServiceRef.current.on(SpeechEvents.FINAL_TRANSCRIPT, (data) => {
         console.log('✨ Final transcript received:', data);
         
-        // Prevent duplicate final transcripts
+        
         if (data.transcript && data.transcript !== lastFinalTranscript) {
           setLastFinalTranscript(data.transcript);
           if (onFinalTranscript) {
@@ -72,12 +72,12 @@ export const VoiceInputButton = ({ onTranscript, onFinalTranscript, onStop, disa
         console.error('❌ Speech recognition error:', data);
         setIsRecording(false);
         
-        // If AssemblyAI fails due to authorization, try fallback to Web Speech API
+        
         if (currentProvider === 'assemblyai' && !fallbackAttempted && (data.error === 'Not authorized' || data.message.includes('Not authorized'))) {
           console.log('🔄 AssemblyAI authorization failed, falling back to Web Speech API...');
           toast.warning('AssemblyAI unavailable, switching to browser speech recognition...');
           
-          // Switch to Web Speech API and mark fallback as attempted
+          
           setCurrentProvider('web-speech');
           setFallbackAttempted(true);
           setTimeout(() => {
@@ -94,7 +94,7 @@ export const VoiceInputButton = ({ onTranscript, onFinalTranscript, onStop, disa
         setIsRecording(false);
       });
 
-      // Start recording
+      
       console.log('🚀 Starting speech service recording...');
       await speechServiceRef.current.startRecording();
       console.log('✅ Speech service recording started successfully');
@@ -110,7 +110,7 @@ export const VoiceInputButton = ({ onTranscript, onFinalTranscript, onStop, disa
         await speechServiceRef.current.stopRecording();
         setIsRecording(false);
         
-        // Call the onStop callback when user manually stops
+        
         if (onStop) {
           onStop();
         }
@@ -244,3 +244,4 @@ export const VoiceInputButton = ({ onTranscript, onFinalTranscript, onStop, disa
     </>
   );
 };
+

@@ -511,3 +511,435 @@ Final Decision:
 ).* YES
 ========================
 
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:43:02.496976Z
+User Input: Hey man whats good
+Final Decision: no
+Response Analysis:
+Thinking Space:
+This is a basic greeting, a simple conversational exchange without a clear goal or task. It doesn't require any planning, skill development, or tracking of events. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:43:16.809676100Z
+User Input: Im chilling I have a wedding in like 2 weeks man
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I'm chilling I have a wedding in like 2 weeks man" contains a statement about a wedding in 2 weeks. This qualifies as a calendar event.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:43:44.466124700Z
+User Input: nice thanks man also a car meet in like a week
+Final Decision: no
+Response Analysis:
+Input: nice thanks man also a car meet in like a week
+Output:
+Thinking Space:
+The input expresses gratitude ("nice thanks man") and mentions a car meet happening "in like a week." The gratitude part is conversational. The car meet is a scheduled event with a timeframe, but the timeframe is vague ("like a week"). It doesn't specify if any preparation or planning is required. It is somewhat similar to a calendar event, but without a specific date, the actionability is reduced. The "Plan Analysis Result" indicates the input does not warrant a plan.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:44:06.700050400Z
+User Input: yea appreciate and also I think you may like to know this my dad named Alan
+Final Decision: no
+Response Analysis:
+Thinking Space:
+This input is a statement of appreciation and an additional piece of personal information. It does not contain any actionable elements as defined by the criteria. There are no complex goals, calendar events, multi-step tasks, or skill development involved. It's not a question, information request, greeting, immediate task, or troubleshooting request.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:44:59.712984800Z
+User Input: I have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I have a wedding in 2 weeks" indicates a scheduled event with a specific timeframe. This falls under the 'Calendar Events' actionable criteria. The user also provided a relevant memory that may be useful in the context of the wedding.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:46:03.494130Z
+User Input: Hey man whats good I have a wedding in 2 weeks man
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "Hey man whats good I have a wedding in 2 weeks man" combines a basic greeting with a calendar event. While the greeting is non-actionable, the wedding in two weeks qualifies as a calendar event.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:46:27.003264Z
+User Input: and a week later a car meet! i am so excited!
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input describes a car meet scheduled a week later, indicating a future event with a specific timeframe. This falls under the 'Calendar Events' actionable criteria, as it's a scheduled event that should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:46:45.761784100Z
+User Input: please add the car meet to the calendar
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "please add the car meet to the calendar" is a request to schedule an event. The user memory confirms the existence of a car meet a week later, implying a specific date. This meets the 'Calendar Events' actionable criteria.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:47:17.326563200Z
+User Input: Hey man whats good
+Final Decision: no
+Response Analysis:
+Thinking Space:
+This is a basic greeting/conversational exchange. It doesn't involve any complex goals, calendar events, multi-step tasks, or skill development. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:47:44.384063700Z
+User Input: Hey man  whats good
+Final Decision: no
+Response Analysis:
+Thinking Space:
+This is a basic greeting/conversational exchange. It does not involve complex goals, calendar events, multi-step tasks, or skill development. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:48:36.991427300Z
+User Input: Hey man whats good
+Final Decision: no
+Response Analysis:
+Thinking Space:
+This is a basic greeting, a simple conversational exchange. It doesn't involve any complex goals, calendar events, multi-step tasks, or skill development. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:49:09.231223600Z
+User Input: nah I just wanted to tell you that I am super excited for this wedding event I am attending in 2 weeks
+Final Decision: yes
+Response Analysis:
+Input: "Oh man I just wanted to tell you that I am super excited for this wedding event I am attending in 2 weeks"
+Output:
+Thinking Space:
+This input expresses excitement about a wedding event happening in 2 weeks.
+The wedding event in 2 weeks falls under the 'Calendar Events' actionable criteria.
+While the main sentence is an expression of excitement, the mention of the wedding in 2 weeks makes it actionable.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:49:40.406460400Z
+User Input: I have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+This is a scheduled event with a specific timeframe (2 weeks).
+Meets 'Calendar Events' actionable criteria.
+Event has a fixed date and should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:50:37.488596Z
+User Input: Hey man whats good
+Final Decision: no
+Response Analysis:
+Thinking Space:
+This is a basic greeting, a simple conversational exchange. It does not involve any complex goals, scheduled events, multi-step tasks, or skill development. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:50:55.077527900Z
+User Input: I have this wedding in 2 weeks i am so excited!
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I have this wedding in 2 weeks i am so excited!" expresses excitement about a wedding in two weeks. While the excitement itself isn't actionable, the wedding in two weeks is a calendar event.
+Meets 'Calendar Events' actionable criteria.
+
+Final Decision:
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:51:26.138219500Z
+User Input: and a car meet event a week right after!
+Final Decision: yes
+Response Analysis:
+Input: "I have a wedding in 2 weeks and a car meet event a week right after!"
+Output:
+Thinking Space:
+This input describes two scheduled events: a wedding in 2 weeks and a car meet a week after that. Both events have specific dates relative to the current time. This falls under the 'Calendar Events' actionable criteria.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:57:05.512858900Z
+User Input: hello
+Final Decision: no
+Response Analysis:
+Input: hello
+Output:
+Thinking Space:
+This is a basic greeting, a simple conversational exchange without a goal.
+It doesn't require any planning, skill development, or sustained effort.
+It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T19:57:31.971982500Z
+User Input: Hey man I have this car meet in 2 weeks
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+This input indicates a scheduled event (car meet) with a specific timeframe (2 weeks). This aligns with the 'Calendar Events' actionable criteria. Although car meets don't inherently require complex planning, the fact that it's scheduled for a specific date in the future makes it something that could be tracked or reminded about.
+
+Final Decision:
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:02:32.531466700Z
+User Input: Hey man I have this wedding in 2 weeks that I am super excited for
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I have this wedding in 2 weeks that I am super excited for" describes a scheduled event (wedding) with a specific timeframe (2 weeks). This meets the 'Calendar Events' actionable criteria. While it also includes an expression of excitement, the primary content is the event itself.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:02:58.072902800Z
+User Input: appreciate
+Final Decision: no
+Response Analysis:
+Input: "What time is it?"
+Output:
+Thinking Space:
+This is a simple request for the current time. It falls under the 'Information Requests' non-actionable criteria. It's a one-off question that doesn't require any planning, skill development, or sustained effort.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:03:17.999941400Z
+User Input: also there is this car meet  event in 3 weeks that I am hyped for
+Final Decision: yes
+Response Analysis:
+Input: also there is this car meet  event in 3 weeks that I am hyped for
+Output:
+Thinking Space:
+This is a scheduled event with a specific timeframe (3 weeks).
+Meets 'Calendar Events' actionable criteria.
+Event has a fixed date and should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:03:42.747693400Z
+User Input: car meet in 3 weeks
+Final Decision: yes
+Response Analysis:
+Input: "car meet in 3 weeks"
+Output:
+Thinking Space:
+This is a scheduled event with a specific timeframe (3 weeks).
+Meets 'Calendar Events' actionable criteria.
+Event has a fixed date and should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:04:28.850765Z
+User Input: Hey man I have a wedding event in 3 weeks that I am super excited for!
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input mentions a wedding event in 3 weeks, which falls under the 'Calendar Events' actionable criteria. Even though the user expresses excitement, the core information is about a scheduled event with a specific timeframe.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:06:17.788689600Z
+User Input: Hey man whats good I have a wedding I am exceited for its in 2 weeks!!!!!
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input mentions a wedding in 2 weeks, which is a calendar event. This falls under the 'Calendar Events' actionable criteria. The excitement doesn't change the fact that the wedding is a scheduled event with a date.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:07:26.359019900Z
+User Input: Hey man I have a wedding in 2 weeks!
+Final Decision: yes
+Response Analysis:
+Input: "Hey man I have a wedding in 2 weeks!"
+Output:
+Thinking Space:
+This input describes a scheduled event (wedding) with a specific timeframe (2 weeks).
+It meets the 'Calendar Events' actionable criteria.
+The event has a fixed date and could require planning and preparation.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:07:55.364974Z
+User Input: appreciate
+Final Decision: no
+Response Analysis:
+Input: "What time is it?"
+Output:
+Thinking Space:
+This is a simple information request. It asks for the current time, which can be answered immediately.
+It doesn't involve any complex goals, multi-step tasks, skill development, or calendar events.
+It falls under the 'Information Requests' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:08:11.338973200Z
+User Input: also my dad is named Alan!....
+Final Decision: no
+Response Analysis:
+Input: "also my dad is named Alan!...."
+Output:
+Thinking Space:
+This is a statement of fact or a basic greeting/conversational exchange. It does not involve complex goals, calendar events, multi-step tasks, or skill development. It does not require sustained effort or planning. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:08:25.145322600Z
+User Input: and my mom jane
+Final Decision: no
+Response Analysis:
+Input: and my mom jane
+Output:
+Thinking Space:
+This input is a fragment of a sentence and lacks a clear goal or action. It doesn't fall under any of the actionable criteria (complex goals, calendar events, multi-step tasks, or skill development). It's not a question, information request, greeting, or troubleshooting request. It also doesn't represent an immediate task.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:49:58.148391Z
+User Input: Hey whats good
+Final Decision: no
+Response Analysis:
+Input: "Hey whats good"
+Output:
+Thinking Space:
+This is a basic greeting/conversational exchange. It doesn't involve any complex goals, scheduled events, multi-step tasks, or skill development. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:50:20.886017900Z
+User Input: I have this wedding in 2 weeks mann
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I have this wedding in 2 weeks mann" indicates a scheduled event with a specific timeframe (2 weeks). This falls under the 'Calendar Events' actionable criteria. The user likely wants to track or be reminded of this event. The additional information about the user's dad being named Alan is irrelevant to the actionability of the wedding event.
+
+Final Decision:
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:50:55.877618400Z
+User Input: and also a car meet in 2 weeks 4 days!
+Final Decision: yes
+Response Analysis:
+Input: "and also a car meet in 2 weeks 4 days!"
+Output:
+Thinking Space:
+This input describes a scheduled event (car meet) with a specific timeframe (2 weeks 4 days).
+This meets the 'Calendar Events' actionable criteria.
+The event has a fixed date and should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:52:20.370853400Z
+User Input: whats good
+Final Decision: no
+Response Analysis:
+Input: whats good
+Output:
+Thinking Space:
+This is a basic greeting, a simple conversational exchange. It doesn't involve any complex goals, scheduled events, multi-step tasks, or skill development. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:52:33.354628700Z
+User Input: I have this wedding in 2 weeks 2 days man
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I have this wedding in 2 weeks 2 days man" describes a scheduled event with a specific timeframe (2 weeks and 2 days). This falls under the 'Calendar Events' actionable criteria. Although the plan analysis suggests no plan is needed, the core criteria for actionability is still met. The additional information about the user's dad is irrelevant to the actionability of the wedding event.
+
+Final Decision:
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:52:58.491331400Z
+User Input: sure appreciate and also I have a car meet in 3 weeks
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I sure appreciate and also I have a car meet in 3 weeks" contains two parts. The first part "I sure appreciate" is a basic greeting and is non-actionable. The second part "I have a car meet in 3 weeks" is a scheduled event with a specific timeframe (3 weeks). This meets the 'Calendar Events' actionable criteria.
+
+Final Decision:
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:53:18.730297800Z
+User Input: niceee and a book reading event in 2 days
+Final Decision: yes
+Response Analysis:
+Input: niceee and a book reading event in 2 days
+Output:
+Thinking Space:
+The input contains "a book reading event in 2 days". This indicates a scheduled event with a specific date.
+Meets the 'Calendar Events' actionable criteria.
+The "niceee" part seems like a conversational filler and can be ignored for actionability.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:53:44.529770300Z
+User Input: and a day after that a bike ride with friends
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "and a day after that a bike ride with friends" refers to a future event. The AI has correctly identified this as a calendar event occurring two days from today. It meets the 'Calendar Events' actionable criteria.
+
+Final Decision:
+).* YES
+Calendar: 2 days from today Bike Ride with Friends.!.
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-06T20:54:29.107988600Z
+User Input: I said i have a bike riding event in 3 days please add it
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I said i have a bike riding event in 3 days please add it" describes a calendar event with a specific timeframe (3 days). This falls under the 'Calendar Events' actionable criteria. The request also implies a desire to add the event to a calendar or schedule, indicating a task that requires action.
+).* YES
+========================
+

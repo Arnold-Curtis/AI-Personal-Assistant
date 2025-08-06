@@ -17,7 +17,7 @@ export class SpeechServiceFactory {
   static getAvailableProviders() {
     const providers = [];
     
-    // Check AssemblyAI availability
+    
     if (process.env.REACT_APP_ASSEMBLYAI_API_KEY) {
       providers.push({
         id: SpeechServiceProviders.ASSEMBLY_AI,
@@ -27,7 +27,7 @@ export class SpeechServiceFactory {
       });
     }
     
-    // Check Web Speech API availability
+    
     const webSpeechSupported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
     providers.push({
       id: SpeechServiceProviders.WEB_SPEECH,
@@ -41,14 +41,14 @@ export class SpeechServiceFactory {
   static getBestAvailableProvider() {
     const providers = this.getAvailableProviders();
     
-    // For now, prefer Web Speech API as it's more reliable for browser usage
-    // AssemblyAI requires additional setup for CORS and API validation
+    
+    
     const webSpeech = providers.find(p => p.id === SpeechServiceProviders.WEB_SPEECH && p.supported);
     if (webSpeech) {
       return SpeechServiceProviders.WEB_SPEECH;
     }
     
-    // Fallback to AssemblyAI if available
+    
     const assemblyAI = providers.find(p => p.id === SpeechServiceProviders.ASSEMBLY_AI && p.supported);
     if (assemblyAI) {
       return SpeechServiceProviders.ASSEMBLY_AI;
@@ -57,3 +57,4 @@ export class SpeechServiceFactory {
     return null;
   }
 }
+

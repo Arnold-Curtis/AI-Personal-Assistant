@@ -7,7 +7,7 @@
   animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Dark mode support for plan container */
+
 .dark-mode .plan-container {
   background: var(--bg-secondary);
   color: var(--text-primary);

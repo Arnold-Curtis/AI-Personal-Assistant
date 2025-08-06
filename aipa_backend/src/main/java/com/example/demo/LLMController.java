@@ -99,6 +99,7 @@ public class LLMController {
     private final UserRepository userRepository;
     private final PlanAnalysisService planAnalysisService;
     private final CalendarEventEnhancementService calendarEventEnhancementService;
+    private final EnhancedCalendarEventService enhancedCalendarEventService;
     private final CalendarResponseValidationService calendarValidationService;
     private final SessionMemoryService sessionMemoryService;
     private final InputRoutingService inputRoutingService;
@@ -107,15 +108,16 @@ public class LLMController {
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
-    public LLMController(WebClient.Builder webClientBuilder, MemoryService memoryService, UserRepository userRepository, PlanAnalysisService planAnalysisService, CalendarEventEnhancementService calendarEventEnhancementService, CalendarResponseValidationService calendarValidationService, SessionMemoryService sessionMemoryService, InputRoutingService inputRoutingService, CalendarEventCreationService calendarEventCreationService) {
+    public LLMController(WebClient.Builder webClientBuilder, MemoryService memoryService, UserRepository userRepository, PlanAnalysisService planAnalysisService, CalendarEventEnhancementService calendarEventEnhancementService, EnhancedCalendarEventService enhancedCalendarEventService, CalendarResponseValidationService calendarValidationService, SessionMemoryService sessionMemoryService, InputRoutingService inputRoutingService, CalendarEventCreationService calendarEventCreationService) {
         this.webClient = webClientBuilder
-            .baseUrl("https://generativelanguage.googleapis.com/v1beta/models/")
+            .baseUrl("https:
             .defaultHeader("Content-Type", "application/json")
             .build();
         this.memoryService = memoryService;
         this.userRepository = userRepository;
         this.planAnalysisService = planAnalysisService;
         this.calendarEventEnhancementService = calendarEventEnhancementService;
+        this.enhancedCalendarEventService = enhancedCalendarEventService;
         this.calendarValidationService = calendarValidationService;
         this.sessionMemoryService = sessionMemoryService;
         this.inputRoutingService = inputRoutingService;
@@ -178,7 +180,7 @@ public class LLMController {
         String userInput = (String) request.get("prompt");
         final List<ChatMessage> chatHistory = new ArrayList<>();
         
-        // Get user from authentication
+        
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User user = userRepository.findByEmail(userDetails.getUsername());
         if (user == null) {
@@ -186,7 +188,7 @@ public class LLMController {
         }
         UUID userId = user.getId();
         
-        // Parse chat history if provided
+        
         if (request.containsKey("history")) {
             try {
                 List<ChatMessage> history = objectMapper.convertValue(
@@ -204,7 +206,7 @@ public class LLMController {
         }
 
         try {
-            // NEW: Session memory tracking with calendar context
+            
             String sessionId = (String) request.getOrDefault("sessionId", 
                 "session_" + System.currentTimeMillis() + "_" + userId.toString().substring(0, 8));
             
@@ -213,14 +215,15 @@ public class LLMController {
             
             System.out.println("📊 Session Context: " + sessionContext.toString());
             
-            // NEW: Use Input Routing Service for mutual exclusivity
+            
             InputRoutingService.RoutingDecision routingDecision = inputRoutingService.routeInput(userInput);
             System.out.println("🎯 Routing Decision: " + routingDecision.toString());
             
-            // Handle calendar events directly if routed to calendar
+            
             if (routingDecision.shouldProcessCalendar()) {
-                CalendarEventCreationService.EventCreationResult eventCreationResult = 
-                    calendarEventCreationService.createEventsFromInput(userId, userInput);
+                
+                EnhancedCalendarEventService.EventCreationResult eventCreationResult = 
+                    enhancedCalendarEventService.createEventsFromInputAI(userId, userInput);
                 
                 if (eventCreationResult.hasEvents()) {
                     System.out.println("📅 Created " + eventCreationResult.getCreatedEvents().size() + " calendar events directly");
@@ -231,38 +234,38 @@ public class LLMController {
                 }
             }
             
-            // Enhanced memory analysis and storage (only if routed to memory)
+            
             MemoryAnalysisService.MemoryAnalysisResult memoryAnalysis = null;
             if (routingDecision.shouldProcessMemory()) {
                 memoryAnalysis = memoryService.analyzeAndStoreMemory(userId, userInput);
             } else {
-                // Create a placeholder result indicating why memory was skipped
+                
                 String reason = routingDecision.getDestination() == InputRoutingService.RoutingDestination.CALENDAR_ONLY 
                     ? "routed_to_calendar" : "not_memory_worthy";
                 memoryAnalysis = new MemoryAnalysisService.MemoryAnalysisResult("None", "None", "None", reason, "None");
             }
             
-            // NEW: Enhanced calendar event detection and analysis (for response formatting only if not already processed)
-            final CalendarEventEnhancementService.CalendarEventAnalysis calendarAnalysis;
+            
+            final EnhancedCalendarEventService.CalendarAnalysisResult calendarAnalysis;
             if (!routingDecision.shouldProcessCalendar()) {
-                // Only analyze for response formatting, not creation
-                calendarAnalysis = calendarEventEnhancementService.analyzeForCalendarEvents(userInput);
+                
+                calendarAnalysis = enhancedCalendarEventService.analyzeForCalendarEventsAI(userInput);
             } else {
-                // Create empty analysis since we already processed the calendar events
-                calendarAnalysis = new CalendarEventEnhancementService.CalendarEventAnalysis(false, new ArrayList<>(), "");
+                
+                calendarAnalysis = new EnhancedCalendarEventService.CalendarAnalysisResult(false, new ArrayList<>(), "");
             }
             
-            // NEW: Enhanced plan analysis to determine if this truly needs a plan
+            
             PlanAnalysisService.PlanAnalysisResult planAnalysis = 
                 planAnalysisService.analyzeForPlan(userInput);
             
-            // Get relevant memories for context
+            
             List<String> relevantMemories = memoryService.getRelevantMemories(userId, userInput);
             
-            // Build enhanced context with session memory, memories, calendar events, and plan analysis
+            
             StringBuilder contextWithMemories = new StringBuilder();
             
-            // Add session calendar context if this is start of session or every 10th chat
+            
             if (sessionContext.shouldSendContext() && !sessionContext.getCalendarContext().isEmpty()) {
                 contextWithMemories.append(sessionContext.getCalendarContext()).append("\n");
             }
@@ -275,17 +278,19 @@ public class LLMController {
                 contextWithMemories.append("===============================\n");
             }
             
-            // Add calendar event analysis context
+            
             if (calendarAnalysis.hasEvents()) {
                 contextWithMemories.append("\n=== CALENDAR EVENTS DETECTED ===\n");
-                contextWithMemories.append("CRITICAL: The following calendar events were detected and MUST be included in the response:\n");
-                for (CalendarEventEnhancementService.DetectedEvent event : calendarAnalysis.getEvents()) {
+                contextWithMemories.append("CRITICAL: The following calendar events were detected using advanced AI and MUST be included in the response:\n");
+                for (EnhancedCalendarEventService.CalendarEventInfo event : calendarAnalysis.getEvents()) {
                     contextWithMemories.append("- ").append(event.getTitle())
                                      .append(" in ").append(event.getDaysFromToday())
-                                     .append(" days from today\n");
+                                     .append(" days from today (Confidence: ")
+                                     .append(String.format("%.1f%%", event.getConfidence() * 100))
+                                     .append(")\n");
                 }
                 contextWithMemories.append("MANDATORY FORMAT: Use EXACTLY this format in Part 3:\n");
-                for (CalendarEventEnhancementService.DetectedEvent event : calendarAnalysis.getEvents()) {
+                for (EnhancedCalendarEventService.CalendarEventInfo event : calendarAnalysis.getEvents()) {
                     contextWithMemories.append("Calendar: ").append(event.getDaysFromToday())
                                      .append(" days from today ").append(event.getTitle()).append(".!.\n");
                 }
@@ -293,7 +298,7 @@ public class LLMController {
                 contextWithMemories.append("================================\n");
             }
             
-            // Add plan analysis context to help guide response
+            
             contextWithMemories.append("\n=== PLAN ANALYSIS GUIDANCE ===\n");
             contextWithMemories.append("Plan Analysis Result: ").append(planAnalysis.toString()).append("\n");
             if (planAnalysis.shouldCreatePlan()) {
@@ -306,14 +311,14 @@ public class LLMController {
             }
             contextWithMemories.append("================================\n");
             
-            // Log all analyses for debugging
+            
             System.out.println("Memory analysis result: " + memoryAnalysis.getConfidence() + 
                              ", Type: " + memoryAnalysis.getMemoryType() + 
                              ", Should store: " + memoryAnalysis.shouldStore());
             System.out.println("Calendar analysis result: " + calendarAnalysis.toString());
             System.out.println("Plan analysis result: " + planAnalysis.toString());
                         
-            // Continue with actionable/non-actionable check
+            
             return webClient.post()
                 .uri(uriBuilder -> uriBuilder
                     .path("gemini-2.0-flash:generateContent")
@@ -338,16 +343,16 @@ public class LLMController {
                         
                         storeAnalysisResult(fullResponse, finalDecision, userInput);
 
-                        // Build final prompt with chat history context
+                        
                         StringBuilder promptWithHistory = new StringBuilder();
                         
-                        // Use enhanced template for actionable prompts, with special calendar template for calendar events
+                        
                         if (finalDecision.equals("yes")) {
                             String promptTemplatePath = calendarAnalysis.hasEvents() ? 
-                                "enhanced_calendar_promptmst.txt" : PROMPT_TEMPLATE_PATH;
+                                "enhanced_ai_calendar_promptmst.txt" : PROMPT_TEMPLATE_PATH;
                             String promptTemplate = Files.readString(Paths.get(promptTemplatePath));
                             
-                            // Replace date placeholders with actual date
+                            
                             String formattedDate = getFormattedDate();
                             promptTemplate = promptTemplate.replace("[DAY_OF_WEEK] the [DAY] of [MONTH] [YEAR]", formattedDate);
                             
@@ -358,7 +363,7 @@ public class LLMController {
                             promptWithHistory.append("You are an AI assistant helping with a conversation.\n**Conversation History:**\n");
                         }
                         
-                        // Add memory context to prompt (ENHANCED)
+                        
                         if (!relevantMemories.isEmpty()) {
                             promptWithHistory.append("\n**IMPORTANT USER MEMORIES (Consider these in your response):**\n");
                             for (String memory : relevantMemories) {
@@ -367,7 +372,7 @@ public class LLMController {
                             promptWithHistory.append("\n");
                         }
                         
-                        // Add conversation history if available, limiting to last 10 messages
+                        
                         int startIndex = Math.max(0, chatHistory.size() - 10);
                         for (int i = startIndex; i < chatHistory.size(); i++) {
                             ChatMessage msg = chatHistory.get(i);
@@ -375,11 +380,11 @@ public class LLMController {
                             promptWithHistory.append(msg.getText()).append("\n\n");
                         }
                         
-                        // Add the current user input
+                        
                         promptWithHistory.append("User: ").append(userInput).append("\n\n");
                         promptWithHistory.append("Assistant: ");
                         
-                        // Add response structure requirements for actionable prompts
+                        
                         if (finalDecision.equals("yes")) {
                             promptWithHistory.append("\n\n**Response Structure Requirements:**");
                             promptWithHistory.append("\n**Part 1: Analysis** - Detailed thinking process");
@@ -406,7 +411,7 @@ public class LLMController {
                                     .replace("\\n", "\n")
                                     .replace("\\\"", "\"");
                                 
-                                // NEW: Validate and fix calendar response if needed
+                                
                                 if (calendarAnalysis.hasEvents()) {
                                     processed = calendarValidationService.validateAndFixCalendarResponse(processed, userInput);
                                 }
@@ -430,7 +435,7 @@ public class LLMController {
     }
 
     private Map<String, Object> createGeminiRequest(String prompt) {
-        // Ensure the prompt follows the required format
+        
         if (!prompt.contains(")*!")) {
             prompt = "Instructions:\n" + prompt + "\n\nResponse Format:\n)*!\n[Part 1 Content]\n)*!\n[Part 2 Content]\n)*!\n[Part 3 Content]\n)*!";
         }
@@ -477,7 +482,7 @@ public class LLMController {
             return matcher.group(1).toLowerCase();
         }
         
-        // Fallback decision making
+        
         String lowerResponse = fullResponse.toLowerCase();
         if (lowerResponse.contains("actionable") || lowerResponse.contains("yes")) {
             return "yes";
@@ -500,3 +505,4 @@ public class LLMController {
         return latestResponse;
     }
 }
+

@@ -47,11 +47,11 @@ public class MemoryFilterDebugController {
         }
         
         try {
-            // Test the memory filter
+            
             MemoryFilterService.MemoryWorthinessResult filterResult = 
                 memoryFilterService.analyzeMemoryWorthiness(testInput);
             
-            // Test the memory analysis if filter passes
+            
             UUID userId = getUserIdFromAuthentication(authentication);
             List<String> existingCategories = memoryService.getCategories(userId);
             MemoryAnalysisService.MemoryAnalysisResult analysisResult = 
@@ -120,7 +120,7 @@ public class MemoryFilterDebugController {
                 results.add(testResult);
             }
             
-            // Count worthy vs filtered
+            
             long worthyCount = results.stream().mapToLong(r -> (Boolean) r.get("isWorthy") ? 1 : 0).sum();
             long shouldStoreCount = results.stream().mapToLong(r -> (Boolean) r.get("shouldStore") ? 1 : 0).sum();
             
@@ -149,7 +149,7 @@ public class MemoryFilterDebugController {
     public ResponseEntity<Map<String, Object>> getTestExamples() {
         Map<String, Object> examples = new HashMap<>();
         
-        // Questions that should be filtered out
+        
         List<String> questions = Arrays.asList(
             "when is my wedding again?",
             "what's my dad's name?",
@@ -163,7 +163,7 @@ public class MemoryFilterDebugController {
             "where do I live?"
         );
         
-        // Chat fragments that should be filtered out
+        
         List<String> chatFragments = Arrays.asList(
             "ok",
             "thanks",
@@ -180,7 +180,7 @@ public class MemoryFilterDebugController {
             "continue"
         );
         
-        // Valuable information that should be stored
+        
         List<String> valuableInfo = Arrays.asList(
             "my birthday is March 15th",
             "my dad's name is Paul",
@@ -204,3 +204,4 @@ public class MemoryFilterDebugController {
         return ResponseEntity.ok(examples);
     }
 }
+

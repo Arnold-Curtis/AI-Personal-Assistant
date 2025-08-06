@@ -23,23 +23,21 @@ public class SessionMemoryService {
         this.calendarContextService = calendarContextService;
     }
     
-    /**
-     * Track a new chat message in a session and determine if context should be sent
-     */
+    
     @Transactional
     public SessionContextResult trackChatAndGetContext(UUID userId, String sessionId, String userInput) {
         try {
-            // Clean up old sessions first (sessions inactive for more than 24 hours)
+            
             LocalDateTime cutoffTime = LocalDateTime.now().minusHours(24);
             sessionRepository.deactivateOldSessions(userId, cutoffTime);
             
-            // Get or create session
+            
             SessionMemory session = getOrCreateSession(userId, sessionId);
             
-            // Increment chat count
+            
             session.incrementChatCount();
             
-            // Check if we should send calendar context
+            
             boolean shouldSendContext = session.shouldSendContext();
             String calendarContext = "";
             
@@ -50,7 +48,7 @@ public class SessionMemoryService {
                     userId.toString().substring(0, 8), sessionId, session.getChatCount()));
             }
             
-            // Save session
+            
             sessionRepository.save(session);
             
             return new SessionContextResult(
@@ -64,17 +62,15 @@ public class SessionMemoryService {
             System.err.println("Error tracking chat session: " + e.getMessage());
             e.printStackTrace();
             
-            // Return minimal result on error
+            
             return new SessionContextResult(1, false, "", sessionId);
         }
     }
     
-    /**
-     * Get or create a session for the user
-     */
+    
     @Transactional
     private SessionMemory getOrCreateSession(UUID userId, String sessionId) {
-        // Try to find existing active session
+        
         Optional<SessionMemory> existingSession = sessionRepository
             .findActiveSessionByUserAndSessionId(userId, sessionId);
             
@@ -82,7 +78,7 @@ public class SessionMemoryService {
             return existingSession.get();
         }
         
-        // Create new session
+        
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
             
@@ -90,9 +86,7 @@ public class SessionMemoryService {
         return sessionRepository.save(newSession);
     }
     
-    /**
-     * Get session statistics for debugging
-     */
+    
     @Transactional(readOnly = true)
     public String getSessionStats(UUID userId) {
         try {
@@ -119,9 +113,7 @@ public class SessionMemoryService {
         }
     }
     
-    /**
-     * Force context send for next message (for testing)
-     */
+    
     @Transactional
     public void forceContextOnNextMessage(UUID userId, String sessionId) {
         Optional<SessionMemory> session = sessionRepository
@@ -129,16 +121,14 @@ public class SessionMemoryService {
             
         if (session.isPresent()) {
             SessionMemory s = session.get();
-            // Set chat count to a multiple of 10 minus 1, so next increment triggers context
+            
             s.setChatCount(9);
             sessionRepository.save(s);
             System.out.println("Forced context for next message in session: " + sessionId);
         }
     }
     
-    /**
-     * Result class for session context operations
-     */
+    
     public static class SessionContextResult {
         private final int chatCount;
         private final boolean shouldSendContext;
@@ -165,3 +155,4 @@ public class SessionMemoryService {
         }
     }
 }
+

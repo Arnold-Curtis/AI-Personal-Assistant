@@ -43,7 +43,7 @@ public class DemoApplication {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:3000")
+                    .allowedOrigins("http:
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*")
                     .allowCredentials(true)
@@ -204,12 +204,12 @@ public class DemoApplication {
         }
         
         try {
-            // Update full name if provided
+            
             if (fullName != null && !fullName.trim().isEmpty()) {
                 user.setFullName(fullName.trim());
             }
             
-            // Update password if provided
+            
             if (newPassword != null && !newPassword.trim().isEmpty()) {
                 if (currentPassword == null || !passwordEncoder().matches(currentPassword, user.getPassword())) {
                     return ResponseEntity.badRequest().body(Map.of("error", "Current password is incorrect"));
@@ -217,7 +217,7 @@ public class DemoApplication {
                 user.setPassword(passwordEncoder().encode(newPassword));
             }
             
-            // Handle profile image upload
+            
             if (profileImage != null && !profileImage.isEmpty()) {
                 String filename = handleImageUpload(profileImage);
                 if (filename != null) {
@@ -350,12 +350,12 @@ public class DemoApplication {
         }
         
         try {
-            // For now, we'll just acknowledge the settings save
-            // In a production system, you'd store these in a UserSettings entity
+            
+            
             @SuppressWarnings("unchecked")
             Map<String, Object> settings = (Map<String, Object>) payload.get("settings");
             
-            // Log the settings for debugging
+            
             System.out.println("Saving settings for user " + user.getEmail() + ": " + settings);
             
             return ResponseEntity.ok(Map.of(
@@ -393,7 +393,7 @@ public class DemoApplication {
         
         String profileImageUrl = user.getProfileImage() != null ? 
             "/uploads/" + user.getProfileImage() : 
-            "https://ui-avatars.com/api/?name=" + 
+            "https:
             (user.getFullName() != null ? 
                 user.getFullName().substring(0, 1) : 
                 user.getEmail().substring(0, 1)) + 
@@ -413,13 +413,13 @@ public class DemoApplication {
             return null;
         }
         
-        // Create uploads directory if it doesn't exist
+        
         Path uploadDir = Paths.get("uploads");
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
         
-        // Generate unique filename
+        
         String originalFilename = file.getOriginalFilename();
         String fileExtension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
@@ -427,7 +427,7 @@ public class DemoApplication {
         }
         String filename = UUID.randomUUID().toString() + fileExtension;
         
-        // Save file
+        
         Path filePath = uploadDir.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         

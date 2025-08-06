@@ -1,4 +1,4 @@
-/* Manage Memories Page Styles */
+
 .manage-memories-container {
   min-height: 100vh;
   background-color: var(--bg-primary);
@@ -7,7 +7,7 @@
   box-sizing: border-box;
 }
 
-/* Header Styles */
+
 .manage-memories-header {
   max-width: 1200px;
   margin: 0 auto 30px auto;
@@ -146,7 +146,7 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Content Styles */
+
 .memories-content {
   max-width: 1200px;
   margin: 0 auto;
@@ -216,7 +216,7 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Memory Cards */
+
 .memories-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -282,7 +282,7 @@
   color: var(--error-color);
 }
 
-/* Memory Content */
+
 .memory-content {
   margin-bottom: 16px;
 }
@@ -359,7 +359,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Memory Footer */
+
 .memory-footer {
   display: flex;
   justify-content: space-between;
@@ -374,7 +374,7 @@
   font-style: italic;
 }
 
-/* Modal Styles */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -498,7 +498,7 @@
   transform: none;
 }
 
-/* Footer */
+
 .memories-footer {
   max-width: 1200px;
   margin: 40px auto 0 auto;
@@ -561,7 +561,7 @@
   color: var(--accent-color);
 }
 
-/* Animations */
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -578,7 +578,7 @@
   }
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
   .manage-memories-container {
     padding: 16px;
@@ -655,11 +655,11 @@
   }
 
   .modal-input, .modal-textarea {
-    font-size: 16px; /* Prevent zoom on iOS */
+    font-size: 16px; 
   }
 
   .search-input, .filter-select {
-    font-size: 16px; /* Prevent zoom on iOS */
+    font-size: 16px; 
   }
 
   .stats-section {
@@ -675,7 +675,7 @@
   }
 }
 
-/* Enhanced Search and Selection Styles */
+
 .sort-select {
   padding: 8px 12px;
   border: var(--card-border);
@@ -849,7 +849,7 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
   .action-buttons {
     align-items: stretch;
@@ -875,3 +875,4 @@
     width: 100%;
   }
 }
+

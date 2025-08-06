@@ -21,23 +21,23 @@ public class CalendarEventEnhancementService {
         this.memoryFilterService = memoryFilterService;
     }
     
-    // Enhanced patterns for detecting calendar events - with better specificity
+    
     private static final List<Pattern> EVENT_PATTERNS = Arrays.asList(
-        // "I have a wedding in 2 weeks" - explicit event creation
+        
         Pattern.compile("(?:i have|there'?s|i'?ve got)\\s+(?:a|an)?\\s*(\\w+(?:\\s+\\w+)?)\\s+in\\s+(\\d+)\\s+(days?|weeks?|months?)", Pattern.CASE_INSENSITIVE),
-        // "wedding tomorrow" - when NOT preceded by question words
+        
         Pattern.compile("(?<!when\\s|what\\s|where\\s)\\b(\\w+(?:\\s+\\w+)?)\\s+(tomorrow|today|next week|next month)\\b", Pattern.CASE_INSENSITIVE),
-        // "meeting on Monday" - when NOT preceded by question words
+        
         Pattern.compile("(?<!when\\s|what\\s|where\\s)\\b(\\w+(?:\\s+\\w+)?)\\s+on\\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\\b", Pattern.CASE_INSENSITIVE),
-        // "wedding in 3 weeks" - when NOT preceded by question words  
+        
         Pattern.compile("(?<!when\\s|what\\s|where\\s)\\b(\\w+(?:\\s+\\w+)?)\\s+in\\s+(\\d+)\\s+(days?|weeks?|months?)\\b", Pattern.CASE_INSENSITIVE),
-        // "my birthday is March 23" - ONLY when it's a statement with future context or explicit scheduling
+        
         Pattern.compile("(?:i have|there'?s|schedule|plan|book)\\s+(?:a|an|my)?\\s*(\\w+(?:\\s+\\w+)?)\\s+(?:on\\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)\\s+(\\d{1,2})", Pattern.CASE_INSENSITIVE),
-        // "appointment next Friday" - when NOT preceded by question words
+        
         Pattern.compile("(?<!when\\s|what\\s|where\\s)\\b(\\w+(?:\\s+\\w+)?)\\s+next\\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\\b", Pattern.CASE_INSENSITIVE)
     );
     
-    // Common event types that should be detected
+    
     private static final Set<String> EVENT_TYPES = Set.of(
         "wedding", "meeting", "appointment", "birthday", "party", "conference", 
         "interview", "exam", "test", "vacation", "trip", "date", "call",
@@ -63,13 +63,11 @@ public class CalendarEventEnhancementService {
         MONTH_TO_NUMBER = Collections.unmodifiableMap(months);
     }
     
-    /**
-     * Analyzes user input to detect and enhance calendar events
-     */
+    
     public CalendarEventAnalysis analyzeForCalendarEvents(String userInput) {
         logger.info("Analyzing input for calendar events: " + userInput);
         
-        // FIRST: Use the memory filter to check if this is a question or chat fragment
+        
         MemoryFilterService.MemoryWorthinessResult worthinessResult = 
             memoryFilterService.analyzeMemoryWorthiness(userInput);
         
@@ -78,7 +76,7 @@ public class CalendarEventEnhancementService {
             return new CalendarEventAnalysis(false, new ArrayList<>(), "");
         }
         
-        // SECOND: Check if this is a question asking for information rather than creating an event
+        
         if (isQuestionAboutExistingInfo(userInput)) {
             logger.info("Input identified as information question, not event creation: " + userInput);
             return new CalendarEventAnalysis(false, new ArrayList<>(), "");
@@ -99,7 +97,7 @@ public class CalendarEventEnhancementService {
             }
         }
         
-        // Remove duplicates and validate
+        
         detectedEvents = deduplicateEvents(detectedEvents);
         
         return new CalendarEventAnalysis(
@@ -113,14 +111,14 @@ public class CalendarEventEnhancementService {
         try {
             String eventType = matcher.group(1).trim().toLowerCase();
             
-            // Validate it's actually an event type
+            
             if (!isRecognizedEventType(eventType)) {
                 return null;
             }
             
             int daysFromToday = calculateDaysFromToday(matcher);
             if (daysFromToday < 0 || daysFromToday > 365) {
-                return null; // Invalid date range
+                return null; 
             }
             
             String cleanTitle = cleanEventTitle(eventType);
@@ -140,7 +138,7 @@ public class CalendarEventEnhancementService {
         if (matcher.groupCount() >= 2) {
             String timeRef = matcher.group(2).toLowerCase();
             
-            // Handle relative references
+            
             switch (timeRef) {
                 case "today": return 0;
                 case "tomorrow": return 1;
@@ -148,18 +146,18 @@ public class CalendarEventEnhancementService {
                 case "next month": return 30;
             }
             
-            // Handle day names
+            
             if (timeRef.matches("(monday|tuesday|wednesday|thursday|friday|saturday|sunday)")) {
                 return calculateDaysUntilDayOfWeek(timeRef, false);
             }
             
-            // Handle "next [day]"
+            
             if (matcher.group(2).toLowerCase().startsWith("next ")) {
                 String dayName = matcher.group(2).toLowerCase().replace("next ", "");
                 return calculateDaysUntilDayOfWeek(dayName, true);
             }
             
-            // Handle numbered time periods
+            
             if (matcher.groupCount() >= 3) {
                 try {
                     int number = Integer.parseInt(matcher.group(2));
@@ -169,10 +167,10 @@ public class CalendarEventEnhancementService {
                     if (unit.contains("week")) return number * 7;
                     if (unit.contains("month")) return number * 30;
                 } catch (NumberFormatException e) {
-                    // Continue to month parsing
+                    
                 }
                 
-                // Handle month + day format
+                
                 String monthName = matcher.group(2).toLowerCase();
                 if (MONTH_TO_NUMBER.containsKey(monthName) && matcher.groupCount() >= 3) {
                     try {
@@ -181,7 +179,7 @@ public class CalendarEventEnhancementService {
                         
                         LocalDate targetDate = LocalDate.of(today.getYear(), month, day);
                         if (targetDate.isBefore(today)) {
-                            targetDate = targetDate.plusYears(1); // Next year
+                            targetDate = targetDate.plusYears(1); 
                         }
                         
                         return (int) ChronoUnit.DAYS.between(today, targetDate);
@@ -192,7 +190,7 @@ public class CalendarEventEnhancementService {
             }
         }
         
-        return -1; // Invalid
+        return -1; 
     }
     
     private int calculateDaysUntilDayOfWeek(String dayName, boolean nextWeek) {
@@ -228,14 +226,11 @@ public class CalendarEventEnhancementService {
         );
     }
     
-    /**
-     * Check if the input is asking for information about existing memories/data
-     * rather than trying to create a new calendar event
-     */
+    
     private boolean isQuestionAboutExistingInfo(String userInput) {
         String lowerInput = userInput.toLowerCase().trim();
         
-        // Common question patterns that indicate information requests, not event creation
+        
         String[] questionPatterns = {
             "when is my",
             "what is my", 
@@ -259,7 +254,7 @@ public class CalendarEventEnhancementService {
             "what date is"
         };
         
-        // Check for question patterns
+        
         for (String pattern : questionPatterns) {
             if (lowerInput.startsWith(pattern) || lowerInput.contains(pattern)) {
                 logger.info("Detected question pattern: '" + pattern + "' in input: " + userInput);
@@ -267,7 +262,7 @@ public class CalendarEventEnhancementService {
             }
         }
         
-        // Check for question words at the beginning
+        
         String[] questionWords = {"when", "what", "where", "who", "how", "which", "why"};
         for (String qWord : questionWords) {
             if (lowerInput.startsWith(qWord + " ")) {
@@ -276,7 +271,7 @@ public class CalendarEventEnhancementService {
             }
         }
         
-        // Check for question marks (obvious questions)
+        
         if (lowerInput.contains("?")) {
             logger.info("Detected question mark in input: " + userInput);
             return true;
@@ -285,19 +280,16 @@ public class CalendarEventEnhancementService {
         return false;
     }
     
-    /**
-     * Check if the matched text represents actual event creation rather than 
-     * information recall or casual mention
-     */
+    
     private boolean isEventCreationContext(String userInput, Matcher matcher) {
         String lowerInput = userInput.toLowerCase().trim();
         
-        // If this was already caught as a question, it's not event creation
+        
         if (isQuestionAboutExistingInfo(userInput)) {
             return false;
         }
         
-        // Look for event creation indicators
+        
         String[] creationIndicators = {
             "i have a", "i have an", "i've got a", "i've got an",
             "there's a", "there's an", "there is a", "there is an",
@@ -313,7 +305,7 @@ public class CalendarEventEnhancementService {
             }
         }
         
-        // Look for future time references that suggest scheduling
+        
         String[] futureIndicators = {
             "tomorrow", "next week", "next month", "in a few", "coming up",
             "this weekend", "next weekend", "later this", "next year"
@@ -326,16 +318,16 @@ public class CalendarEventEnhancementService {
             }
         }
         
-        // Check for statement patterns vs question patterns
-        // Statements typically start with "I", "My", "The", etc.
-        // Questions typically start with "When", "What", "Where", etc.
+        
+        
+        
         String[] statementStarters = {"i ", "my ", "the ", "a ", "an ", "this ", "that "};
         for (String starter : statementStarters) {
             if (lowerInput.startsWith(starter) && !isQuestionAboutExistingInfo(userInput)) {
-                // Additional check: make sure it's not just "my birthday is..." as information sharing
-                // vs "my birthday is next week" as event creation
+                
+                
                 if (lowerInput.contains(" is ") && !containsFutureTimeReference(lowerInput)) {
-                    return false; // "My birthday is March 15" = information, not event
+                    return false; 
                 }
                 return true;
             }
@@ -344,9 +336,7 @@ public class CalendarEventEnhancementService {
         return false;
     }
     
-    /**
-     * Helper method to check if text contains future time references
-     */
+    
     private boolean containsFutureTimeReference(String text) {
         String[] futureRefs = {
             "tomorrow", "next", "in ", "coming", "upcoming", "later", "soon",
@@ -362,7 +352,7 @@ public class CalendarEventEnhancementService {
     }
     
     private String cleanEventTitle(String eventType) {
-        // Clean and format the event title
+        
         return Arrays.stream(eventType.split("\\s+"))
             .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
             .reduce((a, b) -> a + " " + b)
@@ -394,10 +384,10 @@ public class CalendarEventEnhancementService {
             return false;
         }
         
-        // Additional validation: reject events with problematic titles
+        
         String title = event.getTitle().toLowerCase();
         
-        // Reject single words that are likely not events
+        
         String[] problematicTitles = {
             "with", "from", "to", "in", "on", "at", "by", "for",
             "the", "a", "an", "and", "or", "but", "is", "are", "was", "were",
@@ -412,7 +402,7 @@ public class CalendarEventEnhancementService {
             }
         }
         
-        // Reject if title is too short (likely not a real event)
+        
         if (event.getTitle().trim().length() < 3) {
             logger.warning("Rejecting event with too short title: " + event.getTitle());
             return false;
@@ -461,7 +451,7 @@ public class CalendarEventEnhancementService {
         return addition.toString();
     }
     
-    // Inner classes
+    
     public static class CalendarEventAnalysis {
         private final boolean hasEvents;
         private final List<DetectedEvent> events;
@@ -508,3 +498,4 @@ public class CalendarEventEnhancementService {
         }
     }
 }
+

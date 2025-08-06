@@ -34,7 +34,7 @@ public class SessionMemory {
     @Column(name = "last_context_sent_at")
     private LocalDateTime lastContextSentAt;
 
-    // Default constructor
+    
     public SessionMemory() {
         this.createdAt = LocalDateTime.now();
         this.lastActivity = LocalDateTime.now();
@@ -46,7 +46,7 @@ public class SessionMemory {
         this.sessionId = sessionId;
     }
 
-    // Getters and Setters
+    
     public UUID getId() {
         return id;
     }
@@ -111,14 +111,14 @@ public class SessionMemory {
         this.lastContextSentAt = lastContextSentAt;
     }
 
-    // Helper methods
+    
     public void incrementChatCount() {
         this.chatCount++;
         this.lastActivity = LocalDateTime.now();
     }
 
     public boolean shouldSendContext() {
-        // Send context at session start (count = 0) and every 10 chats
+        
         return this.chatCount == 0 || this.chatCount % 10 == 0;
     }
 
@@ -138,3 +138,4 @@ public class SessionMemory {
                 '}';
     }
 }
+

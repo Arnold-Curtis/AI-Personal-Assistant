@@ -19,7 +19,7 @@ public class UserDetailsConfig {
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())
                     .password(user.getPassword())
-                    .authorities("USER") // Add roles/authorities if needed
+                    .authorities("USER") 
                     .build();
         };
     }

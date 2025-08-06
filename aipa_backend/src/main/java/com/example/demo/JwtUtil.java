@@ -18,9 +18,9 @@ import java.util.Base64;
 @Component
 public class JwtUtil {
 
-    // 256-bit secret key (use environment variable in production)
+    
     private static final String SECRET_KEY = "c2VjdXJlLXNlY3JldC1rZXktZm9yLWp3dC1hdXRoZW50aWNhdGlvbi1uZWVkcy10by1iZS1sb25n";
-    private static final long EXPIRATION_TIME = 86400000; // 24 hours in milliseconds
+    private static final long EXPIRATION_TIME = 86400000; 
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
@@ -80,7 +80,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Helper method to generate a secure secret key (run once and store the result)
+    
     public static String generateSecureSecret() {
         SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         return Encoders.BASE64.encode(key.getEncoded());

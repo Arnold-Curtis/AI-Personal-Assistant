@@ -11,8 +11,8 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
     const [lastVoiceTranscript, setLastVoiceTranscript] = useState('');
     const [baseTextBeforeVoice, setBaseTextBeforeVoice] = useState('');
     const isVoiceSessionActiveRef = useRef(false);
-    const baseTextBeforeVoiceRef = useRef(''); // Add ref to track current base text
-    // Keep chat history in state but don't display it
+    const baseTextBeforeVoiceRef = useRef(''); 
+    
     const [chatHistory, setChatHistory] = useState([]);
     const abortControllerRef = useRef(null);
     const intervalRef = useRef(null);
@@ -20,25 +20,25 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
     const responseEndRef = useRef(null);
     const responseContainerRef = useRef(null);
 
-    // Sync ref with state
+    
     useEffect(() => {
         baseTextBeforeVoiceRef.current = baseTextBeforeVoice;
     }, [baseTextBeforeVoice]);
 
-    // Cleanup intervals on unmount
+    
     useEffect(() => {
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
     }, []);
 
-    // Auto-scroll to bottom only if user hasn't manually scrolled up
+    
     useEffect(() => {
         if (responseEndRef.current && responseContainerRef.current) {
             const container = responseContainerRef.current;
             const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
             
-            // Only auto-scroll if user is near bottom, loading, AND not currently scrolling manually
+            
             if ((isNearBottom || loading) && !isUserCurrentlyScrolling()) {
                 responseEndRef.current.scrollIntoView({ 
                     behavior: 'auto',
@@ -48,13 +48,13 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         }
     }, [response, loading]);
 
-    // Helper function to detect problematic event titles that shouldn't be events
+    
     const isProblematicTitle = (title) => {
         if (!title) return true;
         
         const lowerTitle = title.toLowerCase().trim();
         
-        // Common problematic titles that indicate parsing errors - made less aggressive
+        
         const problematicTitles = [
             'with', 'from', 'to', 'in', 'on', 'at', 'by', 'for',
             'the', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'was', 'were',
@@ -63,8 +63,8 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             'none', 'null', 'undefined', 'calendar'
         ];
         
-        // Only check for exact matches or when the title is ONLY these words
-        // Don't filter out valid events that happen to contain these words
+        
+        
         for (const problematic of problematicTitles) {
             if (lowerTitle === problematic) {
                 console.log('❌ Rejecting problematic title (exact match):', title);
@@ -72,19 +72,19 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             }
         }
         
-        // Reject titles containing both "X days" and another phrase (malformed parsing)
+        
         if (lowerTitle.match(/\d+\s*days?/) && lowerTitle.match(/\s+\w{3,}\s+/)) {
             console.log('❌ Rejecting malformed title with days and extra text:', title);
             return true;
         }
         
-        // Reject titles that are just punctuation or numbers
+        
         if (/^[^\w]*$/.test(title) || /^\d+$/.test(title)) {
             console.log('❌ Rejecting title with only punctuation/numbers:', title);
             return true;
         }
         
-        // Reject titles that are too short (but allow 2+ characters now)
+        
         if (title.trim().length < 2) {
             console.log('❌ Rejecting title too short:', title);
             return true;
@@ -93,13 +93,13 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         return false;
     };
 
-    // Helper function to detect if user input is asking for information rather than creating events
+    
     const isQuestionAboutExistingInfo = (userInput) => {
         if (!userInput) return false;
         
         const lowerInput = userInput.toLowerCase().trim();
         
-        // Common question patterns that indicate information requests, not event creation
+        
         const questionPatterns = [
             'when is my',
             'what is my', 
@@ -123,7 +123,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             'what date is'
         ];
         
-        // Check for question patterns
+        
         for (const pattern of questionPatterns) {
             if (lowerInput.startsWith(pattern) || lowerInput.includes(pattern)) {
                 console.log('🤔 Detected question pattern:', pattern, 'in input:', userInput);
@@ -131,7 +131,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             }
         }
         
-        // Check for question words at the beginning
+        
         const questionWords = ['when', 'what', 'where', 'who', 'how', 'which', 'why'];
         for (const qWord of questionWords) {
             if (lowerInput.startsWith(qWord + ' ')) {
@@ -140,7 +140,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             }
         }
         
-        // Check for question marks (obvious questions)
+        
         if (lowerInput.includes('?')) {
             console.log('🤔 Detected question mark in input:', userInput);
             return true;
@@ -153,39 +153,39 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         const events = [];
         console.log('🔍 Starting calendar event extraction from text:', text.substring(0, 200));
         
-        // FIRST: Check if the original user input was a question asking for information
-        // This helps prevent false positives like "when is my birthday" creating events
+        
+        
         if (originalUserInput && isQuestionAboutExistingInfo(originalUserInput)) {
             console.log('❌ Skipping calendar extraction - user input was an information question:', originalUserInput);
             return events;
         }
         
-        // Clean up the text first to remove formatting artifacts
+        
         const cleanText = text.replace(/\)\*!/g, '').replace(/\.!\.\./g, '');
         
-        // Enhanced regex patterns for more robust extraction - Redesigned to prevent duplicates
+        
         const patterns = [
-            // Primary format: "Calendar: X days from today EVENT.!." - Most specific first
+            
             /Calendar:\s*(\d+)\s*days?\s*from\s*today\s+([^.!\n\r]+?)\.!\.(?:\.!\.)?/gi,
-            // Secondary format: "Calendar: X days from today EVENT" (without punctuation)
-            // Modified to avoid overlapping with the first pattern
+            
+            
             /Calendar:\s*(\d+)\s*days?\s*from\s*today\s+([^\n\r.!]+?)(?=\s*(?:Plan|Suggestions|$))/gi
         ];
         
-        // Look for calendar events in the Categories section first
+        
         const categoriesRegex = /\*\*Part 3: Categories\*\*([\s\S]*?)(?:\*\*|$)/i;
         const categoriesMatch = categoriesRegex.exec(cleanText);
         
         let searchText = categoriesMatch ? categoriesMatch[1] : cleanText;
         console.log('🔍 Searching in categories section:', searchText.substring(0, 300));
         
-        // Process events with strict deduplication
-        const seenEvents = new Set(); // Track event signatures to prevent duplicates
         
-        // Try each pattern in order of specificity
+        const seenEvents = new Set(); 
+        
+        
         for (let patternIndex = 0; patternIndex < patterns.length; patternIndex++) {
             const pattern = patterns[patternIndex];
-            pattern.lastIndex = 0; // Reset regex
+            pattern.lastIndex = 0; 
             let match;
             
             while ((match = pattern.exec(searchText)) !== null) {
@@ -194,7 +194,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                 
                 console.log(`📅 Pattern ${patternIndex + 1} found potential event:`, { days, rawTitle: title, fullMatch: match[0] });
                 
-                // Enhanced title cleaning - more aggressive to prevent artifacts
+                
                 title = title
                     .replace(/\.!\.\./g, '')
                     .replace(/\)\*!/g, '')
@@ -202,43 +202,43 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     .replace(/Step \d+:.*$/i, '')
                     .replace(/Suggestions X!@:.*$/i, '')
                     .replace(/\[None\]/g, '')
-                    .replace(/^[.!]+|[.!]+$/g, '') // Remove leading/trailing punctuation
-                    .replace(/\s+/g, ' ') // Normalize whitespace
-                    .replace(/\s*from\s*today\s*/gi, '') // Remove any remaining "from today" text
-                    .replace(/\s*calendar\s*/gi, '') // Remove "calendar" word
-                    .replace(/\b\d+\s*days?\b/gi, '') // Remove day references like "2 days"
-                    .replace(/\s+\d+\s+/g, ' ') // Remove standalone numbers with spaces around them
+                    .replace(/^[.!]+|[.!]+$/g, '') 
+                    .replace(/\s+/g, ' ') 
+                    .replace(/\s*from\s*today\s*/gi, '') 
+                    .replace(/\s*calendar\s*/gi, '') 
+                    .replace(/\b\d+\s*days?\b/gi, '') 
+                    .replace(/\s+\d+\s+/g, ' ') 
                     .trim();
                 
-                // Create a unique signature for this event
+                
                 const eventSignature = `${title.toLowerCase()}_${days}`;
                 
-                // Enhanced validation - ensure it's a real event and not a duplicate
+                
                 const isValidEvent = title && 
-                    title.length > 2 && // Minimum length
-                    title.length < 100 && // Reasonable length
+                    title.length > 2 && 
+                    title.length < 100 && 
                     !title.toLowerCase().includes('none') &&
                     !title.includes('Part ') && 
                     !title.includes('X!@') &&
                     !title.match(/^(plan|suggestions?|step|calendar)\s*\d*/i) &&
-                    !title.match(/^\d+\s*(days?|weeks?|months?)/i) && // Not just a time reference
-                    !isProblematicTitle(title) && // Additional check for problematic titles
+                    !title.match(/^\d+\s*(days?|weeks?|months?)/i) && 
+                    !isProblematicTitle(title) && 
                     !isNaN(days) && 
                     days >= 0 && 
-                    days <= 365 && // Reasonable date range
-                    !seenEvents.has(eventSignature); // Not already processed
+                    days <= 365 && 
+                    !seenEvents.has(eventSignature); 
                 
                 if (isValidEvent) {
-                    // Mark this event signature as seen
+                    
                     seenEvents.add(eventSignature);
                     
                     const startDate = new Date();
                     startDate.setDate(startDate.getDate() + days);
                     
-                    // Enhanced description generation with more context awareness
+                    
                     let description = generateEventDescription(title, days);
                     
-                    // Determine event color based on type and urgency
+                    
                     let eventColor = determineEventColor(title, days);
                     
                     const eventData = {
@@ -247,8 +247,8 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                         isAllDay: true,
                         eventColor: eventColor,
                         description: description,
-                        daysFromToday: days, // Store for deduplication
-                        signature: eventSignature // Store signature for debugging
+                        daysFromToday: days, 
+                        signature: eventSignature 
                     };
                     
                     console.log('✅ Added unique event:', eventData);
@@ -265,27 +265,27 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             }
         }
         
-        // Additional deduplication pass - check for any remaining duplicates by title similarity
+        
         const finalEvents = [];
         const finalSignatures = new Set();
         
         for (const event of events) {
-            // Clean the title further to catch more malformed titles before final processing
+            
             let cleanedTitle = event.title
-                .replace(/\s*calendar\s*/gi, '')  // Remove "calendar" word
-                .replace(/\b\d+\s*days?\b/gi, '') // Remove day references like "2 days"
+                .replace(/\s*calendar\s*/gi, '')  
+                .replace(/\b\d+\s*days?\b/gi, '') 
                 .trim();
             
-            // Skip events with now-empty titles or titles that became too short
+            
             if (cleanedTitle.length < 3) {
                 console.log('🗑️ Skipping event with too short title after cleaning:', event.title);
                 continue;
             }
             
-            // Update the event title with the cleaned version
+            
             event.title = cleanedTitle;
             
-            // Create a more flexible signature for final deduplication
+            
             const flexibleSignature = cleanedTitle.toLowerCase().replace(/[^a-z0-9]/g, '') + '_' + event.daysFromToday;
             
             if (!finalSignatures.has(flexibleSignature)) {
@@ -296,15 +296,15 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             }
         }
         
-        // Fallback: Look for events mentioned in the response text AND the original user input
+        
         if (finalEvents.length === 0) {
             console.log('🔍 No structured events found, trying fallback extraction...');
             
-            // First try extracting from the AI response
+            
             const fallbackEvents = extractEventsFromNaturalLanguage(text);
             finalEvents.push(...fallbackEvents);
             
-            // If still no events found, try extracting from the original user input
+            
             if (finalEvents.length === 0 && originalUserInput) {
                 console.log('🔍 No events in response, trying original user input...');
                 const userInputEvents = extractEventsFromNaturalLanguage(originalUserInput);
@@ -316,7 +316,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         return finalEvents;
     };
 
-    // Helper function to generate intelligent descriptions
+    
     const generateEventDescription = (title, days) => {
         const lowerTitle = title.toLowerCase();
         const urgency = days <= 3 ? 'urgent' : days <= 7 ? 'upcoming' : 'scheduled';
@@ -348,48 +348,48 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         }
     };
 
-    // Helper function to determine event color based on type and urgency
+    
     const determineEventColor = (title, days) => {
         const lowerTitle = title.toLowerCase();
         
-        // Urgent events (red)
+        
         if (days <= 1) return "#ef4444";
         
-        // Important personal events (purple)
+        
         if (lowerTitle.includes('wedding') || lowerTitle.includes('birthday')) {
             return "#8b5cf6";
         }
         
-        // Work/professional events (blue)
+        
         if (lowerTitle.includes('meeting') || lowerTitle.includes('conference') || 
             lowerTitle.includes('interview') || lowerTitle.includes('call')) {
             return "#3b82f6";
         }
         
-        // Health/appointments (green)
+        
         if (lowerTitle.includes('appointment') || lowerTitle.includes('doctor')) {
             return "#10b981";
         }
         
-        // Education/exams (orange)
+        
         if (lowerTitle.includes('exam') || lowerTitle.includes('test') || lowerTitle.includes('school')) {
             return "#f59e0b";
         }
         
-        // Social events (pink)
+        
         if (lowerTitle.includes('party') || lowerTitle.includes('date') || lowerTitle.includes('meet')) {
             return "#ec4899";
         }
         
-        // Default (blue)
+        
         return "#3b82f6";
     };
 
-    // Helper function to format event titles consistently
+    
     const formatEventTitle = (title) => {
-        // Capitalize first letter of each word for important words
+        
         return title.replace(/\b\w+/g, (word) => {
-            // Don't capitalize articles, prepositions, etc. unless they're the first word
+            
             const lowercaseWords = ['a', 'an', 'the', 'at', 'by', 'for', 'in', 'of', 'on', 'to', 'up', 'and', 'or'];
             return lowercaseWords.includes(word.toLowerCase()) ? 
                 word.toLowerCase() : 
@@ -397,7 +397,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         });
     };
 
-    // Helper function to get validation error reasons (for debugging)
+    
     const getValidationErrors = (title, days) => {
         const errors = [];
         if (!title || title.length === 0) errors.push('empty title');
@@ -414,25 +414,25 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         return errors;
     };
 
-    // Fallback function to extract events from natural language when structured extraction fails
+    
     const extractEventsFromNaturalLanguage = (text) => {
         const events = [];
         console.log('🔍 Starting natural language extraction from text:', text.substring(0, 300));
         
         const naturalPatterns = [
-            // "I have a wedding in 2 weeks" - Fixed to correctly capture number and unit
+            
             /(?:i have|there's|there is)\s+(?:a|an)?\s*(\w+)\s+in\s+(\d+)\s+(days?|weeks?|months?)/gi,
-            // "I have an event in two weeks" - Handle written numbers
+            
             /(?:i have|there's|there is)\s+(?:a|an)?\s*(\w+)\s+in\s+(one|two|three|four|five|six|seven|eight|nine|ten)\s+(days?|weeks?|months?)/gi,
-            // "wedding tomorrow"
+            
             /(\w+)\s+(tomorrow|today|next week|next month)/gi,
-            // "meeting on Monday"
+            
             /(\w+)\s+on\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/gi,
-            // "wedding in a week" - Handle "a" as 1
+            
             /(\w+)\s+in\s+a\s+(day|week|month)/gi
         ];
         
-        // Map written numbers to digits
+        
         const numberMap = {
             'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
             'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
@@ -450,9 +450,9 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                 
                 console.log(`🔍 Pattern ${patternIndex + 1} matched:`, match);
                 
-                // Handle different pattern structures
+                
                 if (patternIndex === 0) {
-                    // "I have a wedding in 2 weeks" - number is in match[2], unit in match[3]
+                    
                     const number = parseInt(match[2]);
                     const unit = match[3].toLowerCase();
                     
@@ -463,7 +463,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     console.log('📅 Pattern 1 - Number format:', { number, unit, calculatedDays: days });
                     
                 } else if (patternIndex === 1) {
-                    // "I have an event in two weeks" - written number in match[2], unit in match[3]
+                    
                     const writtenNumber = match[2].toLowerCase();
                     const number = numberMap[writtenNumber] || 1;
                     const unit = match[3].toLowerCase();
@@ -475,7 +475,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     console.log('📅 Pattern 2 - Written number format:', { writtenNumber, number, unit, calculatedDays: days });
                     
                 } else if (patternIndex === 2) {
-                    // "wedding tomorrow" - time reference in match[2]
+                    
                     const timeRef = match[2].toLowerCase();
                     
                     if (timeRef === 'tomorrow') days = 1;
@@ -486,10 +486,10 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     console.log('📅 Pattern 3 - Time reference format:', { timeRef, calculatedDays: days });
                     
                 } else if (patternIndex === 3) {
-                    // "meeting on Monday" - day reference in match[2]
+                    
                     const dayRef = match[2].toLowerCase();
                     const today = new Date();
-                    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                    const currentDay = today.getDay(); 
                     
                     const dayMap = {
                         'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
@@ -499,13 +499,13 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     const targetDay = dayMap[dayRef];
                     if (targetDay !== undefined) {
                         days = (targetDay - currentDay + 7) % 7;
-                        if (days === 0) days = 7; // If it's the same day, assume next week
+                        if (days === 0) days = 7; 
                     }
                     
                     console.log('📅 Pattern 4 - Day reference format:', { dayRef, targetDay, currentDay, calculatedDays: days });
                     
                 } else if (patternIndex === 4) {
-                    // "wedding in a week" - unit in match[2]
+                    
                     const unit = match[2].toLowerCase();
                     
                     if (unit === 'day') days = 1;
@@ -515,7 +515,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     console.log('📅 Pattern 5 - Article format:', { unit, calculatedDays: days });
                 }
                 
-                // Validate and create event
+                
                 if (days >= 0 && days <= 365 && eventType.length > 1 && !isProblematicTitle(eventType)) {
                     const startDate = new Date();
                     startDate.setDate(startDate.getDate() + days);
@@ -550,13 +550,13 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
     };
     
     const extractPlanSteps = (text) => {
-        // Check if plan exists and is not marked with X!@
+        
         if (text.includes("Plan X!@:") || !text.includes("Plan:")) {
             return [];
         }
         
         try {
-            // Extract the plan section
+            
             const planRegex = /Plan: \[(.*?)\]([\s\S]*?)\.\.!\./;
             const planMatch = planRegex.exec(text);
             
@@ -566,7 +566,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             const planContent = planMatch[2].trim();
             const steps = [];
             
-            // Parse each step
+            
             const stepRegex = /Step \d+: \[Time: ([^\]]+)\] \| \[Title: ([^\]]+)\] \| \[Description: ([^\]]+)\] \| \[Completion: ([^\]]+)\] \| \[Day: ([^\]]+)\]/g;
             let stepMatch;
             
@@ -580,7 +580,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                 });
             }
             
-            // Return both title and steps
+            
             return {
                 title: planTitle,
                 steps: steps
@@ -599,7 +599,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
 
             console.log('🔍 Processing response for calendar/plan extraction:', responseText.substring(0, 500));
 
-            // Enhanced calendar event extraction with detailed logging
+            
             const calendarEvents = extractCalendarEvents(responseText, originalUserInput);
             if (calendarEvents.length > 0) {
                 console.log(`📅 Successfully extracted ${calendarEvents.length} calendar events:`, calendarEvents);
@@ -618,7 +618,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             } else {
                 console.log('📅 No calendar events detected in response');
                 
-                // Enhanced diagnostic check - see if events were mentioned but parsing failed
+                
                 const eventKeywords = ['wedding', 'meeting', 'appointment', 'birthday', 'event', 'party', 'conference', 'interview'];
                 const foundKeywords = eventKeywords.filter(keyword => 
                     responseText.toLowerCase().includes(keyword) || 
@@ -631,7 +631,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     console.log('📋 Original user input:', originalUserInput);
                     console.log('📋 Response text sample:', responseText.substring(0, 500));
                     
-                    // Try one more direct extraction attempt from user input
+                    
                     if (originalUserInput && !isQuestionAboutExistingInfo(originalUserInput)) {
                         console.log('🔄 Attempting direct extraction from user input as last resort...');
                         const directEvents = extractEventsFromNaturalLanguage(originalUserInput);
@@ -649,7 +649,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                 }
             }
             
-            // Enhanced plan extraction with better error handling
+            
             const planData = extractPlanSteps(responseText);
             if (planData.steps && planData.steps.length > 0) {
                 console.log(`📋 Successfully extracted plan with ${planData.steps.length} steps:`, planData);
@@ -667,7 +667,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                 }
             }
 
-            // Extract and clean the main response text
+            
             const part2Match = responseText.match(/\*\*Part 2: Response\*\*([\s\S]*?)(?:\*\*Part 3:|$)/i);
             const extractedResponse = part2Match && part2Match[1] 
                 ? cleanResponseText(part2Match[1]) 
@@ -684,14 +684,14 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
     };
 
     const cleanResponseText = (text) => {
-        // Preserve code blocks by temporarily replacing them
+        
         const codeBlocks = [];
         let processedText = text.replace(/```[\s\S]*?```/g, (match) => {
             codeBlocks.push(match);
             return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
         });
         
-        // Process the non-code parts more aggressively
+        
         processedText = processedText
             .replace(/\*\*Part \d+:.*?\*\*/g, '')
             .replace(/\)\*!/g, '')
@@ -711,7 +711,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             .join('\n')
             .trim();
             
-        // Put code blocks back
+        
         codeBlocks.forEach((block, i) => {
             processedText = processedText.replace(`__CODE_BLOCK_${i}__`, block);
         });
@@ -734,12 +734,12 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
             } else {
                 clearInterval(intervalRef.current);
                 
-                // Add the AI response to chat history when streaming completes
-                // but don't display it in the UI
+                
+                
                 setChatHistory(prev => [...prev, { text, isUser: false }]);
             }
         }, 20);
-    };    // Voice input handlers
+    };    
     const handleVoiceTranscript = (transcript, isFinal) => {
         console.log('📝 Textbox received transcript:', { 
             transcript, 
@@ -751,11 +751,11 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         });
         
         if (!isFinal) {
-            // For interim results, replace the voice portion, don't append
+            
             const cleanTranscript = transcript.trim();
             
             if (cleanTranscript) {
-                // If this is the start of a new voice session, save the base text
+                
                 if (!isVoiceSessionActiveRef.current) {
                     console.log('📝 Starting new voice session, saving base text:', input.trim());
                     const currentInput = input.trim();
@@ -763,13 +763,13 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     baseTextBeforeVoiceRef.current = currentInput;
                     isVoiceSessionActiveRef.current = true;
                     
-                    // Build new text: current input (as base) + interim transcript
+                    
                     const newText = currentInput + (currentInput ? ' ' : '') + cleanTranscript;
                     console.log('📝 Updating input with interim (new session):', newText);
                     setInput(newText);
                 } else {
-                    // Build new text: saved base + current interim transcript
-                    // Use ref to get current value, not stale closure value
+                    
+                    
                     const currentBase = baseTextBeforeVoiceRef.current;
                     const newText = currentBase + (currentBase ? ' ' : '') + cleanTranscript;
                     console.log('📝 Updating input with interim (existing session):', newText);
@@ -781,22 +781,22 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         console.log('✨ Textbox received final transcript:', transcript);
         const cleanTranscript = transcript.trim();
         
-        // Prevent duplicate final transcripts
+        
         if (cleanTranscript && cleanTranscript !== lastVoiceTranscript) {
             setLastVoiceTranscript(cleanTranscript);
             
-            // Use the saved base text + final transcript
+            
             const currentBase = baseTextBeforeVoiceRef.current;
             const newText = currentBase + (currentBase ? ' ' : '') + cleanTranscript;
             console.log('✨ Setting final input text:', newText);
             
-            // Update both state and ref to include this final transcript for continuity
+            
             setBaseTextBeforeVoice(newText);
             baseTextBeforeVoiceRef.current = newText;
             setInput(newText);
             
-            // Don't reset voice session - keep it active for continuation
-            // isVoiceSessionActiveRef.current remains true
+            
+            
             
             toast.success('Voice input completed!');
         } else {
@@ -804,7 +804,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         }
     };    const handleVoiceStop = () => {
         console.log('🛑 Voice input manually stopped, clearing voice tracking');
-        // Only clear voice tracking when user manually stops
+        
         setBaseTextBeforeVoice('');
         baseTextBeforeVoiceRef.current = '';
         setLastVoiceTranscript('');
@@ -821,12 +821,12 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         setLoading(true);
         setResponse('');
         
-        // Add user message to history (for context) but don't display it
+        
         const userMessage = input.trim();
         setChatHistory(prev => [...prev, { text: userMessage, isUser: true }]);
 
         try {
-            // Send the current message along with the chat history
+            
             const response = await axios.post('/api/generate', 
                 { 
                     prompt: userMessage,
@@ -835,7 +835,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                 { signal: controller.signal }
             );
 
-            // axios automatically parses JSON, so we can directly access response.data
+            
             const responseText = typeof response.data === 'string'
                 ? response.data
                 : JSON.stringify(response.data, null, 2);
@@ -854,7 +854,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     autoClose: 5000
                 });
                 
-                // Add error message to chat history
+                
                 setChatHistory(prev => [...prev, { 
                     text: `ERROR: ${error.message || 'Unknown error'}`, 
                     isUser: false 
@@ -863,7 +863,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         } finally {
             setLoading(false);
             abortControllerRef.current = null;
-            setInput(''); // Clear input field after submission
+            setInput(''); 
             
         }
     };    const handleReset = () => {
@@ -871,14 +871,14 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
         if (intervalRef.current) clearInterval(intervalRef.current);
         setInput('');
         setResponse('');
-        setLastVoiceTranscript(''); // Reset voice transcript tracking
-        setBaseTextBeforeVoice(''); // Reset voice base text tracking
-        baseTextBeforeVoiceRef.current = ''; // Reset ref as well
-        isVoiceSessionActiveRef.current = false; // Reset voice session
+        setLastVoiceTranscript(''); 
+        setBaseTextBeforeVoice(''); 
+        baseTextBeforeVoiceRef.current = ''; 
+        isVoiceSessionActiveRef.current = false; 
         responseBuilder.current = '';
-        // Clear chat history when user resets
+        
         setChatHistory([]);
-        // Also clear plan data
+        
         if (onPlanDetected) {
             onPlanDetected([]);
         }
@@ -910,7 +910,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                     value={input} 
                     onChange={(e) => {
                         setInput(e.target.value);
-                        // Reset voice tracking when user manually types
+                        
                         if (e.target.value !== input) {
                             setLastVoiceTranscript('');
                             setBaseTextBeforeVoice('');
@@ -919,9 +919,9 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                         }
                     }}
                     onKeyDown={(e) => {
-                        // Submit on Enter key press, but allow Shift+Enter for new lines
+                        
                         if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault(); // Prevent default to avoid adding a new line
+                            e.preventDefault(); 
                             if (input.trim() && !loading) {
                                 handleSubmit(e);
                             }
@@ -1051,7 +1051,7 @@ export const Textbox = ({ onCalendarEventDetected, onPlanDetected, darkMode = fa
                         lineHeight: '1.7',
                         fontSize: '16px',
                         color: darkMode ? 'var(--text-primary)' : '#1e293b',
-                        fontFamily: 'Inter, Arial, sans-serif', /* Changed from monospace to match UI font */
+                        fontFamily: 'Inter, Arial, sans-serif', 
                         width: '100%',
                         maxWidth: '100%',
                         overflowWrap: 'break-word',

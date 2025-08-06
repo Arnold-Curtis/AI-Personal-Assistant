@@ -18,10 +18,7 @@ public class CalendarSessionContextService {
         this.calendarController = calendarController;
     }
     
-    /**
-     * Generate context about calendar events for session memory
-     * This provides lightweight information about user's upcoming events
-     */
+    
     @Transactional(readOnly = true)
     public String generateCalendarEventsContext(UUID userId, String sessionId) {
         try {
@@ -30,7 +27,7 @@ public class CalendarSessionContextService {
             context.append("Session ID: ").append(sessionId).append("\n");
             context.append("Generated at: ").append(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)).append("\n\n");
             
-            // Get all user's calendar events
+            
             List<CalendarEvent> events = getAllUserEvents(userId);
             
             if (events.isEmpty()) {
@@ -43,7 +40,7 @@ public class CalendarSessionContextService {
                 int eventCount = 0;
                 
                 for (CalendarEvent event : events) {
-                    if (eventCount >= 10) { // Limit to 10 events to keep context light
+                    if (eventCount >= 10) { 
                         context.append("... and ").append(events.size() - eventCount).append(" more events\n");
                         break;
                     }
@@ -92,24 +89,19 @@ public class CalendarSessionContextService {
         }
     }
     
-    /**
-     * Get all calendar events for a user
-     * This is a simplified version that directly queries the database
-     */
+    
     private List<CalendarEvent> getAllUserEvents(UUID userId) {
         try {
-            // Use a direct database query to avoid HTTP request complexity
-            // This method should be implemented to get events directly from the database
+            
+            
             return calendarController.getUserCalendarEventsDirect(userId);
         } catch (Exception e) {
             System.err.println("Error fetching user calendar events: " + e.getMessage());
-            return List.of(); // Return empty list on error
+            return List.of(); 
         }
     }
     
-    /**
-     * Generate a concise summary for debugging
-     */
+    
     public String generateEventsSummary(UUID userId) {
         try {
             List<CalendarEvent> events = getAllUserEvents(userId);
@@ -120,3 +112,4 @@ public class CalendarSessionContextService {
         }
     }
 }
+

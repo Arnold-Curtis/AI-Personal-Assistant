@@ -7,24 +7,24 @@ import { scrollAfterResponse } from './utils/scrollUtils';
 export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
   const [steps, setSteps] = useState([]);
   const [planTitle, setPlanTitle] = useState('');
-  const [editMode, setEditMode] = useState({}); // Track which fields are being edited
-  const [editValues, setEditValues] = useState({}); // Track edited values
+  const [editMode, setEditMode] = useState({}); 
+  const [editValues, setEditValues] = useState({}); 
   const planContainerRef = useRef(null);
 
   useEffect(() => {
     if (planData) {
-      // Check if we have a plan with steps and title
+      
       if (planData.steps && planData.steps.length > 0) {
         setSteps(planData.steps);
         setPlanTitle(planData.title || '');
-        // Reset edit states when new plan data arrives
+        
         setEditMode({});
         setEditValues({});
         
-        // Use scroll after response completes
+        
         scrollAfterResponse(planContainerRef.current);
       } else if (Array.isArray(planData) && planData.length > 0) {
-        // Backward compatibility with older format without title
+        
         setSteps(planData);
         setPlanTitle('');
         setEditMode({});
@@ -42,7 +42,7 @@ export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
       [key]: !prev[key]
     }));
     
-    // Initialize edit value if entering edit mode
+    
     if (!editMode[key]) {
       setEditValues(prev => ({
         ...prev,
@@ -83,7 +83,7 @@ export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
 
   const handleUpdatePlan = () => {
     if (onUpdatePlan) {
-      // Send both the title and steps back to parent
+      
       onUpdatePlan({
         title: planTitle,
         steps: steps
@@ -94,7 +94,7 @@ export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
   
   const handleCancel = () => {
     if (onUpdatePlan) {
-      // Clear the plan by sending empty array to hide the component
+      
       onUpdatePlan([]);
     }
     toast.success('Plan cancelled');
@@ -104,33 +104,33 @@ export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
     try {
       let addedCount = 0;
       
-      // Log the current plan title for debugging
+      
       console.log('Adding events with plan title:', planTitle);
       
-      // Add each step as a calendar event
+      
       for (const step of steps) {
-        // Extract day number from the day string (e.g. "3 days from today")
+        
         const dayOffset = extractDayNumber(step.day);
         
-        // Calculate the event date
+        
         const date = new Date();
         date.setDate(date.getDate() + dayOffset);
         const formattedDate = date.toISOString().split('T')[0];
         
-        // Create the event object
+        
         const eventData = {
           title: step.title,
           start: formattedDate,
           isAllDay: true,
-          eventColor: "#3b82f6", // Default blue color
+          eventColor: "#3b82f6", 
           description: step.description,
-          planTitle: planTitle, // Store the plan title with the event
-          isPlanEvent: true  // Mark as a plan event for identification later
+          planTitle: planTitle, 
+          isPlanEvent: true  
         };
         
         console.log('Sending event to backend:', eventData);
         
-        // Send to backend
+        
         const response = await axios.post('/api/calendar/add-event', eventData);
         console.log('Backend response:', response.data);
         addedCount++;
@@ -138,7 +138,7 @@ export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
       
       toast.success(`Added ${addedCount} events to your calendar!`);
       
-      // Scroll to calendar after plan events are added
+      
       const calendarElement = document.querySelector('.calendar-container');
       if (calendarElement) {
         scrollAfterResponse(calendarElement);
@@ -150,7 +150,7 @@ export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
     }
   };
 
-  // Calculate day name from days offset
+  
   const getDayName = (daysOffset) => {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const today = new Date();
@@ -159,7 +159,7 @@ export const Plan = ({ planData, onUpdatePlan, darkMode = false }) => {
     return days[targetDate.getDay()];
   };
 
-  // Extract day number from format like "2 days from today"
+  
   const extractDayNumber = (dayString) => {
     const match = dayString.match(/(\d+)/);
     return match ? parseInt(match[1]) : 0;

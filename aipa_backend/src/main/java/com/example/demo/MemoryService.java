@@ -155,20 +155,18 @@ public class MemoryService {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Enhanced memory analysis and storage
-     */
+    
     @Transactional
     public MemoryAnalysisService.MemoryAnalysisResult analyzeAndStoreMemory(UUID userId, String userInput) {
         try {
-            // Get existing categories
+            
             List<String> existingCategories = getCategories(userId);
             
-            // Analyze the input for memory content
+            
             MemoryAnalysisService.MemoryAnalysisResult analysis = 
                 memoryAnalysisService.analyzeForMemory(userInput, existingCategories);
             
-            // Store memory if analysis indicates we should
+            
             if (analysis.shouldStore()) {
                 String categoryToUse = !analysis.getCategoryMatch().equals("None") 
                     ? analysis.getCategoryMatch() 
@@ -188,9 +186,7 @@ public class MemoryService {
         }
     }
 
-    /**
-     * Enhanced memory retrieval with fuzzy matching
-     */
+    
     @Transactional(readOnly = true)
     public List<String> getRelevantMemories(UUID userId, String context) {
         List<String> allMemories = getAllMemories(userId);
@@ -198,7 +194,7 @@ public class MemoryService {
         
         String lowerContext = context.toLowerCase();
         
-        // Direct keyword matching
+        
         for (String memory : allMemories) {
             String lowerMemory = memory.toLowerCase();
             if (containsRelevantKeywords(lowerContext, lowerMemory)) {
@@ -206,14 +202,14 @@ public class MemoryService {
             }
         }
         
-        // If no direct matches, look for category-based matches
+        
         if (relevantMemories.isEmpty()) {
             List<String> categories = getCategories(userId);
             for (String category : categories) {
                 if (categoryMatches(lowerContext, category.toLowerCase())) {
                     List<String> categoryMemories = getMemoriesByCategory(userId, category);
                     relevantMemories.addAll(categoryMemories);
-                    if (relevantMemories.size() >= 5) break; // Limit to 5 memories
+                    if (relevantMemories.size() >= 5) break; 
                 }
             }
         }
@@ -222,12 +218,12 @@ public class MemoryService {
     }
 
     private boolean containsRelevantKeywords(String context, String memory) {
-        // Check for common keywords
+        
         String[] contextWords = context.split("\\s+");
         String[] memoryWords = memory.split("\\s+");
         
         for (String contextWord : contextWords) {
-            if (contextWord.length() > 3) { // Only check meaningful words
+            if (contextWord.length() > 3) { 
                 for (String memoryWord : memoryWords) {
                     if (memoryWord.toLowerCase().contains(contextWord.toLowerCase()) ||
                         contextWord.toLowerCase().contains(memoryWord.toLowerCase())) {
@@ -237,7 +233,7 @@ public class MemoryService {
             }
         }
         
-        // Check for specific patterns
+        
         if (context.contains("birthday") && memory.toLowerCase().contains("birthday")) return true;
         if (context.contains("learn") && memory.toLowerCase().contains("learn")) return true;
         if (context.contains("like") && memory.toLowerCase().contains("like")) return true;
@@ -247,7 +243,7 @@ public class MemoryService {
     }
 
     private boolean categoryMatches(String context, String category) {
-        // Check if context relates to category
+        
         if (context.contains("birthday") && category.contains("personal")) return true;
         if (context.contains("learn") && category.contains("goal")) return true;
         if (context.contains("like") && category.contains("preference")) return true;
@@ -256,9 +252,7 @@ public class MemoryService {
         return false;
     }
 
-    /**
-     * Update memory content (for correcting or updating existing memories)
-     */
+    
     @Transactional
     public boolean updateMemory(UUID memoryId, String newContent) {
         return memoryRepository.findById(memoryId)
@@ -271,9 +265,7 @@ public class MemoryService {
             .orElse(false);
     }
 
-    /**
-     * Get memory statistics for debugging
-     */
+    
     @Transactional(readOnly = true)
     public String getMemoryStats(UUID userId) {
         List<String> categories = getCategories(userId);

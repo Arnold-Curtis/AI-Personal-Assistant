@@ -30,7 +30,7 @@ export class AssemblyAIService extends BaseSpeechService {
 
     try {
       console.log('🎤 AssemblyAI: Requesting user media...');
-      // Get user media
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           sampleRate: 16000,
@@ -41,12 +41,12 @@ export class AssemblyAIService extends BaseSpeechService {
       });
       console.log('✅ AssemblyAI: User media granted');
 
-      // Setup WebSocket connection to AssemblyAI
+      
       console.log('🔗 AssemblyAI: Setting up WebSocket...');
       await this.setupWebSocket();
       console.log('✅ AssemblyAI: WebSocket connected');
 
-      // Setup RecordRTC
+      
       console.log('🎙️ AssemblyAI: Setting up RecordRTC...');
       this.recorder = new RecordRTC(stream, {
         type: 'audio',
@@ -54,7 +54,7 @@ export class AssemblyAIService extends BaseSpeechService {
         recorderType: RecordRTC.StereoAudioRecorder,
         numberOfAudioChannels: 1,
         desiredSampRate: 16000,
-        timeSlice: 250, // Send data every 250ms
+        timeSlice: 250, 
         ondataavailable: (blob) => {
           console.log('🎵 AssemblyAI: Audio data available, size:', blob.size);
           if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
@@ -82,9 +82,9 @@ export class AssemblyAIService extends BaseSpeechService {
   }
   async setupWebSocket() {
     return new Promise((resolve, reject) => {
-      // Create WebSocket connection to AssemblyAI real-time API
-      // Note: AssemblyAI real-time API uses token parameter in URL
-      const wsUrl = `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${this.apiKey}`;
+      
+      
+      const wsUrl = `wss:
       console.log('🔗 AssemblyAI: Connecting to WebSocket URL (token hidden for security)');
       
       this.websocket = new WebSocket(wsUrl);
@@ -180,13 +180,13 @@ export class AssemblyAIService extends BaseSpeechService {
       this.recorder.stopRecording();
       this.recording = false;
       
-      // Close WebSocket connection
+      
       if (this.websocket) {
         this.websocket.close();
         this.websocket = null;
       }
       
-      // Stop media stream
+      
       if (this.recorder.stream) {
         this.recorder.stream.getTracks().forEach(track => track.stop());
       }
@@ -197,3 +197,4 @@ export class AssemblyAIService extends BaseSpeechService {
     return this.recording;
   }
 }
+

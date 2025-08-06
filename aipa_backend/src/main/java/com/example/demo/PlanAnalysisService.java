@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 @Service
 public class PlanAnalysisService {
     
-    // Enhanced prompt specifically for plan detection
+    
     public static final String PLAN_ANALYSIS_PROMPT = 
         "You are a specialized AI plan analyzer. Your job is to determine if a user input represents a genuine PLAN-WORTHY goal that requires multiple steps over time.\n\n" +
         
@@ -59,21 +59,21 @@ public class PlanAnalysisService {
     
     public PlanAnalysisResult analyzeForPlan(String userInput) {
         try {
-            // First, do basic pattern-based pre-filtering
+            
             if (isObviouslyNotPlanWorthy(userInput)) {
                 return new PlanAnalysisResult(false, "high", 
                     "Simple question or information request - no plan needed", 
                     "none", "none", 1);
             }
             
-            // Check for strong plan indicators
+            
             if (hasStrongPlanIndicators(userInput)) {
                 return createPlanWorthyResult(userInput);
             }
             
-            // Use the enhanced prompt for AI analysis
-            // In a full implementation, this would be sent to the AI service
-            // For now, use sophisticated pattern matching
+            
+            
+            
             return analyzePlanNeed(userInput);
             
         } catch (Exception e) {
@@ -85,7 +85,7 @@ public class PlanAnalysisService {
     private boolean isObviouslyNotPlanWorthy(String input) {
         String lowerInput = input.toLowerCase().trim();
         
-        // Question patterns that are clearly not plan-worthy
+        
         String[] questionPatterns = {
             "what is", "what's", "how much", "when is", "where is", "who is",
             "what time", "what day", "which", "why is", "how do you",
@@ -98,25 +98,25 @@ public class PlanAnalysisService {
             }
         }
         
-        // Math or simple calculation patterns
+        
         if (lowerInput.matches(".*\\d+\\s*[+\\-*/]\\s*\\d+.*") ||
             lowerInput.contains("plus") || lowerInput.contains("minus") ||
             lowerInput.contains("times") || lowerInput.contains("divided")) {
             return true;
         }
         
-        // Weather, time, date requests
+        
         if (lowerInput.contains("weather") || lowerInput.contains("temperature") ||
             lowerInput.matches(".*what time.*") || lowerInput.matches(".*what day.*")) {
             return true;
         }
         
-        // Simple greetings without goals
+        
         if (lowerInput.matches("^(hi|hello|hey|good morning|good afternoon|good evening|what's up|how are you|how's it going)\\??$")) {
             return true;
         }
         
-        // Short inputs (likely not complex goals)
+        
         if (lowerInput.length() < 15 && !containsLearningKeywords(lowerInput)) {
             return true;
         }
@@ -127,7 +127,7 @@ public class PlanAnalysisService {
     private boolean hasStrongPlanIndicators(String input) {
         String lowerInput = input.toLowerCase();
         
-        // Learning goals
+        
         String[] learningPatterns = {
             "i want to learn", "i'd like to learn", "i would like to learn",
             "i need to learn", "help me learn", "teach me",
@@ -135,20 +135,20 @@ public class PlanAnalysisService {
             "i want to get better at", "i want to improve my"
         };
         
-        // Long-term goals
+        
         String[] longTermPatterns = {
             "i want to start", "i'd like to start", "i want to begin",
             "i want to build", "i want to create", "i want to develop",
             "i want to achieve", "i want to become", "my goal is to"
         };
         
-        // Habit/routine goals
+        
         String[] habitPatterns = {
             "routine", "habit", "daily", "regularly", "consistently",
             "every day", "workout plan", "diet plan", "schedule"
         };
         
-        // Check all patterns
+        
         for (String pattern : learningPatterns) {
             if (lowerInput.contains(pattern)) return true;
         }
@@ -174,7 +174,7 @@ public class PlanAnalysisService {
     private PlanAnalysisResult createPlanWorthyResult(String input) {
         String lowerInput = input.toLowerCase();
         
-        // Determine plan type
+        
         String planType = "none";
         String duration = "weeks";
         int complexity = 7;
@@ -213,13 +213,13 @@ public class PlanAnalysisService {
     private PlanAnalysisResult analyzePlanNeed(String input) {
         String lowerInput = input.toLowerCase();
         
-        // Score various factors
+        
         int complexityScore = 0;
         String reasoning = "";
         String planType = "none";
         String duration = "none";
         
-        // Check for complexity indicators
+        
         if (lowerInput.matches(".*\\b(learn|study|master|understand|improve)\\b.*")) {
             complexityScore += 3;
             planType = "learning";
@@ -238,7 +238,7 @@ public class PlanAnalysisService {
             reasoning += "Involves routine/habit formation. ";
         }
         
-        // Check for time indicators
+        
         if (lowerInput.matches(".*\\b(month|months|year|years|long.?term)\\b.*")) {
             complexityScore += 2;
             duration = "months";
@@ -249,13 +249,13 @@ public class PlanAnalysisService {
             reasoning += "Medium-term timeframe. ";
         }
         
-        // Check for goal complexity
+        
         if (lowerInput.length() > 50) {
             complexityScore += 1;
             reasoning += "Detailed description suggests complexity. ";
         }
         
-        // Determine result
+        
         boolean requiresPlan = complexityScore >= 4;
         String confidence = complexityScore >= 5 ? "high" : complexityScore >= 3 ? "medium" : "low";
         
@@ -267,11 +267,11 @@ public class PlanAnalysisService {
         }
         
         if (planType.equals("none") && requiresPlan) {
-            planType = "learning"; // Default for complex goals
+            planType = "learning"; 
         }
         
         if (duration.equals("none") && requiresPlan) {
-            duration = "weeks"; // Default duration
+            duration = "weeks"; 
         }
         
         return new PlanAnalysisResult(requiresPlan, confidence, reasoning.trim(), 
@@ -296,7 +296,7 @@ public class PlanAnalysisService {
             this.complexityScore = complexityScore;
         }
         
-        // Getters
+        
         public boolean requiresPlan() { return requiresPlan; }
         public String getConfidence() { return confidence; }
         public String getReasoning() { return reasoning; }
@@ -315,3 +315,4 @@ public class PlanAnalysisService {
         }
     }
 }
+

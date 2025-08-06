@@ -42,7 +42,7 @@ public class MemoryDebugController {
         Map<String, Object> result = new HashMap<>();
         
         try {
-            // Test memory analysis
+            
             MemoryAnalysisService.MemoryAnalysisResult analysis = 
                 memoryService.analyzeAndStoreMemory(userId, testInput);
             
@@ -55,19 +55,19 @@ public class MemoryDebugController {
                 "shouldStore", analysis.shouldStore()
             ));
             
-            // Get memory stats
+            
             String stats = memoryService.getMemoryStats(userId);
             result.put("memoryStats", stats);
             
-            // Get relevant memories
+            
             List<String> relevantMemories = memoryService.getRelevantMemories(userId, testInput);
             result.put("relevantMemories", relevantMemories);
             
-            // Get all categories
+            
             List<String> categories = memoryService.getCategories(userId);
             result.put("allCategories", categories);
             
-            // Get all memories
+            
             List<String> allMemories = memoryService.getAllMemories(userId);
             result.put("allMemories", allMemories);
             
@@ -113,7 +113,7 @@ public class MemoryDebugController {
         
         try {
             List<String> allMemories = memoryService.getAllMemories(userId);
-            // Note: We'd need to add a clearAllMemories method to MemoryService for this to work
+            
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "Would clear " + allMemories.size() + " memories (not implemented yet)"
@@ -126,3 +126,4 @@ public class MemoryDebugController {
         }
     }
 }
+

@@ -18,7 +18,7 @@ public class MemoryAnalysisService {
         this.inputRoutingService = inputRoutingService;
     }
     
-    // Enhanced prompt for better memory detection
+    
     public static final String ENHANCED_MEMORY_PROMPT = 
         "You are an AI memory system analyzer. Your job is to identify information that should be remembered for future conversations.\n\n" +
         
@@ -64,7 +64,7 @@ public class MemoryAnalysisService {
     
     public MemoryAnalysisResult analyzeForMemory(String userInput, List<String> existingCategories) {
         try {
-            // FIRST: Use the routing service to determine if this should go to memory
+            
             InputRoutingService.RoutingDecision routingDecision = inputRoutingService.routeInput(userInput);
             
             if (!routingDecision.shouldProcessMemory()) {
@@ -73,10 +73,10 @@ public class MemoryAnalysisService {
                 return new MemoryAnalysisResult("None", "None", "None", reason, "None");
             }
             
-            // SECOND: Check memory worthiness (for additional filtering)
-            // If routing has high confidence (>= 0.8), trust it completely
+            
+            
             if (routingDecision.getConfidence() >= 0.8) {
-                // Skip memory filter for high-confidence routing decisions
+                
                 if (containsPersonalInfo(userInput)) {
                     return createHighConfidenceResult(userInput, existingCategories);
                 } else {
@@ -84,7 +84,7 @@ public class MemoryAnalysisService {
                 }
             }
             
-            // For lower confidence routing decisions, apply additional filtering
+            
             MemoryFilterService.MemoryWorthinessResult worthinessResult = 
                 memoryFilterService.analyzeMemoryWorthiness(userInput);
             
@@ -92,17 +92,17 @@ public class MemoryAnalysisService {
                 return new MemoryAnalysisResult("None", "None", "None", "filtered", "None");
             }
             
-            // Pre-process input to detect obvious personal information patterns
+            
             if (containsPersonalInfo(userInput)) {
                 return createHighConfidenceResult(userInput, existingCategories);
             }
             
-            // Use the enhanced prompt for AI analysis
-            // String categoriesStr = String.join(", ", existingCategories);
-            // In a full implementation, this would be sent to the AI service
-            // String formattedPrompt = String.format(ENHANCED_MEMORY_PROMPT, categoriesStr, userInput);
             
-            // This would typically go to the AI service, but for now we'll use pattern matching
+            
+            
+            
+            
+            
             return extractMemoryUsingPatterns(userInput, existingCategories);
             
         } catch (Exception e) {
@@ -114,32 +114,32 @@ public class MemoryAnalysisService {
     private boolean containsPersonalInfo(String input) {
         String lowerInput = input.toLowerCase();
         
-        // Birthday patterns
+        
         if (lowerInput.matches(".*\\b(birthday|born|birth)\\b.*") ||
             lowerInput.matches(".*\\b(january|february|march|april|may|june|july|august|september|october|november|december)\\s+\\d{1,2}.*") ||
             lowerInput.matches(".*\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4}.*")) {
             return true;
         }
         
-        // Name patterns
+        
         if (lowerInput.matches(".*\\b(my name is|i'm|i am|call me)\\s+[A-Za-z]+.*") ||
             lowerInput.matches(".*\\b(my \\w+ is named|my \\w+'s name is)\\s+[A-Za-z]+.*")) {
             return true;
         }
         
-        // Personal preferences
+        
         if (lowerInput.matches(".*\\b(i love|i like|i enjoy|i prefer|my favorite)\\b.*") ||
             lowerInput.matches(".*\\b(i hate|i dislike|i don't like)\\b.*")) {
             return true;
         }
         
-        // Goals and aspirations
+        
         if (lowerInput.matches(".*\\b(i want to|i'm learning|i'm studying|my goal is)\\b.*") ||
             lowerInput.matches(".*\\b(i'm trying to|i hope to|i plan to)\\b.*")) {
             return true;
         }
         
-        // Location and personal details
+        
         if (lowerInput.matches(".*\\b(i live in|i work at|i'm from|my address)\\b.*") ||
             lowerInput.matches(".*\\b(my job|my work|my career)\\b.*")) {
             return true;
@@ -151,7 +151,7 @@ public class MemoryAnalysisService {
     private MemoryAnalysisResult createHighConfidenceResult(String input, List<String> existingCategories) {
         String lowerInput = input.toLowerCase();
         
-        // Birthday detection
+        
         if (lowerInput.contains("birthday") || lowerInput.contains("born") || 
             lowerInput.matches(".*\\b(january|february|march|april|may|june|july|august|september|october|november|december)\\s+\\d{1,2}.*")) {
             String categoryMatch = findBestCategoryMatch(existingCategories, Arrays.asList("personal", "info", "birthday", "date"));
@@ -164,7 +164,7 @@ public class MemoryAnalysisService {
             );
         }
         
-        // Learning/Goals detection
+        
         if (lowerInput.contains("learning") || lowerInput.contains("want to learn") || 
             lowerInput.contains("studying") || lowerInput.contains("goal")) {
             String categoryMatch = findBestCategoryMatch(existingCategories, Arrays.asList("goals", "learning", "education", "aspirations"));
@@ -177,7 +177,7 @@ public class MemoryAnalysisService {
             );
         }
         
-        // Preferences detection
+        
         if (lowerInput.contains("love") || lowerInput.contains("like") || 
             lowerInput.contains("favorite") || lowerInput.contains("prefer")) {
             String categoryMatch = findBestCategoryMatch(existingCategories, Arrays.asList("preferences", "likes", "favorites"));
@@ -190,7 +190,7 @@ public class MemoryAnalysisService {
             );
         }
         
-        // Default personal info
+        
         String categoryMatch = findBestCategoryMatch(existingCategories, Arrays.asList("personal", "info"));
         return new MemoryAnalysisResult(
             categoryMatch != null ? categoryMatch : "None",
@@ -202,14 +202,14 @@ public class MemoryAnalysisService {
     }
     
     private MemoryAnalysisResult extractMemoryUsingPatterns(String input, List<String> existingCategories) {
-        // Fallback pattern-based extraction
+        
         String lowerInput = input.toLowerCase();
         
         if (lowerInput.length() < 10) {
             return new MemoryAnalysisResult("None", "None", "None", "low", "None");
         }
         
-        // Check for any personal pronouns + factual content
+        
         if (lowerInput.matches(".*\\b(i|my|me)\\b.*") && 
             (lowerInput.contains("is") || lowerInput.contains("have") || lowerInput.contains("am"))) {
             return new MemoryAnalysisResult(
@@ -238,7 +238,7 @@ public class MemoryAnalysisService {
     }
     
     private String extractBirthdayInfo(String input) {
-        // Extract birthday information more precisely
+        
         Pattern datePattern = Pattern.compile("\\b(january|february|march|april|may|june|july|august|september|october|november|december)\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b", Pattern.CASE_INSENSITIVE);
         Matcher matcher = datePattern.matcher(input);
         if (matcher.find()) {
@@ -288,7 +288,7 @@ public class MemoryAnalysisService {
             this.memoryType = memoryType;
         }
         
-        // Getters
+        
         public String getCategoryMatch() { return categoryMatch; }
         public String getNewCategorySuggestion() { return newCategorySuggestion; }
         public String getMemoryToStore() { return memoryToStore; }
@@ -302,3 +302,4 @@ public class MemoryAnalysisService {
         }
     }
 }
+

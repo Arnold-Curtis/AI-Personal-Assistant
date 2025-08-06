@@ -19,7 +19,7 @@ public class EncryptionUtil {
             byte[] key = encryptionKey.getBytes(StandardCharsets.UTF_8);
             MessageDigest sha = MessageDigest.getInstance("SHA-256");
             key = sha.digest(key);
-            key = Arrays.copyOf(key, 16); // Use only first 128 bits
+            key = Arrays.copyOf(key, 16); 
             this.secretKey = new SecretKeySpec(key, ALGORITHM);
         } catch (Exception e) {
             throw new RuntimeException("Error initializing encryption", e);

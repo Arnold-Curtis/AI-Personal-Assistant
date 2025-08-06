@@ -4,7 +4,7 @@
   border-radius: 8px;
   margin-top: 20px;
   min-height: 400px;
-  /* Removing the white background and box-shadow as it's now handled by App.css */
+  
 }
 
 .calendar-loading {
@@ -74,7 +74,7 @@
   border-top: 1px solid #eee;
 }
 
-/* Event action buttons */
+
 .calendar-event-actions {
   display: flex;
   margin: 10px 0;
@@ -85,7 +85,7 @@
   border: 1px solid #eee;
 }
 
-/* Dark mode support for event actions */
+
 .dark-mode .calendar-event-actions {
   background-color: var(--bg-secondary);
   border-color: var(--border-color);
@@ -128,7 +128,7 @@
   background-color: #059669;
 }
 
-/* Edit Event Modal */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -152,7 +152,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Dark mode support for edit modal */
+
 .dark-mode .edit-event-modal {
   background: var(--bg-secondary);
   color: var(--text-primary);
@@ -236,14 +236,14 @@
   background-color: #2563eb;
 }
 
-/* Animation for undo button */
+
 @keyframes pulse {
   0% { opacity: 1; }
   50% { opacity: 0.7; }
   100% { opacity: 1; }
 }
 
-/* FullCalendar Overrides */
+
 .fc {
   font-family: inherit;
 }
@@ -307,7 +307,7 @@
   min-height: 3em;
 }
 
-/* Empty state */
+
 .fc-view-harness:empty::before {
   content: "No events to display";
   display: block;
@@ -317,7 +317,7 @@
   font-style: italic;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
   .fc .fc-toolbar {
     flex-direction: column;
@@ -380,7 +380,7 @@
   box-shadow: 0 2px 5px rgba(37, 99, 235, 0.1);
 }
 
-/* Improve dark mode today button visibility */
+
 .dark-mode .fc .fc-today-button {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
@@ -394,14 +394,14 @@
   border-color: var(--accent-hover);
 }
 
-/* Make today's date more visible in dark mode */
+
 .dark-mode .fc .fc-day-today .fc-daygrid-day-top {
   background-color: rgba(var(--accent-color-rgb), 0.4);
   border-radius: 4px;
   margin: 2px;
 }
 
-/* Calendar dark mode fixes */
+
 .dark-mode .calendar-loading {
   background: rgba(17, 24, 39, 0.8);
   color: var(--text-primary);
@@ -423,7 +423,7 @@
   background-color: rgba(var(--accent-color-rgb), 0.2) !important;
 }
 
-/* Ensure calendar content is properly visible in dark mode */
+
 .dark-mode .fc thead {
   color: var(--text-primary);
 }

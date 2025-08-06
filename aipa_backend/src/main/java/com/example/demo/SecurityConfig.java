@@ -52,8 +52,8 @@ public class SecurityConfig {
                     "/api/auth/**",
                     "/api/health",
                     "/api/info",
-                    "/api/generate",  // Added this line to fix the authorization issue
-                    "/api/public/**", // Added for public test endpoints
+                    "/api/generate",  
+                    "/api/public/**", 
                     "/error",
                     "/uploads/**",
                     "/api/upload"
@@ -78,7 +78,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("http:
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));

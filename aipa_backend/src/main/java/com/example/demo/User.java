@@ -82,7 +82,7 @@ public class User {
         this.verificationToken = UUID.randomUUID().toString();
     }
 
-    // Getters and Setters
+    
     public UUID getId() {
         return id;
     }
@@ -199,7 +199,7 @@ public class User {
         this.memoryPassword = memoryPassword;
     }
 
-    // Helper methods
+    
     public void addEvent(CalendarEvent event) {
         events.add(event);
         event.setUser(this);
@@ -225,12 +225,12 @@ public class User {
         }
     }
 
-    // Additional helper method for profile image URL
+    
     public String getProfileImageUrl() {
         if (this.profileImage != null && !this.profileImage.isEmpty()) {
             return "/uploads/" + this.profileImage;
         }
-        return "https://ui-avatars.com/api/?name=" + 
+        return "https:
                (this.fullName != null ? 
                    this.fullName.substring(0, 1) : 
                    this.email.substring(0, 1)) + 
