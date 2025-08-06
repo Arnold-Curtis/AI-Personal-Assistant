@@ -858,3 +858,77 @@
         users u1_0 
     where
         u1_0.email=?
+2025-08-07 00:06:32 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:06:32 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:06:32 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:07:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
