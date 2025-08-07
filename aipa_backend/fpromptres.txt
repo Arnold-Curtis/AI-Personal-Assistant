@@ -943,3 +943,198 @@ The input "I said i have a bike riding event in 3 days please add it" describes 
 ).* YES
 ========================
 
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:02:07.576029Z
+User Input: Hey what up\
+Final Decision: no
+Response Analysis:
+Input: "Hey what up"
+
+Thinking Space:
+This is a basic greeting, a simple conversational exchange without any goals or tasks associated with it. It doesn't require any planning, skill development, or calendar tracking. It falls under the 'Basic Greetings' non-actionable criteria.
+
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:02:22.956563Z
+User Input: I have this book reading event in 2 weeks
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I have this book reading event in 2 weeks" describes a scheduled event with a specific timeframe (2 weeks). This falls under the 'Calendar Events' actionable criteria. The event has a fixed date and could potentially involve planning (e.g., arranging transportation, clearing schedule).
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:02:37.754202900Z
+User Input: and a day after that a car meet!
+Final Decision: yes
+Response Analysis:
+Input: "and a day after that a car meet!"
+Output:
+Thinking Space:
+This input describes a scheduled event ("car meet") that is happening in the near future ("a day after that"). This qualifies as a calendar event.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:03:06.638822300Z
+User Input: in 2 weeks 2 days a bar meet
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+"in 2 weeks 2 days a bar meet" - This indicates a scheduled event with a specific timeframe (2 weeks and 2 days). It meets the 'Calendar Events' actionable criteria. Although it's not very detailed, the presence of a date implies the need to track the event.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:24:29.886239400Z
+User Input: Hey man what up
+Final Decision: no
+Response Analysis:
+Thinking Space:
+This is a basic greeting, a simple conversational exchange. It does not involve complex goals, scheduled events, multi-step tasks, or skill development. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:24:40.828042600Z
+User Input: I have a wedding in 2 weeks
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+This input describes a scheduled event with a specific timeframe (2 weeks). This aligns with the 'Calendar Events' actionable criteria. The wedding has a fixed date and could require planning and preparation.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:24:57.361675700Z
+User Input: and a day later a car meet!
+Final Decision: yes
+Response Analysis:
+Input: "and a day later a car meet!"
+Output:
+Thinking Space:
+This input describes a scheduled event ("car meet") occurring a day after a previous event.
+It meets the 'Calendar Events' actionable criteria, as it's a scheduled event with a timeframe (one day later).
+The event has a fixed date relative to the previous event and should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:25:13.779384Z
+User Input: add the car meet!!
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "add the car meet!!" is a request to add something, presumably to a calendar or schedule. While seemingly simple, it implies a calendar event with a specific date and time, which needs to be tracked. This falls under the 'Calendar Events' actionable criteria, as it suggests a scheduled event to be added.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:25:38.815368200Z
+User Input: also I have a bar meet in 2 weeks 3 days
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "also I have a bar meet in 2 weeks 3 days" describes a scheduled event with a specific timeframe (2 weeks and 3 days from now). This meets the 'Calendar Events' actionable criteria. It is a scheduled event with a date, and should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:27:09.639873500Z
+User Input: also my aunt is named Mercy
+Final Decision: no
+Response Analysis:
+Input: "How do I cook pasta?"
+Output:
+Thinking Space:
+This is a request for instructions on a simple, immediate task.
+Can be completed in a single session with basic steps.
+No sustained effort or skill development required.
+Falls under 'Immediate Tasks' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:40:06.240333200Z
+User Input: hey man whats good
+Final Decision: no
+Response Analysis:
+Thinking Space:
+This is a basic greeting/conversational exchange. It doesn't involve any complex goals, scheduled events, multi-step tasks, or skill development. It falls under the 'Basic Greetings' non-actionable criteria.
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:40:34.433333600Z
+User Input: I have a wedding in 2 weeks 2 days
+Final Decision: yes
+Response Analysis:
+Input: "I have a wedding in 2 weeks 2 days"
+Output:
+Thinking Space:
+This is a scheduled event with a specific timeframe (2 weeks and 2 days).
+Meets 'Calendar Events' actionable criteria.
+Event has a fixed date and should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:41:07.066493100Z
+User Input: I have a bar meet in 2 weeks 3 days ma
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+The input "I have a bar meet in 2 weeks 3 days ma" indicates a scheduled event (bar meet) with a specific timeframe (2 weeks 3 days). This falls under the 'Calendar Events' actionable criteria. While the "ma" at the end is unclear, the core statement refers to a scheduled event.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:41:23.982836600Z
+User Input: also a day after i have a wedding
+Final Decision: yes
+Response Analysis:
+Input: "also a day after i have a wedding"
+Output:
+Thinking Space:
+This input refers to a wedding and an event the day after. The wedding itself is a calendar event. The day after the wedding could imply tasks related to cleaning up, travel, or other post-wedding activities. Since it builds on the previous mention of a wedding and implies potential follow-up tasks, it meets the 'Calendar Events' actionable criteria.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:41:43.283403400Z
+User Input: no a day after the bar meet
+Final Decision: no
+Response Analysis:
+Input: no a day after the bar meet
+
+Thinking Space:
+This input is vague and lacks context. It's difficult to determine if it's actionable. It could be a reminder, a statement of fact, or part of a question. Without more information, it's hard to assess if it requires planning, skill development, or relates to a calendar event. However, based on the provided Plan Analysis, it seems like it is a simple request and does not require a multi-step plan. Therefore, it would not be actionable based on the current information.
+
+).* NO
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:42:19.073554300Z
+User Input: Hey man I have a wedding in 2 days
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+This is a scheduled event with a specific timeframe (2 days).
+Meets 'Calendar Events' actionable criteria.
+Event has a fixed date and should be tracked.
+).* YES
+========================
+
+=== Analysis Result ===
+Timestamp: 2025-08-07T18:42:38.019255200Z
+User Input: and a day after that wedding a car meet!
+Final Decision: yes
+Response Analysis:
+Thinking Space:
+This input describes a wedding in two weeks and a car meet the day after. The wedding falls under the "Calendar Events" actionable criteria. The car meet, happening the day after, is related and should also be considered. Planning might be needed to manage attending both events.
+).* YES
+========================
+

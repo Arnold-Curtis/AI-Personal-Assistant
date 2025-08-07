@@ -1,70 +1,71 @@
 package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import java.util.logging.Logger;
 
 @Service
 public class MemoryAnalysisService {
     
+    private static final Logger logger = Logger.getLogger(MemoryAnalysisService.class.getName());
+    
     private final MemoryFilterService memoryFilterService;
     private final InputRoutingService inputRoutingService;
+    private final WebClient webClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    @Value("${gemini.api.key}")
+    private String geminiApiKey;
     
     @Autowired
-    public MemoryAnalysisService(MemoryFilterService memoryFilterService, InputRoutingService inputRoutingService) {
+    public MemoryAnalysisService(MemoryFilterService memoryFilterService, InputRoutingService inputRoutingService, WebClient.Builder webClientBuilder) {
         this.memoryFilterService = memoryFilterService;
         this.inputRoutingService = inputRoutingService;
+        this.webClient = webClientBuilder
+            .baseUrl("https://generativelanguage.googleapis.com")
+            .defaultHeader("Content-Type", "application/json")
+            .build();
     }
     
     
     public static final String ENHANCED_MEMORY_PROMPT = 
-        "You are an AI memory system analyzer. Your job is to identify information that should be remembered for future conversations.\n\n" +
+        "Extract personal information from user input. BE EXTREMELY GENEROUS - extract ANYTHING personal about the user!\n\n" +
         
-        "PERSONAL INFORMATION TO ALWAYS REMEMBER:\n" +
-        "- Birthdays, anniversaries, special dates\n" +
-        "- Names of family members, friends, pets\n" +
-        "- Personal preferences (food, music, movies, etc.)\n" +
-        "- Goals and aspirations (learning languages, career goals, etc.)\n" +
-        "- Important life events (graduations, weddings, job changes)\n" +
-        "- Health information and medical details\n" +
-        "- Location information (where they live, work, etc.)\n" +
-        "- Hobbies and interests\n" +
-        "- Fears and dislikes\n" +
-        "- Relationship status and relationship details\n\n" +
+        "ALWAYS extract if user mentions:\n" +
+        "• Personal identity: names, age, birthday, location, job, education, family\n" +
+        "• Education: university, college, school, degree, studied, graduated, courses\n" +
+        "• Professional: job title, company, workplace, career, profession, skills\n" +
+        "• Relationships: parents, siblings, spouse, friends, colleagues, pets\n" +
+        "• Preferences: favorite foods/movies/colors, likes/dislikes, hobbies\n" +
+        "• Personal facts: where they live/work, what they own, goals, health info\n" +
+        "• Contact info: phone numbers, emails, addresses\n\n" +
         
-        "EXISTING CATEGORIES: %s\n\n" +
+        "Use HIGH confidence for clear personal facts, MEDIUM for preferences.\n" +
+        "Only use 'None' for pure questions or completely irrelevant content.\n\n" +
         
-        "ANALYSIS INSTRUCTIONS:\n" +
-        "1. Scan the input for ANY personal information worth remembering\n" +
-        "2. Check if it relates to existing categories (use fuzzy matching - e.g., 'Personal Info' matches 'personal_information')\n" +
-        "3. Extract specific, factual information (not opinions or temporary states)\n" +
-        "4. Create descriptive, searchable memory entries\n\n" +
+        "Categories: %s\n\n" +
         
-        "EXAMPLES OF GOOD MEMORY EXTRACTION:\n" +
-        "Input: \"My birthday is March 15th\"\n" +
-        "Output: {\"category_match\": \"Personal_Information\", \"new_category_suggestion\": \"None\", \"memory_to_store\": \"Birthday is March 15th\"}\n\n" +
+        "Return JSON:\n" +
+        "{\"categoryMatch\":\"match_or_None\",\"newCategorySuggestion\":\"suggestion_or_None\",\"memoryToStore\":\"fact_or_None\",\"confidence\":\"high_medium_or_low\",\"memoryType\":\"personal_fact_preference_or_goal\"}\n\n" +
         
-        "Input: \"I love playing guitar and I'm learning Spanish\"\n" +
-        "Output: {\"category_match\": \"None\", \"new_category_suggestion\": \"Hobbies_And_Learning\", \"memory_to_store\": \"Plays guitar, currently learning Spanish language\"}\n\n" +
+        "Examples:\n" +
+        "\"I live in Paris\" → {\"categoryMatch\":\"None\",\"newCategorySuggestion\":\"Personal\",\"memoryToStore\":\"Lives in Paris\",\"confidence\":\"high\",\"memoryType\":\"personal_fact\"}\n" +
+        "\"I'm a teacher\" → {\"categoryMatch\":\"None\",\"newCategorySuggestion\":\"Work\",\"memoryToStore\":\"Works as a teacher\",\"confidence\":\"high\",\"memoryType\":\"personal_fact\"}\n" +
+        "\"My name is Alice\" → {\"categoryMatch\":\"None\",\"newCategorySuggestion\":\"Personal\",\"memoryToStore\":\"Name is Alice\",\"confidence\":\"high\",\"memoryType\":\"personal_fact\"}\n" +
+        "\"I love pizza\" → {\"categoryMatch\":\"None\",\"newCategorySuggestion\":\"Preferences\",\"memoryToStore\":\"Loves pizza\",\"confidence\":\"medium\",\"memoryType\":\"preference\"}\n" +
+        "\"My phone is 555-1234\" → {\"categoryMatch\":\"None\",\"newCategorySuggestion\":\"Contact\",\"memoryToStore\":\"Phone number is 555-1234\",\"confidence\":\"high\",\"memoryType\":\"personal_fact\"}\n" +
+        "\"I studied at Harvard\" → {\"categoryMatch\":\"None\",\"newCategorySuggestion\":\"Education\",\"memoryToStore\":\"Studied at Harvard\",\"confidence\":\"high\",\"memoryType\":\"personal_fact\"}\n\n" +
         
-        "Input: \"My dog Max is a golden retriever\"\n" +
-        "Output: {\"category_match\": \"None\", \"new_category_suggestion\": \"Pets_And_Family\", \"memory_to_store\": \"Has a dog named Max, golden retriever breed\"}\n\n" +
-        
-        "RESPONSE FORMAT (JSON only, no extra text):\n" +
-        "{\n" +
-        "  \"category_match\": \"Exact_Category_Name/None\",\n" +
-        "  \"new_category_suggestion\": \"New_Category_Name/None\",\n" +
-        "  \"memory_to_store\": \"Specific_factual_information/None\",\n" +
-        "  \"confidence\": \"high/medium/low\",\n" +
-        "  \"memory_type\": \"personal_info/goal/preference/fact/relationship/None\"\n" +
-        "}\n\n" +
-        "USER INPUT: %s";
+        "Input: \"%s\"\n" +
+        "JSON:";
     
     public MemoryAnalysisResult analyzeForMemory(String userInput, List<String> existingCategories) {
         try {
-            
             InputRoutingService.RoutingDecision routingDecision = inputRoutingService.routeInput(userInput);
             
             if (!routingDecision.shouldProcessMemory()) {
@@ -73,18 +74,6 @@ public class MemoryAnalysisService {
                 return new MemoryAnalysisResult("None", "None", "None", reason, "None");
             }
             
-            
-            
-            if (routingDecision.getConfidence() >= 0.8) {
-                
-                if (containsPersonalInfo(userInput)) {
-                    return createHighConfidenceResult(userInput, existingCategories);
-                } else {
-                    return extractMemoryUsingPatterns(userInput, existingCategories);
-                }
-            }
-            
-            
             MemoryFilterService.MemoryWorthinessResult worthinessResult = 
                 memoryFilterService.analyzeMemoryWorthiness(userInput);
             
@@ -92,21 +81,80 @@ public class MemoryAnalysisService {
                 return new MemoryAnalysisResult("None", "None", "None", "filtered", "None");
             }
             
-            
-            if (containsPersonalInfo(userInput)) {
-                return createHighConfidenceResult(userInput, existingCategories);
-            }
-            
-            
-            
-            
-            
-            
-            
-            return extractMemoryUsingPatterns(userInput, existingCategories);
+            return extractMemoryUsingLLM(userInput, existingCategories);
             
         } catch (Exception e) {
-            System.err.println("Error in memory analysis: " + e.getMessage());
+            logger.severe("Error in memory analysis: " + e.getMessage());
+            return new MemoryAnalysisResult("None", "None", "None", "low", "None");
+        }
+    }
+    
+    private MemoryAnalysisResult extractMemoryUsingLLM(String userInput, List<String> existingCategories) {
+        try {
+            String categoriesStr = existingCategories.isEmpty() ? "None" : String.join(", ", existingCategories);
+            String prompt = String.format(ENHANCED_MEMORY_PROMPT, categoriesStr, userInput);
+            
+            Map<String, Object> request = Map.of(
+                "contents", List.of(
+                    Map.of("parts", List.of(
+                        Map.of("text", prompt)
+                    ))
+                ),
+                "generationConfig", Map.of(
+                    "temperature", 0.4,  // Increased from 0.3 for even more creative extraction
+                    "topP", 0.95,        // Increased from 0.9 for more diverse responses
+                    "maxOutputTokens", 300 // Increased from 256 for more detailed responses
+                )
+            );
+            
+            JsonNode response = webClient.post()
+                .uri(uriBuilder -> uriBuilder
+                    .path("/v1beta/models/gemini-2.0-flash:generateContent")  // Use advanced model
+                    .queryParam("key", geminiApiKey)
+                    .build())
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .block();
+            
+            String responseText = response
+                .path("candidates").get(0)
+                .path("content")
+                .path("parts").get(0)
+                .path("text")
+                .asText();
+            
+            return parseMemoryAnalysisResponse(responseText);
+            
+        } catch (Exception e) {
+            logger.severe("Error extracting memory using LLM: " + e.getMessage());
+            return extractMemoryUsingPatterns(userInput, existingCategories);
+        }
+    }
+    
+    private MemoryAnalysisResult parseMemoryAnalysisResponse(String responseText) {
+        try {
+            String cleanedResponse = responseText.trim();
+            if (cleanedResponse.startsWith("```json")) {
+                cleanedResponse = cleanedResponse.substring(7);
+            }
+            if (cleanedResponse.endsWith("```")) {
+                cleanedResponse = cleanedResponse.substring(0, cleanedResponse.length() - 3);
+            }
+            cleanedResponse = cleanedResponse.trim();
+            
+            JsonNode jsonResponse = objectMapper.readTree(cleanedResponse);
+            
+            String categoryMatch = jsonResponse.path("categoryMatch").asText("None");
+            String newCategorySuggestion = jsonResponse.path("newCategorySuggestion").asText("None");
+            String memoryToStore = jsonResponse.path("memoryToStore").asText("None");
+            String confidence = jsonResponse.path("confidence").asText("low");
+            String memoryType = jsonResponse.path("memoryType").asText("None");
+            
+            return new MemoryAnalysisResult(categoryMatch, newCategorySuggestion, memoryToStore, confidence, memoryType);
+            
+        } catch (Exception e) {
+            logger.warning("Error parsing LLM memory analysis response: " + e.getMessage() + ", Response: " + responseText);
             return new MemoryAnalysisResult("None", "None", "None", "low", "None");
         }
     }
@@ -158,7 +206,7 @@ public class MemoryAnalysisService {
             return new MemoryAnalysisResult(
                 categoryMatch != null ? categoryMatch : "None",
                 categoryMatch == null ? "Personal_Information" : "None",
-                extractBirthdayInfo(input),
+                "Birthday mentioned: " + input.trim(),
                 "high",
                 "personal_info"
             );
@@ -171,7 +219,7 @@ public class MemoryAnalysisService {
             return new MemoryAnalysisResult(
                 categoryMatch != null ? categoryMatch : "None",
                 categoryMatch == null ? "Goals_And_Learning" : "None",
-                extractLearningInfo(input),
+                "Learning goal mentioned: " + input.trim(),
                 "high",
                 "goal"
             );
@@ -184,7 +232,7 @@ public class MemoryAnalysisService {
             return new MemoryAnalysisResult(
                 categoryMatch != null ? categoryMatch : "None",
                 categoryMatch == null ? "Preferences" : "None",
-                extractPreferenceInfo(input),
+                "Preference mentioned: " + input.trim(),
                 "high",
                 "preference"
             );
@@ -202,23 +250,76 @@ public class MemoryAnalysisService {
     }
     
     private MemoryAnalysisResult extractMemoryUsingPatterns(String input, List<String> existingCategories) {
+        String lowerInput = input.toLowerCase().trim();
         
-        String lowerInput = input.toLowerCase();
-        
-        if (lowerInput.length() < 10) {
+        if (lowerInput.length() < 5) {
             return new MemoryAnalysisResult("None", "None", "None", "low", "None");
         }
         
+        // Enhanced pattern matching with more aggressive extraction
         
+        // Location patterns
+        if (lowerInput.matches(".*\\b(i live in|i'm from|i am from|my home|my city|my country)\\b.*") ||
+            lowerInput.matches(".*\\b(live in|from|based in)\\s+[A-Za-z]+.*")) {
+            return new MemoryAnalysisResult("None", "Location", input.trim(), "medium", "personal_fact");
+        }
+        
+        // Job/profession patterns  
+        if (lowerInput.matches(".*\\b(i work as|i am a|i'm a|my job|my work|my career|i do|profession)\\b.*") ||
+            lowerInput.matches(".*\\b(work at|employed at|job at)\\b.*")) {
+            return new MemoryAnalysisResult("None", "Work", input.trim(), "medium", "personal_fact");
+        }
+        
+        // Name patterns
+        if (lowerInput.matches(".*\\b(my name is|i am|i'm|call me)\\s+[A-Za-z]+.*") ||
+            lowerInput.matches(".*\\b(name is|called)\\s+[A-Za-z]+.*")) {
+            return new MemoryAnalysisResult("None", "Personal", input.trim(), "high", "personal_fact");
+        }
+        
+        // Family/relationship patterns
+        if (lowerInput.matches(".*\\b(my (dad|father|mom|mother|brother|sister|wife|husband|son|daughter|friend|boyfriend|girlfriend))\\b.*") ||
+            lowerInput.matches(".*\\b(family|relative|spouse|partner)\\b.*")) {
+            return new MemoryAnalysisResult("None", "Family", input.trim(), "medium", "personal_fact");
+        }
+        
+        // Preferences patterns
+        if (lowerInput.matches(".*\\b(i love|i like|i enjoy|i prefer|my favorite|i hate|i dislike)\\b.*")) {
+            return new MemoryAnalysisResult("None", "Preferences", input.trim(), "medium", "preference");
+        }
+        
+        // Learning/goals patterns
+        if (lowerInput.matches(".*\\b(i want to|i'm learning|i'm studying|my goal|i hope to|i plan to|i'm trying to)\\b.*")) {
+            return new MemoryAnalysisResult("None", "Goals", input.trim(), "medium", "goal");
+        }
+        
+        // Age/birthday patterns
+        if (lowerInput.matches(".*\\b(i am \\d+|age \\d+|years old|birthday|born in|born on)\\b.*")) {
+            return new MemoryAnalysisResult("None", "Personal", input.trim(), "high", "personal_fact");
+        }
+        
+        // Contact information patterns
+        if (lowerInput.matches(".*\\b(phone|email|address|contact)\\b.*") && 
+            lowerInput.matches(".*\\b(my|is|number)\\b.*")) {
+            return new MemoryAnalysisResult("None", "Contact", input.trim(), "high", "personal_fact");
+        }
+        
+        // Education patterns
+        if (lowerInput.matches(".*\\b(studied|graduated|degree|university|college|school)\\b.*")) {
+            return new MemoryAnalysisResult("None", "Education", input.trim(), "medium", "personal_fact");
+        }
+        
+        // Possession patterns
+        if (lowerInput.matches(".*\\b(my (car|house|apartment|bike|motorcycle))\\b.*") ||
+            lowerInput.matches(".*\\b(i (own|have|drive))\\b.*")) {
+            return new MemoryAnalysisResult("None", "Personal", input.trim(), "medium", "personal_fact");
+        }
+        
+        // General personal information (if contains "I" and personal indicators)
         if (lowerInput.matches(".*\\b(i|my|me)\\b.*") && 
-            (lowerInput.contains("is") || lowerInput.contains("have") || lowerInput.contains("am"))) {
-            return new MemoryAnalysisResult(
-                "None",
-                "General_Information",
-                input.trim(),
-                "medium",
-                "fact"
-            );
+            (lowerInput.contains("is") || lowerInput.contains("have") || lowerInput.contains("am") || 
+             lowerInput.contains("was") || lowerInput.contains("will") || lowerInput.contains("like") ||
+             lowerInput.contains("work") || lowerInput.contains("live"))) {
+            return new MemoryAnalysisResult("None", "Personal", input.trim(), "medium", "personal_fact");
         }
         
         return new MemoryAnalysisResult("None", "None", "None", "low", "None");
@@ -237,40 +338,11 @@ public class MemoryAnalysisService {
         return null;
     }
     
-    private String extractBirthdayInfo(String input) {
-        
-        Pattern datePattern = Pattern.compile("\\b(january|february|march|april|may|june|july|august|september|october|november|december)\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = datePattern.matcher(input);
-        if (matcher.find()) {
-            return "Birthday is " + matcher.group(1) + " " + matcher.group(2);
-        }
-        
-        Pattern numericPattern = Pattern.compile("\\b(\\d{1,2})[/-](\\d{1,2})[/-](\\d{2,4})\\b");
-        Matcher numMatcher = numericPattern.matcher(input);
-        if (numMatcher.find()) {
-            return "Birthday is " + numMatcher.group(1) + "/" + numMatcher.group(2) + "/" + numMatcher.group(3);
-        }
-        
-        return "Birthday mentioned: " + input.trim();
-    }
+
     
-    private String extractLearningInfo(String input) {
-        Pattern learningPattern = Pattern.compile("\\b(?:learning|studying|want to learn)\\s+([\\w\\s]+?)(?:\\.|,|$)", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = learningPattern.matcher(input);
-        if (matcher.find()) {
-            return "Learning/Goal: " + matcher.group(1).trim();
-        }
-        return "Learning goal mentioned: " + input.trim();
-    }
+
     
-    private String extractPreferenceInfo(String input) {
-        Pattern prefPattern = Pattern.compile("\\b(?:love|like|favorite|prefer)\\s+([\\w\\s]+?)(?:\\.|,|and|$)", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = prefPattern.matcher(input);
-        if (matcher.find()) {
-            return "Likes: " + matcher.group(1).trim();
-        }
-        return "Preference mentioned: " + input.trim();
-    }
+
     
     public static class MemoryAnalysisResult {
         private final String categoryMatch;
@@ -297,8 +369,8 @@ public class MemoryAnalysisService {
         
         public boolean shouldStore() {
             return !memoryToStore.equals("None") && 
-                   !confidence.equals("filtered") &&
-                   (confidence.equals("high") || confidence.equals("medium"));
+                   !confidence.equals("filtered");
+                   // Temporarily accept all confidence levels to test LLM output
         }
     }
 }

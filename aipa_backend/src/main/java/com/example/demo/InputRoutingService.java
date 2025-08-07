@@ -52,7 +52,9 @@ public class InputRoutingService {
         "i'm learning", "my family", "my friend", "my pet", "my job", "i work",
         "i live", "my address", "my phone", "my email", "my dad", "my father", 
         "my mom", "my mother", "my girlfriend", "my boyfriend", "my wife", "my husband",
-        "my sister", "my brother", "my son", "my daughter", "my grandpa", "my grandma"
+        "my sister", "my brother", "my son", "my daughter", "my grandpa", "my grandma",
+        "i studied", "i graduated", "my degree", "my university", "my college", "my school",
+        "i drive", "my car", "i own", "my house", "my apartment", "i was born", "born in"
     );
     
     
@@ -176,7 +178,7 @@ public class InputRoutingService {
     private double calculateMemoryScore(boolean hasPersonalInfo, boolean hasTemporalContext, String input) {
         double score = 0.0;
         
-        if (hasPersonalInfo) score += 0.7; 
+        if (hasPersonalInfo) score += 0.8; // Increased from 0.7 - be more generous with personal info 
         
         
         if (!hasTemporalContext && input.matches(".*\\b(my|i am|i'm|i have)\\b.*")) {
@@ -195,18 +197,13 @@ public class InputRoutingService {
         
         
         if (input.matches(".*\\b(i have|there'?s)\\s+(?:a|an)?\\s*\\w+\\s+in\\s+\\d+\\s+.*")) {
-            score -= 0.4;
+            score -= 0.2; // Reduced penalty from 0.4 to 0.2
         }
         
         
         if (input.contains("birthday")) {
-            if (hasTemporalContext) {
-                
-                score = 0.2; 
-            } else {
-                
-                score += 0.3;
-            }
+            // Birthday information is always valuable for memory, regardless of temporal context
+            score += 0.5; // Strong memory signal for birthday info
         }
         
         return Math.max(0.0, Math.min(1.0, score));
@@ -214,7 +211,13 @@ public class InputRoutingService {
     
     private RoutingDecision makeRoutingDecision(double calendarScore, double memoryScore, String input) {
         final double THRESHOLD = 0.5;
-        final double CONFIDENCE_DIFF_THRESHOLD = 0.2;
+        final double CONFIDENCE_DIFF_THRESHOLD = 0.15; // Reduced from 0.2 to make it easier to pick memory
+        
+        // Special case for birthday information - always memory
+        if (input.toLowerCase().contains("birthday") && !input.toLowerCase().matches(".*\\bin\\s+\\d+\\s+(days?|weeks?).*")) {
+            return new RoutingDecision(RoutingDestination.MEMORY_ONLY, 
+                "Birthday information is personal data for memory storage", memoryScore);
+        }
         
         if (calendarScore >= THRESHOLD && memoryScore >= THRESHOLD) {
             
@@ -230,8 +233,9 @@ public class InputRoutingService {
                     return new RoutingDecision(RoutingDestination.CALENDAR_ONLY, 
                         "Explicit future timeframe detected", calendarScore);
                 } else {
+                    // When in doubt, prefer memory for personal facts
                     return new RoutingDecision(RoutingDestination.MEMORY_ONLY, 
-                        "Factual information without clear scheduling intent", memoryScore);
+                        "Personal facts preferred for memory storage when ambiguous", memoryScore);
                 }
             }
         } else if (calendarScore >= THRESHOLD) {

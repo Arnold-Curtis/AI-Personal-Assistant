@@ -99,9 +99,9 @@ public class MemoryFilterService {
         
         double valueScore = calculateValueScore(cleanInput);
         
-        if (valueScore >= 0.7) {
+        if (valueScore >= 0.6) { // Reduced from 0.7 to 0.6
             return new MemoryWorthinessResult(true, "High-value personal information", valueScore);
-        } else if (valueScore >= 0.4) {
+        } else if (valueScore >= 0.3) { // Reduced from 0.4 to 0.3
             return new MemoryWorthinessResult(true, "Moderate-value information", valueScore);
         } else {
             return new MemoryWorthinessResult(false, "Low-value information", valueScore);
@@ -184,7 +184,33 @@ public class MemoryFilterService {
         if (containsRelationshipInformation(lowerInput)) score += 0.15;
         if (containsPreferenceInformation(lowerInput)) score += 0.1;
         if (containsGoalInformation(lowerInput)) score += 0.1;
-        if (containsFactualInformation(lowerInput)) score += 0.1;
+        if (containsFactualInformation(lowerInput)) score += 0.25; // Increased from 0.1 to 0.25
+        
+        // Enhanced education scoring
+        if (lowerInput.matches(".*\\b(studied|graduated|university|college|school|degree|education)\\b.*")) {
+            score += 0.3; // Strong bonus for education information
+        }
+        
+        // Enhanced professional scoring  
+        if (lowerInput.matches(".*\\b(work|job|career|profession|employed|company)\\b.*")) {
+            score += 0.2; // Strong bonus for professional information
+        }
+        
+        // Enhanced contact information scoring
+        if (lowerInput.matches(".*\\b(phone|number|cell|mobile|contact|call|dial|\\d{3}[.-]?\\d{3}[.-]?\\d{4})\\b.*")) {
+            score += 0.4; // Strong bonus for phone/contact info
+        }
+        if (lowerInput.matches(".*\\b(email|@|mail|\\.com|\\.org|\\.net)\\b.*")) {
+            score += 0.4; // Strong bonus for email info
+        }
+        
+        // Enhanced possession information scoring
+        if (lowerInput.matches(".*\\b(drive|car|vehicle|toyota|honda|ford|bmw|audi|mercedes)\\b.*")) {
+            score += 0.3; // Strong bonus for car/vehicle info
+        }
+        if (lowerInput.matches(".*\\b(apartment|house|home|live|address|street|avenue|road)\\b.*")) {
+            score += 0.3; // Strong bonus for address/housing info
+        }
         
         
         if (lowerInput.contains("?") || lowerInput.startsWith("when ") || 
@@ -193,8 +219,8 @@ public class MemoryFilterService {
         }
         
         
-        if (lowerInput.matches(".*\\b(i am|i have|my \\w+ is|i live|i work|i was born)\\b.*")) {
-            score += 0.2;
+        if (lowerInput.matches(".*\\b(i am|i have|my \\w+ is|i live|i work|i was born|i studied)\\b.*")) {
+            score += 0.2; // Added "i studied" pattern
         }
         
         return Math.min(1.0, Math.max(0.0, score));

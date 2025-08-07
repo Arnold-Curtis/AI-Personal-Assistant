@@ -317,7 +317,7 @@ public class LLMController {
             
             return webClient.post()
                 .uri(uriBuilder -> uriBuilder
-                    .path("gemini-2.0-flash:generateContent")
+                    .path("/v1beta/models/gemini-2.0-flash:generateContent")  // Use advanced model
                     .queryParam("key", geminiApiKey)
                     .build())
                 .bodyValue(createGeminiRequest(ANALYSIS_CHECK_PROMPT + userInput + contextWithMemories.toString()))
@@ -390,7 +390,7 @@ public class LLMController {
 
                         return webClient.post()
                             .uri(uriBuilder -> uriBuilder
-                                .path("gemini-2.0-flash:generateContent")
+                                .path("/v1beta/models/gemini-2.0-flash:generateContent")  // Use advanced model
                                 .queryParam("key", geminiApiKey)
                                 .build())
                             .bodyValue(createGeminiRequest(promptWithHistory.toString()))

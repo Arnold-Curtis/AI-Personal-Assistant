@@ -1,0 +1,32 @@
+{
+  "summary" : {
+    "passedRouting" : true,
+    "blockingStep" : "ANALYSIS_CONFIDENCE - Confidence 'low' not high/medium enough for storage",
+    "passedFiltering" : true,
+    "passedAnalysis" : false,
+    "finalResult" : false
+  },
+  "step4_storage" : {
+    "finalConfidence" : "low",
+    "finalMemoryToStore" : "None",
+    "finalShouldStore" : false
+  },
+  "step1_routing" : {
+    "destination" : "MEMORY_ONLY",
+    "reasoning" : "Personal information or preferences without scheduling",
+    "shouldProcessMemory" : true
+  },
+  "step2_filtering" : {
+    "reason" : "Moderate-value information",
+    "isWorthy" : true,
+    "score" : 0.6499999999999999
+  },
+  "step3_analysis" : {
+    "categoryMatch" : "None",
+    "memoryToStore" : "None",
+    "confidence" : "low",
+    "newCategory" : "None",
+    "memoryType" : "None",
+    "shouldStore" : false
+  }
+}

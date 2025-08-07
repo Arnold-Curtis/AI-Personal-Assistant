@@ -54,6 +54,9 @@ public class SecurityConfig {
                     "/api/info",
                     "/api/generate",  
                     "/api/public/**", 
+                    "/api/testing/**",  // Temporary for debugging
+                    "/test-setup/**",   // Test user setup endpoints
+                    "/test-memory-fix/**", // Memory diagnostic endpoints
                     "/error",
                     "/uploads/**",
                     "/api/upload"

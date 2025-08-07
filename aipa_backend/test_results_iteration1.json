@@ -1,0 +1,1186 @@
+{
+  "summary" : {
+    "passedTests" : 30,
+    "successRate" : 29.7029702970297,
+    "failedTests" : 71,
+    "criticalIssues" : [ "HIGH: More than 30% of tests failing" ],
+    "recommendations" : [ "URGENT: System requires immediate attention - success rate below 50%", "PRIORITY: Address critical issues: HIGH: More than 30% of tests failing" ],
+    "timestamp" : "2025-08-07T19:40:29.284867500",
+    "totalTests" : 101
+  },
+  "eventCreation" : {
+    "testResults" : [ {
+      "eventsCreated" : true,
+      "executionTimeMs" : 274,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "I have a wedding in two weeks",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 4,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Add a dentist appointment next Tuesday at 2pm",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 5,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Schedule a team meeting tomorrow at 9am",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 4,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "I'm flying to Japan next Monday at 9am",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 3,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Put a call with James at 3pm this Friday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add a book launch two weekends from now",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule a trip three Mondays from now",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 3,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "I have a car meet a day after tomorrow",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add dinner plans for Saturday at 7pm",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 4,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Schedule gym session next Thursday morning",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "I have a doctor's appointment on Friday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 3,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Add graduation ceremony next month",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 3,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Schedule conference call next Wednesday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "I'm attending a concert this weekend",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 5,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Add birthday party next Saturday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule job interview next week",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 5,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "I have a haircut appointment tomorrow",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add family reunion in July",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule vacation in December",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 3,
+      "testType" : "BASIC",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "I have a business meeting next Tuesday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 4,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "wedding in two weeks two days",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 3,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Add a car meet a day after that wedding",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule dinner 2 hours after the dentist appointment",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 3,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Put in a gym session every Thursday for the next month",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 2,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Add a birthday party in 3 weeks and 2 days",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 4,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Schedule vacation planning meeting a week from next Tuesday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add conference call the day before my flight to Japan",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule follow-up appointment exactly 10 days from today",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add team building event the third Friday of next month",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule quarterly review meeting the last Tuesday of this month",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add lunch meeting the Tuesday after next",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule project deadline two Fridays from now",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add workshop three weeks from this coming Monday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule performance review a month and a half from now",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add celebration dinner the weekend after the graduation",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule maintenance check every other Thursday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 4,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Add annual meeting the second Wednesday of next month",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule training session a fortnight from today",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add client presentation the week after the conference",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : true,
+      "executionTimeMs" : 2,
+      "testType" : "COMPLEX",
+      "aiResponseReceived" : true,
+      "eventCount" : 1,
+      "passed" : true,
+      "prompt" : "Schedule vacation the last two weeks of August",
+      "errors" : [ ]
+    } ],
+    "passedTests" : 19,
+    "totalTests" : 40
+  },
+  "memoryManagement" : {
+    "testResults" : [ {
+      "memoryStored" : true,
+      "executionTimeMs" : 709,
+      "passed" : true,
+      "prompt" : "My dad's name is Paul",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : true,
+      "executionTimeMs" : 367,
+      "passed" : true,
+      "prompt" : "I live in Nairobi",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : true,
+      "executionTimeMs" : 713,
+      "passed" : true,
+      "prompt" : "My favorite movie is Inception",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : true,
+      "executionTimeMs" : 387,
+      "passed" : true,
+      "prompt" : "My boss is Jane Smith",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 4,
+      "passed" : false,
+      "prompt" : "I studied at Strathmore University",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 3,
+      "passed" : false,
+      "prompt" : "My birthday is March 15th",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : true,
+      "executionTimeMs" : 719,
+      "passed" : true,
+      "prompt" : "I work as a software engineer",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 4,
+      "passed" : false,
+      "prompt" : "My phone number is 555-0123",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 2,
+      "passed" : false,
+      "prompt" : "I drive a Toyota Camry",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : true,
+      "executionTimeMs" : 399,
+      "passed" : true,
+      "prompt" : "My favorite color is blue",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : true,
+      "executionTimeMs" : 770,
+      "passed" : true,
+      "prompt" : "My sister's name is Sarah",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 4,
+      "passed" : false,
+      "prompt" : "I live on Oak Street",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : true,
+      "executionTimeMs" : 299,
+      "passed" : true,
+      "prompt" : "My doctor is Dr. Brown",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 3,
+      "passed" : false,
+      "prompt" : "I graduated in 2018",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : true,
+      "executionTimeMs" : 817,
+      "passed" : true,
+      "prompt" : "My cat's name is Whiskers",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 3,
+      "passed" : false,
+      "prompt" : "I was born in Chicago",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 4,
+      "passed" : false,
+      "prompt" : "My middle name is Alexander",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 4,
+      "passed" : false,
+      "prompt" : "I have two brothers",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 3,
+      "passed" : false,
+      "prompt" : "My apartment number is 42",
+      "memoryAnalyzed" : true
+    }, {
+      "memoryStored" : false,
+      "executionTimeMs" : 3,
+      "passed" : false,
+      "prompt" : "My emergency contact is my mom",
+      "memoryAnalyzed" : true
+    } ],
+    "passedTests" : 9,
+    "totalTests" : 20
+  },
+  "databaseValidation" : {
+    "calendarEvents" : {
+      "recentEventCount" : 522,
+      "eventCount" : 522,
+      "hasEvents" : true,
+      "status" : "HEALTHY",
+      "hasRecentEvents" : true
+    },
+    "userMemories" : {
+      "hasMemories" : false,
+      "memoryCount" : 0,
+      "status" : "NO_MEMORIES_FOUND"
+    },
+    "overallStatus" : "ISSUES_DETECTED",
+    "timestamp" : "2025-08-07T19:40:29.284867500"
+  },
+  "edgeCases" : {
+    "testResults" : [ {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 1,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "   ",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 4,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "asdlkfj aslkdfj alskdfj",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule something sometime somewhere",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 9,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add event on the 32nd of March",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule meeting at 25:00",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add event next Blursday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule something 500 years from now",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 9,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add event yesterday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 7,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Cancel the event I just scheduled",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Reschedule everything to tomorrow",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Delete my birthday",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add duplicate event",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add duplicate event",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule meeting and also don't schedule meeting",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add 500 events next week",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule meeting at location that doesn't exist",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add event with person who doesn't exist",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule something in the past",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 2,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Add event with negative duration",
+      "errors" : [ ]
+    }, {
+      "eventsCreated" : false,
+      "executionTimeMs" : 3,
+      "testType" : "EDGE_CASE",
+      "aiResponseReceived" : true,
+      "eventCount" : 0,
+      "passed" : false,
+      "prompt" : "Schedule meeting with impossible logistics",
+      "errors" : [ ]
+    } ],
+    "passedTests" : 0,
+    "totalTests" : 21
+  },
+  "followUpTests" : {
+    "testResults" : [ {
+      "secondPrompt" : "Add a bachelor party the night before the wedding",
+      "firstPrompt" : "I have a wedding in two weeks",
+      "executionTimeMs" : 377,
+      "firstResult" : {
+        "eventsCreated" : true,
+        "executionTimeMs" : 263,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 1,
+        "passed" : true,
+        "prompt" : "I have a wedding in two weeks",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 4,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Add a bachelor party the night before the wedding",
+        "errors" : [ ]
+      }
+    }, {
+      "secondPrompt" : "Add preparation time 2 hours before the interview",
+      "firstPrompt" : "Schedule a job interview next Friday",
+      "executionTimeMs" : 106,
+      "firstResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 2,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Schedule a job interview next Friday",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Add preparation time 2 hours before the interview",
+        "errors" : [ ]
+      }
+    }, {
+      "secondPrompt" : "Schedule airport check-in 2 hours before the flight",
+      "firstPrompt" : "Add a flight to Paris next month",
+      "executionTimeMs" : 109,
+      "firstResult" : {
+        "eventsCreated" : true,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 1,
+        "passed" : true,
+        "prompt" : "Add a flight to Paris next month",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Schedule airport check-in 2 hours before the flight",
+        "errors" : [ ]
+      }
+    }, {
+      "secondPrompt" : "Add a reminder to take pain medication after the appointment",
+      "firstPrompt" : "I have a dentist appointment tomorrow",
+      "executionTimeMs" : 110,
+      "firstResult" : {
+        "eventsCreated" : true,
+        "executionTimeMs" : 4,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 1,
+        "passed" : true,
+        "prompt" : "I have a dentist appointment tomorrow",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Add a reminder to take pain medication after the appointment",
+        "errors" : [ ]
+      }
+    }, {
+      "secondPrompt" : "Add agenda preparation the day before the meeting",
+      "firstPrompt" : "Schedule a team meeting next Monday",
+      "executionTimeMs" : 106,
+      "firstResult" : {
+        "eventsCreated" : true,
+        "executionTimeMs" : 2,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 1,
+        "passed" : true,
+        "prompt" : "Schedule a team meeting next Monday",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Add agenda preparation the day before the meeting",
+        "errors" : [ ]
+      }
+    }, {
+      "secondPrompt" : "Add training runs every other day until the marathon",
+      "firstPrompt" : "I have a marathon next month",
+      "executionTimeMs" : 107,
+      "firstResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "I have a marathon next month",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Add training runs every other day until the marathon",
+        "errors" : [ ]
+      }
+    }, {
+      "secondPrompt" : "Add packing time the night before vacation",
+      "firstPrompt" : "Schedule vacation next month",
+      "executionTimeMs" : 110,
+      "firstResult" : {
+        "eventsCreated" : true,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 1,
+        "passed" : true,
+        "prompt" : "Schedule vacation next month",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 4,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Add packing time the night before vacation",
+        "errors" : [ ]
+      }
+    }, {
+      "secondPrompt" : "Schedule practice session the day before the presentation",
+      "firstPrompt" : "I have a presentation next week",
+      "executionTimeMs" : 107,
+      "firstResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 2,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "I have a presentation next week",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Schedule practice session the day before the presentation",
+        "errors" : [ ]
+      }
+    }, {
+      "secondPrompt" : "Schedule celebration dinner after graduation",
+      "firstPrompt" : "Add graduation ceremony next month",
+      "executionTimeMs" : 108,
+      "firstResult" : {
+        "eventsCreated" : true,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 1,
+        "passed" : true,
+        "prompt" : "Add graduation ceremony next month",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Schedule celebration dinner after graduation",
+        "errors" : [ ]
+      }
+    }, {
+      "secondPrompt" : "Add travel arrangements the week before the conference",
+      "firstPrompt" : "I have a conference next quarter",
+      "executionTimeMs" : 108,
+      "firstResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 2,
+        "testType" : "SEQUENTIAL_FIRST",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "I have a conference next quarter",
+        "errors" : [ ]
+      },
+      "passed" : false,
+      "secondResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "SEQUENTIAL_SECOND",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Add travel arrangements the week before the conference",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "My boss is Jane Smith",
+      "useMemoryPrompt" : "Schedule a one-on-one with Jane next week",
+      "memoryResult" : {
+        "memoryStored" : true,
+        "executionTimeMs" : 272,
+        "passed" : true,
+        "prompt" : "My boss is Jane Smith",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 385,
+      "passed" : false,
+      "eventResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Schedule a one-on-one with Jane next week",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "I live in Nairobi",
+      "useMemoryPrompt" : "Add a local event in Nairobi next month",
+      "memoryResult" : {
+        "memoryStored" : true,
+        "executionTimeMs" : 689,
+        "passed" : true,
+        "prompt" : "I live in Nairobi",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 802,
+      "passed" : false,
+      "eventResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Add a local event in Nairobi next month",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "My favorite restaurant is Giuseppe's",
+      "useMemoryPrompt" : "Make dinner reservation at Giuseppe's for Friday",
+      "memoryResult" : {
+        "memoryStored" : true,
+        "executionTimeMs" : 270,
+        "passed" : true,
+        "prompt" : "My favorite restaurant is Giuseppe's",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 381,
+      "passed" : false,
+      "eventResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Make dinner reservation at Giuseppe's for Friday",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "My doctor is Dr. Brown",
+      "useMemoryPrompt" : "Schedule follow-up with Dr. Brown next month",
+      "memoryResult" : {
+        "memoryStored" : true,
+        "executionTimeMs" : 722,
+        "passed" : true,
+        "prompt" : "My doctor is Dr. Brown",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 827,
+      "passed" : false,
+      "eventResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Schedule follow-up with Dr. Brown next month",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "My sister lives in Boston",
+      "useMemoryPrompt" : "Plan a visit to Boston next quarter",
+      "memoryResult" : {
+        "memoryStored" : false,
+        "executionTimeMs" : 3,
+        "passed" : false,
+        "prompt" : "My sister lives in Boston",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 107,
+      "passed" : false,
+      "eventResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 2,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Plan a visit to Boston next quarter",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "My car is a Toyota Camry",
+      "useMemoryPrompt" : "Schedule maintenance for my Toyota next month",
+      "memoryResult" : {
+        "memoryStored" : true,
+        "executionTimeMs" : 277,
+        "passed" : true,
+        "prompt" : "My car is a Toyota Camry",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 384,
+      "passed" : false,
+      "eventResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 4,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Schedule maintenance for my Toyota next month",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "My gym is Planet Fitness",
+      "useMemoryPrompt" : "Add workout session at Planet Fitness tomorrow",
+      "memoryResult" : {
+        "memoryStored" : true,
+        "executionTimeMs" : 759,
+        "passed" : true,
+        "prompt" : "My gym is Planet Fitness",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 865,
+      "passed" : true,
+      "eventResult" : {
+        "eventsCreated" : true,
+        "executionTimeMs" : 4,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 1,
+        "passed" : true,
+        "prompt" : "Add workout session at Planet Fitness tomorrow",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "My dentist is Dr. Wilson",
+      "useMemoryPrompt" : "Schedule cleaning with Dr. Wilson next month",
+      "memoryResult" : {
+        "memoryStored" : true,
+        "executionTimeMs" : 283,
+        "passed" : true,
+        "prompt" : "My dentist is Dr. Wilson",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 1130,
+      "passed" : false,
+      "eventResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 733,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Schedule cleaning with Dr. Wilson next month",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "My favorite coffee shop is Starbucks",
+      "useMemoryPrompt" : "Meet client at Starbucks next Tuesday",
+      "memoryResult" : {
+        "memoryStored" : true,
+        "executionTimeMs" : 402,
+        "passed" : true,
+        "prompt" : "My favorite coffee shop is Starbucks",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 511,
+      "passed" : false,
+      "eventResult" : {
+        "eventsCreated" : false,
+        "executionTimeMs" : 3,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 0,
+        "passed" : false,
+        "prompt" : "Meet client at Starbucks next Tuesday",
+        "errors" : [ ]
+      }
+    }, {
+      "memoryPrompt" : "I work at Microsoft",
+      "useMemoryPrompt" : "Add Microsoft company meeting next Friday",
+      "memoryResult" : {
+        "memoryStored" : true,
+        "executionTimeMs" : 573,
+        "passed" : true,
+        "prompt" : "I work at Microsoft",
+        "memoryAnalyzed" : true
+      },
+      "executionTimeMs" : 678,
+      "passed" : true,
+      "eventResult" : {
+        "eventsCreated" : true,
+        "executionTimeMs" : 3,
+        "testType" : "MEMORY_DEPENDENT",
+        "aiResponseReceived" : true,
+        "eventCount" : 1,
+        "passed" : true,
+        "prompt" : "Add Microsoft company meeting next Friday",
+        "errors" : [ ]
+      }
+    } ],
+    "passedTests" : 2,
+    "totalTests" : 20
+  }
+}
