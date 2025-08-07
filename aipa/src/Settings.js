@@ -6,31 +6,31 @@ import './Settings.css';
 const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
   const [activeCategory, setActiveCategory] = useState('ui-appearance');
   const [settings, setSettings] = useState({
-    
+    // UI & Appearance
     theme: darkMode ? 'dark' : 'light',
     fontSize: localStorage.getItem('fontSize') || 'medium',
     animations: localStorage.getItem('animations') !== 'false',
     darkModeColorScheme: localStorage.getItem('darkModeColorScheme') || 'default-dark',
     lightModeColorScheme: localStorage.getItem('lightModeColorScheme') || 'default-white',
     
-    
+    // Voice & Speech
     speechProvider: localStorage.getItem('speechProvider') || 'auto',
     voiceLanguage: localStorage.getItem('voiceLanguage') || 'en-US',
     voiceAutoStop: localStorage.getItem('voiceAutoStop') !== 'false',
     
-    
+    // Notifications
     toastPosition: localStorage.getItem('toastPosition') || 'bottom-right',
     toastDuration: parseInt(localStorage.getItem('toastDuration')) || 5000,
     soundEnabled: localStorage.getItem('soundEnabled') !== 'false',
     notificationsEnabled: localStorage.getItem('notificationsEnabled') !== 'false',
     
-    
+    // Calendar
     defaultView: localStorage.getItem('calendarDefaultView') || 'dayGridMonth',
     eventColors: localStorage.getItem('eventColors') !== 'false',
     timeZone: localStorage.getItem('timeZone') || Intl.DateTimeFormat().resolvedOptions().timeZone,
     weekStartsOn: parseInt(localStorage.getItem('weekStartsOn')) || 0,
     
-    
+    // Privacy & Data
     autoSave: localStorage.getItem('autoSave') !== 'false',
     dataRetention: localStorage.getItem('dataRetention') || '1year',
     exportFormat: localStorage.getItem('exportFormat') || 'json',
@@ -38,42 +38,42 @@ const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
 
   const [loading, setLoading] = useState(false);
 
-  
+  // Apply settings on component mount
   useEffect(() => {
-    
+    // Apply current font size
     const fontSize = settings.fontSize;
     document.documentElement.style.setProperty('--app-font-size', 
       fontSize === 'small' ? '14px' : fontSize === 'large' ? '18px' : '16px');
 
-    
+    // Apply animations setting
     document.documentElement.style.setProperty('--animations-enabled', 
       settings.animations ? '1' : '0');
     document.documentElement.classList.toggle('animations-disabled', !settings.animations);
 
-    
+    // Apply current color scheme
     const currentColorScheme = darkMode ? settings.darkModeColorScheme : settings.lightModeColorScheme;
     applyColorScheme(currentColorScheme, darkMode);
   }, [settings.fontSize, settings.animations, settings.darkModeColorScheme, settings.lightModeColorScheme, darkMode]);
 
-  
+  // Apply settings on first load
   useEffect(() => {
-    
+    // Apply font size from localStorage
     const savedFontSize = localStorage.getItem('fontSize') || 'medium';
     document.documentElement.style.setProperty('--app-font-size', 
       savedFontSize === 'small' ? '14px' : savedFontSize === 'large' ? '18px' : '16px');
 
-    
+    // Apply animations from localStorage
     const savedAnimations = localStorage.getItem('animations') !== 'false';
     document.documentElement.style.setProperty('--animations-enabled', 
       savedAnimations ? '1' : '0');
     document.documentElement.classList.toggle('animations-disabled', !savedAnimations);
 
-    
+    // Apply color schemes from localStorage
     const savedDarkColorScheme = localStorage.getItem('darkModeColorScheme') || 'default-dark';
     const savedLightColorScheme = localStorage.getItem('lightModeColorScheme') || 'default-white';
     const currentColorScheme = darkMode ? savedDarkColorScheme : savedLightColorScheme;
     applyColorScheme(currentColorScheme, darkMode);
-  }, [darkMode]); 
+  }, [darkMode]); // Include darkMode as dependency
 
   const categories = [
     {
@@ -114,7 +114,7 @@ const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
       [key]: value
     }));
 
-    
+    // Apply some settings immediately
     switch (key) {
       case 'theme':
         if (value !== (darkMode ? 'dark' : 'light')) {
@@ -147,23 +147,23 @@ const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
       case 'notificationsEnabled':
         localStorage.setItem('notificationsEnabled', value);
         if (!value) {
-          
+          // Clear any existing toasts when disabling notifications
           window.toastify?.clear?.();
         }
         break;
       case 'defaultView':
         localStorage.setItem('calendarDefaultView', value);
-        
+        // Trigger calendar view change if calendar is loaded
         window.dispatchEvent(new CustomEvent('calendarViewChange', { detail: { view: value } }));
         break;
       case 'toastPosition':
         localStorage.setItem('toastPosition', value);
-        
+        // Trigger toast position change
         window.dispatchEvent(new CustomEvent('toastPositionChange', { detail: { position: value } }));
         break;
       case 'toastDuration':
         localStorage.setItem('toastDuration', value);
-        
+        // Trigger toast duration change
         window.dispatchEvent(new CustomEvent('toastDurationChange', { detail: { duration: value } }));
         break;
       default:
@@ -175,11 +175,11 @@ const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
   const applyColorScheme = (colorScheme, isDarkMode) => {
     const root = document.documentElement;
     
-    
+    // Remove all existing color scheme classes
     root.classList.remove('default-dark', 'dark-blue', 'dark-purple', 'dark-green', 'pure-black');
     root.classList.remove('default-white', 'light-blue', 'light-purple', 'light-green', 'light-orange');
     
-    
+    // Add the selected color scheme class (except for defaults)
     if (colorScheme !== 'default-dark' && colorScheme !== 'default-white') {
       root.classList.add(colorScheme);
     }
@@ -188,7 +188,7 @@ const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
   const saveSettings = async () => {
     setLoading(true);
     try {
-      
+      // Save settings to backend for user profile
       const settingsPayload = {
         userId: user.id,
         settings: settings
@@ -196,18 +196,18 @@ const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
       
       await axios.post('/api/user/settings', settingsPayload);
       
-      
+      // Save to localStorage for immediate access
       Object.entries(settings).forEach(([key, value]) => {
         localStorage.setItem(key, value);
       });
       
-      
+      // Only show toast if notifications are enabled
       if (settings.notificationsEnabled) {
         toast.success('Settings saved successfully!');
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      
+      // Only show toast if notifications are enabled
       if (settings.notificationsEnabled) {
         toast.error('Failed to save settings: ' + (error.response?.data?.message || error.message));
       }
@@ -241,16 +241,16 @@ const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
     
     setSettings(defaultSettings);
     
-    
+    // Apply theme change if needed
     if (defaultSettings.theme !== (darkMode ? 'dark' : 'light')) {
       toggleTheme();
     }
     
+    // Apply default color schemes
+    applyColorScheme('default-dark', true);  // Dark mode
+    applyColorScheme('default-white', false); // Light mode
     
-    applyColorScheme('default-dark', true);  
-    applyColorScheme('default-white', false); 
-    
-    
+    // Reset font size and animations
     document.documentElement.style.setProperty('--app-font-size', '16px');
     document.documentElement.style.setProperty('--animations-enabled', '1');
     document.documentElement.classList.remove('animations-disabled');
@@ -594,15 +594,15 @@ const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
             className="danger-button"
             onClick={() => {
               if (window.confirm('Are you sure you want to clear all your data? This cannot be undone.')) {
-                
-                const keysToKeep = ['authToken', 'token', 'darkMode']; 
+                // Clear localStorage
+                const keysToKeep = ['authToken', 'token', 'darkMode']; // Keep essential keys
                 Object.keys(localStorage).forEach(key => {
                   if (!keysToKeep.includes(key)) {
                     localStorage.removeItem(key);
                   }
                 });
                 
-                
+                // Reset settings to defaults
                 resetToDefaults();
                 
                 if (settings.notificationsEnabled) {
@@ -683,4 +683,3 @@ const Settings = ({ onBack, darkMode, toggleTheme, user }) => {
 };
 
 export default Settings;
-

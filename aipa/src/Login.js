@@ -16,12 +16,12 @@ export const Login = ({ onLogin, darkMode = true }) => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            
+            // Validate file type and size
             if (!file.type.match('image.*')) {
                 toast.error('Please select an image file');
                 return;
             }
-            if (file.size > 2 * 1024 * 1024) { 
+            if (file.size > 2 * 1024 * 1024) { // 2MB limit
                 toast.error('Image size should be less than 2MB');
                 return;
             }
@@ -36,7 +36,7 @@ export const Login = ({ onLogin, darkMode = true }) => {
         try {
             let profileImageName = null;
             
-            
+            // Handle file upload if in signup mode and image selected
             if (isSignup && profileImage) {
                 const formData = new FormData();
                 formData.append('file', profileImage);
@@ -49,7 +49,7 @@ export const Login = ({ onLogin, darkMode = true }) => {
                 profileImageName = uploadResponse.data.filename;
             }
 
-            
+            // Prepare authentication payload
             const payload = {
                 email,
                 password,

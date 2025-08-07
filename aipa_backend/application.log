@@ -932,3 +932,850 @@
         users u1_0 
     where
         u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-6] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:07:52 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:07:52 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:07:52 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:07:52 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:07:52 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:08:23 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:08:53 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:08:53 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:08:53 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:08:53 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:09:23 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:09:53 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:09:53 [http-nio-8080-exec-9] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:09:53 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:09:53 [http-nio-8080-exec-7] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:10:23 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:10:53 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:10:53 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:10:53 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:10:53 [http-nio-8080-exec-2] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:11:23 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:11:53 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:11:53 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 00:11:53 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        ce1_0.id,
+        ce1_0.description,
+        ce1_0.event_color,
+        ce1_0.is_all_day,
+        ce1_0.plan_title,
+        ce1_0.start_date,
+        ce1_0.title,
+        ce1_0.user_id 
+    from
+        calendar_events ce1_0 
+    where
+        ce1_0.user_id=?
+2025-08-07 00:12:15 [http-nio-8080-exec-4] DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.account_created,
+        u1_0.email,
+        u1_0.email_verified,
+        u1_0.full_name,
+        u1_0.is_active,
+        u1_0.last_login,
+        u1_0.memory_password,
+        u1_0.password,
+        u1_0.profile_image,
+        u1_0.provider,
+        u1_0.reset_token,
+        u1_0.reset_token_expiry,
+        u1_0.verification_token 
+    from
+        users u1_0 
+    where
+        u1_0.email=?
+2025-08-07 10:38:24 [main] INFO  c.example.demo.DemoApplicationTests - Starting DemoApplicationTests using Java 23.0.1 with PID 12096 (started by Arnol in C:\PROGRAMMING\Visual Studio Code\AIPA_APP\aipa_backend)
+2025-08-07 10:38:24 [main] DEBUG c.example.demo.DemoApplicationTests - Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-08-07 10:38:24 [main] INFO  c.example.demo.DemoApplicationTests - No active profile set, falling back to 1 default profile: "default"
+2025-08-07 10:38:25 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-07 10:38:25 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 230 ms. Found 3 JPA repository interfaces.
+2025-08-07 10:38:27 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-07 10:38:27 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2025-08-07 10:38:27 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-08-07 10:38:28 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-07 10:38:28 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-08-07 10:38:28 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.sqlite.jdbc4.JDBC4Connection@72715e61
+2025-08-07 10:38:28 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-08-07 10:38:28 [main] WARN  org.hibernate.orm.incubating - HHH90006001: Encountered incubating setting [hibernate.type.preferred_uuid_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2025-08-07 10:38:28 [main] WARN  org.hibernate.orm.incubating - HHH90006001: Encountered incubating setting [hibernate.type.preferred_uuid_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2025-08-07 10:38:30 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-07 10:38:30 [main] DEBUG org.hibernate.SQL - 
+    alter table users 
+       drop constraint UK6dotkott2kjsp8vw4d0m25fb7
+2025-08-07 10:38:30 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-07 10:38:31 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-08-07 10:38:32 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-08-07 10:38:32 [main] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-08-07 10:38:34 [main] INFO  c.example.demo.DemoApplicationTests - Started DemoApplicationTests in 10.607 seconds (process running for 12.381)
+2025-08-07 10:38:37 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-07 10:38:37 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-08-07 10:38:37 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-08-07 10:47:48 [main] INFO  com.example.demo.DemoApplication - Starting DemoApplication using Java 23.0.1 with PID 4124 (C:\PROGRAMMING\Visual Studio Code\AIPA_APP\aipa_backend\target\classes started by Arnol in C:\PROGRAMMING\Visual Studio Code\AIPA_APP\aipa_backend)
+2025-08-07 10:47:48 [main] DEBUG com.example.demo.DemoApplication - Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-08-07 10:47:48 [main] INFO  com.example.demo.DemoApplication - No active profile set, falling back to 1 default profile: "default"
+2025-08-07 10:47:49 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-07 10:47:50 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 170 ms. Found 3 JPA repository interfaces.
+2025-08-07 10:47:50 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-08-07 10:47:50 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-08-07 10:47:50 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.39]
+2025-08-07 10:47:50 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-08-07 10:47:50 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1858 ms
+2025-08-07 10:47:51 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-07 10:47:51 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2025-08-07 10:47:51 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-08-07 10:47:51 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-07 10:47:51 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-08-07 10:47:51 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.sqlite.jdbc4.JDBC4Connection@57bdceaa
+2025-08-07 10:47:51 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-08-07 10:47:51 [main] WARN  org.hibernate.orm.incubating - HHH90006001: Encountered incubating setting [hibernate.type.preferred_uuid_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2025-08-07 10:47:51 [main] WARN  org.hibernate.orm.incubating - HHH90006001: Encountered incubating setting [hibernate.type.preferred_uuid_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2025-08-07 10:47:52 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-07 10:47:52 [main] DEBUG org.hibernate.SQL - 
+    alter table users 
+       drop constraint UK6dotkott2kjsp8vw4d0m25fb7
+2025-08-07 10:47:52 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-07 10:47:53 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-08-07 10:47:54 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-08-07 10:47:54 [main] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-08-07 10:47:55 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-08-07 10:47:55 [main] INFO  com.example.demo.DemoApplication - Started DemoApplication in 6.878 seconds (process running for 7.361)
+2025-08-07 10:50:16 [main] INFO  c.example.demo.DemoApplicationTests - Starting DemoApplicationTests using Java 23.0.1 with PID 14532 (started by Arnol in C:\PROGRAMMING\Visual Studio Code\AIPA_APP\aipa_backend)
+2025-08-07 10:50:16 [main] DEBUG c.example.demo.DemoApplicationTests - Running with Spring Boot v3.4.4, Spring v6.2.5
+2025-08-07 10:50:16 [main] INFO  c.example.demo.DemoApplicationTests - No active profile set, falling back to 1 default profile: "default"
+2025-08-07 10:50:17 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-07 10:50:17 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 190 ms. Found 3 JPA repository interfaces.
+2025-08-07 10:50:18 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-07 10:50:19 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2025-08-07 10:50:19 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-08-07 10:50:19 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-07 10:50:19 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-08-07 10:50:19 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.sqlite.jdbc4.JDBC4Connection@5a6195b8
+2025-08-07 10:50:19 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-08-07 10:50:19 [main] WARN  org.hibernate.orm.incubating - HHH90006001: Encountered incubating setting [hibernate.type.preferred_uuid_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2025-08-07 10:50:20 [main] WARN  org.hibernate.orm.incubating - HHH90006001: Encountered incubating setting [hibernate.type.preferred_uuid_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2025-08-07 10:50:21 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-07 10:50:21 [main] DEBUG org.hibernate.SQL - 
+    alter table users 
+       drop constraint UK6dotkott2kjsp8vw4d0m25fb7
+2025-08-07 10:50:21 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-07 10:50:22 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-08-07 10:50:23 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-08-07 10:50:23 [main] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-08-07 10:50:24 [main] INFO  c.example.demo.DemoApplicationTests - Started DemoApplicationTests in 8.415 seconds (process running for 9.861)
+2025-08-07 10:50:27 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-07 10:50:27 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-08-07 10:50:27 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

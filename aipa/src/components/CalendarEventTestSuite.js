@@ -17,7 +17,7 @@ const CalendarEventTestSuite = () => {
             name: "Car meet next Friday",
             input: "Hey man I have a car meet next Friday",
             expectedEvents: 1,
-            expectedDays: 5, 
+            expectedDays: 5, // Approximate
             expectedTitle: "Car Meet"
         },
         {
@@ -70,7 +70,7 @@ const CalendarEventTestSuite = () => {
                 const responseData = await response.text();
                 console.log(`📝 Response for "${testCase.name}":`, responseData);
                 
-                
+                // Parse events from response
                 const events = extractCalendarEventsFromResponse(responseData);
                 
                 const result = {
@@ -85,7 +85,7 @@ const CalendarEventTestSuite = () => {
                 setTestResults(prev => [...prev, result]);
                 console.log(`✅ Test "${testCase.name}" completed:`, result);
                 
-                
+                // Small delay between tests
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
             } catch (error) {
@@ -107,7 +107,7 @@ const CalendarEventTestSuite = () => {
         const events = [];
         const cleanText = responseText.replace(/\)\*!/g, '').replace(/\.!\.\./g, '');
         
-        
+        // Look for calendar events in the Categories section
         const categoriesRegex = /\*\*Part 3: Categories\*\*([\s\S]*?)(?:\*\*|$)/i;
         const categoriesMatch = categoriesRegex.exec(cleanText);
         
@@ -142,10 +142,10 @@ const CalendarEventTestSuite = () => {
         }
         
         if (testCase.expectedEvents === 0) {
-            return true; 
+            return true; // No events expected and none found
         }
         
-        
+        // Check for single event
         if (testCase.expectedEvents === 1) {
             const event = extractedEvents[0];
             if (!event) return false;
@@ -154,12 +154,12 @@ const CalendarEventTestSuite = () => {
                 event.title.toLowerCase().includes(testCase.expectedTitle.toLowerCase());
             
             const daysMatch = !testCase.expectedDays || 
-                Math.abs(event.days - testCase.expectedDays) <= 1; 
+                Math.abs(event.days - testCase.expectedDays) <= 1; // Allow 1 day tolerance
             
             return titleMatch && daysMatch;
         }
         
-        
+        // Check for multiple events
         if (Array.isArray(testCase.expectedTitle)) {
             return testCase.expectedTitle.every(expectedTitle => 
                 extractedEvents.some(event => 
@@ -256,4 +256,3 @@ const CalendarEventTestSuite = () => {
 };
 
 export default CalendarEventTestSuite;
-

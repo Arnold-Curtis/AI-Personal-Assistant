@@ -4,13 +4,14 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-# Application properties files
 src/main/resources/application.properties
 src/main/resources/application-*.properties
 target/classes/application.properties
 target/classes/application-*.properties
 
-### STS ###
+.env
+.env.local
+
 .apt_generated
 .classpath
 .factorypath
@@ -19,13 +20,11 @@ target/classes/application-*.properties
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -35,5 +34,4 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
 .vscode/

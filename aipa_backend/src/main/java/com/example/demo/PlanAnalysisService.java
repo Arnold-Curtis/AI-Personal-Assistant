@@ -1,9 +1,6 @@
 package com.example.demo;
 
 import org.springframework.stereotype.Service;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 @Service
 public class PlanAnalysisService {

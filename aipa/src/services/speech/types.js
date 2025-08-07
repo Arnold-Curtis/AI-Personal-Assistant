@@ -1,4 +1,4 @@
-
+// Speech service types and interfaces
 
 export const SpeechServiceProviders = {
   ASSEMBLY_AI: 'assemblyai',
@@ -13,13 +13,13 @@ export const SpeechEvents = {
   END: 'end'
 };
 
-
+// Base speech service interface
 export class BaseSpeechService {
   constructor() {
     this.eventHandlers = {};
   }
 
-  
+  // Event handling
   on(event, handler) {
     if (!this.eventHandlers[event]) {
       this.eventHandlers[event] = [];
@@ -39,7 +39,7 @@ export class BaseSpeechService {
     }
   }
 
-  
+  // Abstract methods to be implemented by providers
   async startRecording() {
     throw new Error('startRecording must be implemented by provider');
   }
@@ -56,4 +56,3 @@ export class BaseSpeechService {
     throw new Error('isSupported must be implemented by provider');
   }
 }
-

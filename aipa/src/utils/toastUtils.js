@@ -1,13 +1,13 @@
 import { toast as reactToastify } from 'react-toastify';
 
-
+// Custom toast wrapper that respects notification settings
 const createToast = (type) => (message, options = {}) => {
   const notificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
   
   if (!notificationsEnabled) {
-    
+    // If notifications are disabled, log to console instead
     console.log(`${type.toUpperCase()}: ${message}`);
-    
+    // Return a dummy toast reference to prevent null errors
     return { 
       id: 'dummy-toast-' + Date.now(),
       dismiss: () => {},
@@ -15,7 +15,7 @@ const createToast = (type) => (message, options = {}) => {
     };
   }
   
-  
+  // Apply user's duration setting if not explicitly provided
   const duration = options.autoClose !== undefined 
     ? options.autoClose 
     : parseInt(localStorage.getItem('toastDuration')) || 5000;
@@ -27,7 +27,7 @@ const createToast = (type) => (message, options = {}) => {
   });
 };
 
-
+// Create custom toast object
 export const toast = {
   success: createToast('success'),
   error: createToast('error'),
@@ -35,7 +35,7 @@ export const toast = {
   warning: createToast('warning'),
   warn: createToast('warn'),
   dismiss: () => {
-    
+    // Always dismiss toasts regardless of notification settings
     reactToastify.dismiss();
   },
   clear: () => {
@@ -44,4 +44,3 @@ export const toast = {
 };
 
 export default toast;
-

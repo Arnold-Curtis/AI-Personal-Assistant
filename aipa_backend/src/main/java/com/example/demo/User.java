@@ -230,7 +230,7 @@ public class User {
         if (this.profileImage != null && !this.profileImage.isEmpty()) {
             return "/uploads/" + this.profileImage;
         }
-        return "https:
+        return "https://ui-avatars.com/api/?name=" +
                (this.fullName != null ? 
                    this.fullName.substring(0, 1) : 
                    this.email.substring(0, 1)) + 

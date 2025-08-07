@@ -133,7 +133,7 @@ const ManageMemories = ({ user, onBack, darkMode }) => {
     }
 
     try {
-      
+      // Process deletes sequentially to avoid SQLite lock contention
       const memoryIds = Array.from(selectedMemories);
       let successCount = 0;
       
@@ -142,7 +142,7 @@ const ManageMemories = ({ user, onBack, darkMode }) => {
           await axios.delete(`/api/memories/${id}`);
           successCount++;
         } catch (error) {
-          
+          // Continue with next deletion on error
         }
       }
       
@@ -509,7 +509,7 @@ const ManageMemories = ({ user, onBack, darkMode }) => {
         )}
       </div>
 
-      {}
+      {/* Add Memory Modal */}
       {showAddMemory && (
         <div className="modal-overlay">
           <div className="modal">
@@ -610,4 +610,3 @@ const ManageMemories = ({ user, onBack, darkMode }) => {
 };
 
 export default ManageMemories;
-

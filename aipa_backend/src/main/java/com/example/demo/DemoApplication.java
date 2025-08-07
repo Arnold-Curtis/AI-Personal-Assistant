@@ -5,19 +5,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.file.*;
 import java.nio.file.StandardCopyOption;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.lang.NonNull;
 
@@ -27,10 +24,12 @@ public class DemoApplication {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    public DemoApplication(UserRepository userRepository, JwtUtil jwtUtil) {
+    public DemoApplication(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public static void main(String[] args) {
@@ -40,16 +39,6 @@ public class DemoApplication {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(@NonNull CorsRegistry registry) {
-                registry.addMapping("/**")
-                    .allowedOrigins("http:
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("*")
-                    .allowCredentials(true)
-                    .maxAge(3600);
-            }
-
             @Override
             public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
                 registry.addResourceHandler("/uploads/**")
@@ -108,7 +97,7 @@ public class DemoApplication {
         }
         
         User user = userRepository.findByEmail(email);
-        if (user == null || !passwordEncoder().matches(password, user.getPassword())) {
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             return ResponseEntity.status(401).body(Map.of(
                 "error", "Invalid email or password"
             ));
@@ -141,7 +130,7 @@ public class DemoApplication {
         
         User newUser = new User();
         newUser.setEmail(email);
-        newUser.setPassword(passwordEncoder().encode(password));
+        newUser.setPassword(passwordEncoder.encode(password));
         
         if (fullName != null && !fullName.isBlank()) {
             newUser.setFullName(fullName);
@@ -209,14 +198,12 @@ public class DemoApplication {
                 user.setFullName(fullName.trim());
             }
             
-            
             if (newPassword != null && !newPassword.trim().isEmpty()) {
-                if (currentPassword == null || !passwordEncoder().matches(currentPassword, user.getPassword())) {
+                if (currentPassword == null || !passwordEncoder.matches(currentPassword, user.getPassword())) {
                     return ResponseEntity.badRequest().body(Map.of("error", "Current password is incorrect"));
                 }
-                user.setPassword(passwordEncoder().encode(newPassword));
+                user.setPassword(passwordEncoder.encode(newPassword));
             }
-            
             
             if (profileImage != null && !profileImage.isEmpty()) {
                 String filename = handleImageUpload(profileImage);
@@ -262,7 +249,7 @@ public class DemoApplication {
         }
         
         try {
-            user.setMemoryPassword(passwordEncoder().encode(password));
+            user.setMemoryPassword(passwordEncoder.encode(password));
             userRepository.save(user);
             
             return ResponseEntity.ok(Map.of("success", true, "message", "Memory password set successfully"));
@@ -299,7 +286,7 @@ public class DemoApplication {
         }
         
         boolean isValid = user.getMemoryPassword() != null && 
-                         passwordEncoder().matches(password, user.getMemoryPassword());
+                         passwordEncoder.matches(password, user.getMemoryPassword());
         
         return ResponseEntity.ok(Map.of("valid", isValid));
     }
@@ -351,10 +338,8 @@ public class DemoApplication {
         
         try {
             
-            
             @SuppressWarnings("unchecked")
             Map<String, Object> settings = (Map<String, Object>) payload.get("settings");
-            
             
             System.out.println("Saving settings for user " + user.getEmail() + ": " + settings);
             
@@ -393,7 +378,7 @@ public class DemoApplication {
         
         String profileImageUrl = user.getProfileImage() != null ? 
             "/uploads/" + user.getProfileImage() : 
-            "https:
+            "https://ui-avatars.com/api/?name=" + 
             (user.getFullName() != null ? 
                 user.getFullName().substring(0, 1) : 
                 user.getEmail().substring(0, 1)) + 
@@ -403,22 +388,15 @@ public class DemoApplication {
         return userResponse;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     private String handleImageUpload(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
             return null;
         }
         
-        
         Path uploadDir = Paths.get("uploads");
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
-        
         
         String originalFilename = file.getOriginalFilename();
         String fileExtension = "";
@@ -426,7 +404,6 @@ public class DemoApplication {
             fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
         String filename = UUID.randomUUID().toString() + fileExtension;
-        
         
         Path filePath = uploadDir.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);

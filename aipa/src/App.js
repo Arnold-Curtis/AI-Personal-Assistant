@@ -12,11 +12,11 @@ import Settings from './Settings';
 import SettingsButton from './components/SettingsButton';
 import { setupScrollDetection, scrollAfterResponse } from './utils/scrollUtils';
 
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http:
+// Configure axios defaults
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 axios.defaults.baseURL = API_BASE_URL;
 
-
+// Add request interceptor to include token
 axios.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -27,7 +27,7 @@ axios.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
-
+// Add response interceptor to handle errors
 axios.interceptors.response.use(
   response => response,
   error => {
@@ -37,8 +37,8 @@ axios.interceptors.response.use(
       localStorage.removeItem('token');
       window.location.reload();
     } else if (error.response?.data?.error) {
-      
-      
+      // Don't show global error toasts for calendar event operations
+      // These are handled locally in the Calendar component
       const isCalendarEventError = error.config?.url?.includes('/api/calendar/events');
       const is404Error = error.response?.status === 404;
       
@@ -50,15 +50,15 @@ axios.interceptors.response.use(
   }
 );
 
-
+// Function to apply color schemes
 const applyColorScheme = (colorScheme, isDarkMode) => {
   const root = document.documentElement;
   
   if (isDarkMode) {
-    
+    // Dark mode color schemes - darker, richer colors
     switch (colorScheme) {
       case 'default-dark':
-        
+        // Keep current dark mode colors as default
         root.style.setProperty('--bg-primary', '#111827');
         root.style.setProperty('--bg-secondary', '#1f2937');
         root.style.setProperty('--text-primary', '#f9fafb');
@@ -119,7 +119,7 @@ const applyColorScheme = (colorScheme, isDarkMode) => {
         root.style.setProperty('--gradient-primary', 'linear-gradient(135deg, #ffffff, #e5e5e5)');
         break;
       default:
-        
+        // Default dark
         root.style.setProperty('--bg-primary', '#111827');
         root.style.setProperty('--bg-secondary', '#1f2937');
         root.style.setProperty('--text-primary', '#f9fafb');
@@ -133,10 +133,10 @@ const applyColorScheme = (colorScheme, isDarkMode) => {
         break;
     }
   } else {
-    
+    // Light mode color schemes - bright, clean colors
     switch (colorScheme) {
       case 'default-white':
-        
+        // Pure white background with blue accents
         root.style.setProperty('--bg-primary', '#ffffff');
         root.style.setProperty('--bg-secondary', '#f8fafc');
         root.style.setProperty('--text-primary', '#0f172a');
@@ -197,7 +197,7 @@ const applyColorScheme = (colorScheme, isDarkMode) => {
         root.style.setProperty('--gradient-primary', 'linear-gradient(135deg, #f59e0b, #d97706)');
         break;
       default:
-        
+        // Default white
         root.style.setProperty('--bg-primary', '#ffffff');
         root.style.setProperty('--bg-secondary', '#f8fafc');
         root.style.setProperty('--text-primary', '#0f172a');
@@ -213,20 +213,20 @@ const applyColorScheme = (colorScheme, isDarkMode) => {
   }
 };
 
-
+// Initialize app settings
 const initializeAppSettings = (isDarkMode) => {
-  
+  // Apply font size from localStorage
   const savedFontSize = localStorage.getItem('fontSize') || 'medium';
   document.documentElement.style.setProperty('--app-font-size', 
     savedFontSize === 'small' ? '14px' : savedFontSize === 'large' ? '18px' : '16px');
 
-  
+  // Apply animations from localStorage
   const savedAnimations = localStorage.getItem('animations') !== 'false';
   document.documentElement.style.setProperty('--animations-enabled', 
     savedAnimations ? '1' : '0');
   document.documentElement.classList.toggle('animations-disabled', !savedAnimations);
 
-  
+  // Apply color schemes from localStorage
   const savedDarkColorScheme = localStorage.getItem('darkModeColorScheme') || 'default-dark';
   const savedLightColorScheme = localStorage.getItem('lightModeColorScheme') || 'default-white';
   const currentColorScheme = isDarkMode ? savedDarkColorScheme : savedLightColorScheme;
@@ -249,22 +249,22 @@ function App() {
   );
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
-    return savedMode !== null ? JSON.parse(savedMode) : true; 
+    return savedMode !== null ? JSON.parse(savedMode) : true; // Set default to true for dark mode
   });
   const calendarRef = useRef(null);
   
-  
+  // Setup global scroll detection
   useEffect(() => {
     const cleanup = setupScrollDetection();
     return cleanup;
   }, []);
 
-  
+  // Initialize app settings when dark mode changes
   useEffect(() => {
     initializeAppSettings(darkMode);
   }, [darkMode]);
 
-  
+  // Listen for toast setting changes
   useEffect(() => {
     const handleToastPositionChange = (event) => {
       setToastPosition(event.detail.position);
@@ -283,7 +283,7 @@ function App() {
     };
   }, []);
   
-  
+  // Check backend health periodically
   useEffect(() => {
     const checkHealth = async () => {
       try {
@@ -304,11 +304,11 @@ function App() {
     };
     
     checkHealth();
-    const interval = setInterval(checkHealth, 30000); 
+    const interval = setInterval(checkHealth, 30000); // every 30 seconds
     return () => clearInterval(interval);
   }, [backendOnline]);
 
-  
+  // Apply dark mode to body and html
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark-mode');
@@ -329,7 +329,7 @@ function App() {
   };
 
   const getDefaultAvatar = (email) => {
-    return `https:
+    return `https://ui-avatars.com/api/?name=${email.charAt(0).toUpperCase()}&background=3b82f6&color=fff`;
   };
 
   const loadEvents = useCallback(async () => {
@@ -341,7 +341,7 @@ function App() {
       if (Array.isArray(response.data)) {
         setEvents(response.data);
         
-        
+        // Refresh calendar if ref exists
         if (calendarRef.current && calendarRef.current.refreshEvents) {
           calendarRef.current.refreshEvents();
         }
@@ -356,12 +356,12 @@ function App() {
     localStorage.removeItem('token');
     setUser(null);
     setEvents([]);
-    setPlanSteps([]);  
-    setShowMyAccount(false); 
+    setPlanSteps([]);  // Clear plan data on logout
+    setShowMyAccount(false); // Close My Account if open
     toast.info('You have been logged out');
   }, []);
 
-  
+  // Check authentication status on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -369,10 +369,10 @@ function App() {
         if (token) {
           const response = await axios.get('/api/auth/me');
           
-          
+          // Fix profile image URL by ensuring it has the full server path
           let profileImageUrl = response.data.profileImageUrl;
           
-          
+          // If it's a relative URL (starts with /), prepend the API base URL
           if (profileImageUrl && profileImageUrl.startsWith('/uploads/')) {
             profileImageUrl = `${API_BASE_URL}${profileImageUrl}`;
           }
@@ -400,7 +400,7 @@ function App() {
   const handleLogin = (userData) => {
     localStorage.setItem('token', userData.token);
     
-    
+    // Fix profile image URL for newly logged in user
     let profileImageUrl = userData.user.profileImageUrl;
     if (profileImageUrl && profileImageUrl.startsWith('/uploads/')) {
       profileImageUrl = `${API_BASE_URL}${profileImageUrl}`;
@@ -421,7 +421,7 @@ function App() {
       setEvents(prev => [...prev, response.data]);
       toast.success('Event added successfully!');
       
-      
+      // Refresh calendar data after adding event
       setTimeout(loadEvents, 500);
     } catch (error) {
       console.error('Failed to add event:', error);
@@ -439,13 +439,13 @@ function App() {
       setEvents(prev => [...prev, ...addedEvents]);
       toast.success(`${addedEvents.length} event(s) added from text!`);
       
-      
+      // Scroll to calendar after adding events
       const calendarElement = document.querySelector('.calendar-container');
       if (calendarElement) {
         scrollAfterResponse(calendarElement);
       }
       
-      
+      // Refresh calendar data after adding events
       setTimeout(loadEvents, 1000);
     } catch (error) {
       console.error('Failed to add events from text:', error);
@@ -454,7 +454,7 @@ function App() {
   };
 
   const handleUserUpdate = (updatedUser) => {
-    
+    // Fix profile image URL for updated user data
     let profileImageUrl = updatedUser.profileImageUrl;
     if (profileImageUrl && profileImageUrl.startsWith('/uploads/')) {
       profileImageUrl = `${API_BASE_URL}${profileImageUrl}`;
@@ -540,7 +540,7 @@ function App() {
             />
           </div>
           
-          {}
+          {/* Plan component will only display if planSteps has items */}
           <div className="plan-wrapper content-container">
             <Plan 
               planData={planSteps} 

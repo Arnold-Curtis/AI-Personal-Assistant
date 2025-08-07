@@ -1,38 +1,38 @@
-
+/* Global scroll behavior - make scrolling more responsive */
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 20px;
 }
 
-
+/* Main content container with improved scroll snap */
 .main-content-wrapper {
   scroll-snap-type: y proximity;
 }
 
-
+/* Ensure user can interrupt smooth scrolling */
 * {
   scroll-behavior: smooth;
 }
 
-
+/* Optimize scroll behavior for better user experience */
 .plan-container, .calendar-container {
   scroll-margin-top: 20px;
   scroll-snap-align: start;
   scroll-snap-stop: normal;
 }
 
-
+/* Faster smooth scroll for specific elements */
 .plan-container, .calendar-container, .calendar-wrapper, .plan-wrapper {
   scroll-behavior: smooth;
 }
 
-
+/* Improve scroll performance */
 .content-container {
   scroll-margin-top: 20px;
   scroll-snap-align: start;
 }
 
-
+/* Reduce scroll animation time for quicker response */
 .plan-container, .calendar-container {
   transition: scroll-behavior 0.1s ease-out;
 }
@@ -43,9 +43,9 @@ html {
   }
 }
 
-
+/* CSS Variables for Theming */
 :root {
-  
+  /* Light mode colors - more vibrant and appealing */
   --bg-primary: #f0f9ff;
   --bg-secondary: #ffffff;
   --text-primary: #0f172a;
@@ -67,12 +67,12 @@ html {
   --warning-color: #f59e0b;
   --info-color: #3b82f6;
   
-  
+  /* Animation controls */
   --animations-enabled: 1;
   --app-font-size: 16px;
 }
 
-
+/* Dark mode colors - deeper, richer dark mode */
 .dark-mode {
   --bg-primary: #111827;
   --bg-secondary: #1f2937;
@@ -96,7 +96,7 @@ html {
   --info-color: #2563eb;
 }
 
-
+/* Dark Mode Color Schemes */
 .dark-blue {
   --bg-primary: #0f172a !important;
   --bg-secondary: #1e293b !important;
@@ -149,7 +149,7 @@ html {
   --gradient-primary: linear-gradient(135deg, #ffffff, #e5e5e5) !important;
 }
 
-
+/* Light Mode Color Schemes */
 .light-blue {
   --bg-primary: #f0f9ff !important;
   --bg-secondary: #e0f2fe !important;
@@ -202,7 +202,7 @@ html {
   --gradient-primary: linear-gradient(135deg, #f59e0b, #d97706) !important;
 }
 
-
+/* Apply transition to all elements for smooth theme switching */
 * {
   transition: background-color calc(0.3s * var(--animations-enabled)) ease, 
               color calc(0.3s * var(--animations-enabled)) ease, 
@@ -211,7 +211,7 @@ html {
   font-size: var(--app-font-size);
 }
 
-
+/* Animation controls */
 .animations-disabled * {
   transition: none !important;
   animation: none !important;
@@ -221,7 +221,7 @@ html {
   scroll-behavior: auto !important;
 }
 
-
+/* Global body styles */
 body, html {
   margin: 0;
   padding: 0;
@@ -245,7 +245,7 @@ html.light-mode {
   overflow-x: hidden;
 }
 
-
+/* Main App Container */
 .App {
   display: flex;
   flex-direction: column;
@@ -255,7 +255,7 @@ html.light-mode {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-
+/* Content wrapper structure */
 .content-wrapper {
   width: 100%;
   max-width: 100%;
@@ -274,7 +274,7 @@ html.light-mode {
   overflow-x: hidden;
 }
 
-
+/* Global text container styles to prevent overflow */
 .App, 
 .app-main-content,
 .textbox-container,
@@ -288,7 +288,7 @@ html.light-mode {
   width: 100%;
 }
 
-
+/* Fix main content area to ensure no horizontal overflow */
 .app-main-content {
   width: 100%;
   max-width: 100%;
@@ -299,7 +299,7 @@ html.light-mode {
   overflow-x: hidden;
 }
 
-
+/* Enhanced overflow control for all containers */
 .content-container,
 .main-container,
 .container {
@@ -309,7 +309,7 @@ html.light-mode {
   overflow-x: hidden;
 }
 
-
+/* Ensure all text elements properly handle overflow */
 p, h1, h2, h3, h4, h5, h6, div, span, a, input, textarea {
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -317,7 +317,7 @@ p, h1, h2, h3, h4, h5, h6, div, span, a, input, textarea {
   max-width: 100%;
 }
 
-
+/* Code and pre blocks - prevent overflow */
 pre, code {
   white-space: pre-wrap;
   word-break: break-word;
@@ -326,7 +326,7 @@ pre, code {
   overflow-x: hidden;
 }
 
-
+/* Loading States */
 .app-loading-screen {
   display: flex;
   flex-direction: column;
@@ -356,7 +356,7 @@ pre, code {
   box-shadow: 0 0 15px rgba(var(--accent-color-rgb), 0.3);
 }
 
-
+/* Auth Styles */
 .auth-container {
   display: flex;
   justify-content: center;
@@ -573,7 +573,7 @@ pre, code {
   width: 100%;
 }
 
-
+/* File Upload Styles */
 .file-upload-button {
   width: 100%;
   padding: 14px 16px;
@@ -647,7 +647,7 @@ pre, code {
   transform: translateY(-2px);
 }
 
-
+/* Header Styles with enhanced visual design */
 .app-header {
   background: var(--header-bg);
   padding: 1.25rem 2rem;
@@ -701,7 +701,7 @@ pre, code {
   width: 100%;
 }
 
-
+/* Header Controls Container */
 .header-controls {
   display: flex !important;
   align-items: center;
@@ -711,7 +711,7 @@ pre, code {
   flex-wrap: nowrap;
 }
 
-
+/* User Profile Styles with enhanced visual appeal */
 .user-profile {
   display: flex;
   align-items: center;
@@ -745,7 +745,7 @@ pre, code {
   transform: scale(1.02);
 }
 
-
+/* Add subtle shine effect on hover */
 .user-profile::before {
   content: '';
   position: absolute;
@@ -759,7 +759,7 @@ pre, code {
   transition: all 0.5s ease;
   border-radius: 50%;
   transform: translateX(-100%) rotate(45deg);
-  
+  /* Ensure the reflection is centered over the profile photo */
   left: -50%;
   top: 0;
   width: 200%;
@@ -777,7 +777,7 @@ pre, code {
   justify-content: center;
 }
 
-
+/* Settings Gear Styles - replacing theme toggle */
 .settings-gear {
   display: flex;
   align-items: center;
@@ -827,7 +827,7 @@ pre, code {
   opacity: 1;
 }
 
-
+/* Add subtle glow effect around the button */
 .dark-mode .settings-gear-button {
   box-shadow: 0 0 10px rgba(129, 140, 248, 0.3), var(--shadow-md);
 }
@@ -836,7 +836,7 @@ pre, code {
   box-shadow: 0 0 10px rgba(99, 102, 241, 0.2), var(--shadow-md);
 }
 
-
+/* Theme Toggle Styles - enhanced design */
 .theme-toggle {
   display: flex;
   align-items: center;
@@ -886,7 +886,7 @@ pre, code {
   opacity: 1;
 }
 
-
+/* Add subtle glow effect around the button */
 .dark-mode .theme-toggle-button {
   box-shadow: 0 0 10px rgba(129, 140, 248, 0.3), var(--shadow-md);
 }
@@ -895,7 +895,7 @@ pre, code {
   box-shadow: 0 0 10px rgba(99, 102, 241, 0.2), var(--shadow-md);
 }
 
-
+/* Main Content Layout with visual enhancements */
 .app-main-content {
   flex: 1;
   padding: 2.5rem;
@@ -907,7 +907,7 @@ pre, code {
   z-index: 1;
 }
 
-
+/* Add decorative elements for visual interest */
 .app-main-content::before {
   content: '';
   position: absolute;
@@ -936,7 +936,7 @@ pre, code {
   pointer-events: none;
 }
 
-
+/* Textbox and Calendar Containers */
 .textbox-container, 
 .calendar-container {
   background-color: var(--bg-secondary);
@@ -947,7 +947,7 @@ pre, code {
   border: var(--card-border);
 }
 
-
+/* Textbox container improvements */
 .textbox-container {
   width: 100%;
   max-width: 100%;
@@ -966,7 +966,7 @@ pre, code {
   box-sizing: border-box;
 }
 
-
+/* Dark mode container adjustments */
 .dark-mode .calendar-container,
 .dark-mode .textbox-container {
   background-color: var(--bg-secondary);
@@ -974,13 +974,13 @@ pre, code {
   box-shadow: var(--shadow-md);
 }
 
-
-
+/* Textbox response styles */
+/* Textbox response container styles - comprehensive fix for overflow issues */
 .textbox-response-container {
   width: 100%;
   max-width: 100%;
   border-radius: 16px;
-  overflow-x: hidden !important; 
+  overflow-x: hidden !important; /* Force hide horizontal overflow */
   overflow-y: auto;
   word-break: break-word;
   white-space: pre-wrap;
@@ -1002,13 +1002,13 @@ pre, code {
   hyphens: auto;
 }
 
-
+/* Response content formatting */
 .textbox-response-content p {
   margin-bottom: 1rem;
   max-width: 100%;
 }
 
-
+/* Code blocks inside responses */
 .textbox-response-content pre,
 .textbox-response-content code {
   background-color: rgba(0, 0, 0, 0.1);
@@ -1024,7 +1024,7 @@ pre, code {
   display: block;
 }
 
-
+/* Ensure long words break properly */
 .textbox-response-content * {
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -1032,13 +1032,13 @@ pre, code {
   max-width: 100%;
 }
 
-
+/* Fix for long unwrapped text that might cause overflow */
 .textbox-response-container:has(pre),
 .textbox-response-container:has(code) {
   overflow-x: hidden !important;
 }
 
-
+/* Enhanced response container */
 .response-container {
   display: flex;
   flex-direction: column;
@@ -1048,12 +1048,12 @@ pre, code {
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  overflow-x: hidden !important; 
+  overflow-x: hidden !important; /* Force hide horizontal overflow */
   overflow-y: auto;
   box-sizing: border-box;
 }
 
-
+/* FullCalendar Overrides */
 .fc {
   font-family: inherit;
 }
@@ -1076,7 +1076,7 @@ pre, code {
   display: none;
 }
 
-
+/* Dark mode styles for FullCalendar */
 .dark-mode .fc {
   --fc-border-color: var(--border-color);
   --fc-page-bg-color: var(--bg-secondary);
@@ -1088,7 +1088,7 @@ pre, code {
   --fc-event-text-color: #ffffff;
   --fc-list-event-hover-bg-color: var(--bg-secondary);
   
-  
+  /* Other FC variables */
   --fc-button-text-color: #ffffff;
   --fc-button-bg-color: var(--accent-color);
   --fc-button-border-color: var(--accent-color);
@@ -1098,7 +1098,7 @@ pre, code {
   --fc-button-active-border-color: var(--accent-color);
 }
 
-
+/* Fix dark mode calendar display issue */
 .dark-mode .fc .fc-day-other {
   background-color: rgba(0, 0, 0, 0.2);
 }
@@ -1115,7 +1115,7 @@ pre, code {
   text-shadow: 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-
+/* Ensure all calendar elements are visible in dark mode */
 .dark-mode .fc * {
   border-color: var(--border-color) !important;
 }
@@ -1130,7 +1130,7 @@ pre, code {
   background-color: var(--bg-secondary);
 }
 
-
+/* Improve dark mode day number visibility */
 .dark-mode .fc .fc-daygrid-day-top {
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
@@ -1138,7 +1138,7 @@ pre, code {
   padding: 3px;
 }
 
-
+/* Improve calendar styling */
 .fc {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -1168,7 +1168,7 @@ pre, code {
   padding: 8px 0;
 }
 
-
+/* Dark mode text inputs */
 .dark-mode input[type="text"],
 .dark-mode input[type="email"],
 .dark-mode input[type="password"],
@@ -1188,7 +1188,7 @@ pre, code {
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
-
+/* Toast Notifications */
 .Toastify__toast {
   border-radius: 0.5rem;
   font-family: inherit;
@@ -1240,7 +1240,7 @@ pre, code {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23991b1b" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>');
 }
 
-
+/* Spinner Animation */
 .spinner {
   display: inline-block;
   width: 18px;
@@ -1252,7 +1252,7 @@ pre, code {
   margin-right: 10px;
 }
 
-
+/* Animations */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -1263,7 +1263,7 @@ pre, code {
   to { opacity: 1; transform: translateY(0); }
 }
 
-
+/* Add gradient animations */
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -1275,7 +1275,7 @@ pre, code {
   100% { background-position: 1000px 0; }
 }
 
-
+/* Card-based styling for components */
 .card {
   background: var(--card-bg);
   border-radius: 16px;
@@ -1292,7 +1292,7 @@ pre, code {
   transform: translateY(-5px);
 }
 
-
+/* Add subtle shimmer effect to cards */
 .card::after {
   content: '';
   position: absolute;
@@ -1326,7 +1326,7 @@ pre, code {
   );
 }
 
-
+/* Modern styled buttons */
 .modern-button {
   background: var(--gradient-primary);
   color: white;
@@ -1350,7 +1350,7 @@ pre, code {
   transform: translateY(0);
 }
 
-
+/* Add beautiful scrollbars */
 ::-webkit-scrollbar {
   width: 12px;
 }
@@ -1370,7 +1370,7 @@ pre, code {
   background: var(--accent-hover);
 }
 
-
+/* Add animation to main elements */
 .app-main-content > * {
   animation: fadeInUp 0.6s ease-out;
 }
@@ -1386,7 +1386,7 @@ pre, code {
   }
 }
 
-
+/* App background pattern */
 .App {
   position: relative;
   background-size: 20px 20px;
@@ -1406,7 +1406,7 @@ pre, code {
   );
 }
 
-
+/* Calendar Improvements */
 .calendar-content {
   margin-top: 30px;
   border-radius: 16px;
@@ -1430,7 +1430,7 @@ pre, code {
   z-index: 0;
 }
 
-
+/* Wrapper styling for main components */
 .main-content-top {
   position: relative;
   z-index: 3;
@@ -1452,7 +1452,7 @@ pre, code {
     rgba(var(--accent-color-rgb, 99, 102, 241), 0.05) 100%);
 }
 
-
+/* Login Logo */
 .auth-logo {
   display: flex;
   justify-content: center;

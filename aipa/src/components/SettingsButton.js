@@ -16,4 +16,3 @@ const SettingsButton = ({ onOpenSettings }) => {
 };
 
 export default SettingsButton;
-

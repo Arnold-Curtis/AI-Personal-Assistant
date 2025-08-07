@@ -99,7 +99,6 @@ public class LLMController {
     private final UserRepository userRepository;
     private final PlanAnalysisService planAnalysisService;
     private final CalendarEventEnhancementService calendarEventEnhancementService;
-    private final EnhancedCalendarEventService enhancedCalendarEventService;
     private final CalendarResponseValidationService calendarValidationService;
     private final SessionMemoryService sessionMemoryService;
     private final InputRoutingService inputRoutingService;
@@ -108,16 +107,15 @@ public class LLMController {
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
-    public LLMController(WebClient.Builder webClientBuilder, MemoryService memoryService, UserRepository userRepository, PlanAnalysisService planAnalysisService, CalendarEventEnhancementService calendarEventEnhancementService, EnhancedCalendarEventService enhancedCalendarEventService, CalendarResponseValidationService calendarValidationService, SessionMemoryService sessionMemoryService, InputRoutingService inputRoutingService, CalendarEventCreationService calendarEventCreationService) {
+    public LLMController(WebClient.Builder webClientBuilder, MemoryService memoryService, UserRepository userRepository, PlanAnalysisService planAnalysisService, CalendarEventEnhancementService calendarEventEnhancementService, CalendarResponseValidationService calendarValidationService, SessionMemoryService sessionMemoryService, InputRoutingService inputRoutingService, CalendarEventCreationService calendarEventCreationService) {
         this.webClient = webClientBuilder
-            .baseUrl("https:
+            .baseUrl("https://generativelanguage.googleapis.com")
             .defaultHeader("Content-Type", "application/json")
             .build();
         this.memoryService = memoryService;
         this.userRepository = userRepository;
         this.planAnalysisService = planAnalysisService;
         this.calendarEventEnhancementService = calendarEventEnhancementService;
-        this.enhancedCalendarEventService = enhancedCalendarEventService;
         this.calendarValidationService = calendarValidationService;
         this.sessionMemoryService = sessionMemoryService;
         this.inputRoutingService = inputRoutingService;
@@ -222,8 +220,8 @@ public class LLMController {
             
             if (routingDecision.shouldProcessCalendar()) {
                 
-                EnhancedCalendarEventService.EventCreationResult eventCreationResult = 
-                    enhancedCalendarEventService.createEventsFromInputAI(userId, userInput);
+                CalendarEventCreationService.EventCreationResult eventCreationResult = 
+                    calendarEventCreationService.createEventsFromInput(userId, userInput);
                 
                 if (eventCreationResult.hasEvents()) {
                     System.out.println("📅 Created " + eventCreationResult.getCreatedEvents().size() + " calendar events directly");
@@ -246,13 +244,13 @@ public class LLMController {
             }
             
             
-            final EnhancedCalendarEventService.CalendarAnalysisResult calendarAnalysis;
+            final CalendarEventEnhancementService.CalendarEventAnalysis calendarAnalysis;
             if (!routingDecision.shouldProcessCalendar()) {
                 
-                calendarAnalysis = enhancedCalendarEventService.analyzeForCalendarEventsAI(userInput);
+                calendarAnalysis = calendarEventEnhancementService.analyzeForCalendarEvents(userInput);
             } else {
                 
-                calendarAnalysis = new EnhancedCalendarEventService.CalendarAnalysisResult(false, new ArrayList<>(), "");
+                calendarAnalysis = new CalendarEventEnhancementService.CalendarEventAnalysis(false, new ArrayList<>(), "");
             }
             
             
@@ -282,15 +280,13 @@ public class LLMController {
             if (calendarAnalysis.hasEvents()) {
                 contextWithMemories.append("\n=== CALENDAR EVENTS DETECTED ===\n");
                 contextWithMemories.append("CRITICAL: The following calendar events were detected using advanced AI and MUST be included in the response:\n");
-                for (EnhancedCalendarEventService.CalendarEventInfo event : calendarAnalysis.getEvents()) {
+                for (CalendarEventEnhancementService.DetectedEvent event : calendarAnalysis.getEvents()) {
                     contextWithMemories.append("- ").append(event.getTitle())
                                      .append(" in ").append(event.getDaysFromToday())
-                                     .append(" days from today (Confidence: ")
-                                     .append(String.format("%.1f%%", event.getConfidence() * 100))
-                                     .append(")\n");
+                                     .append(" days from today\n");
                 }
                 contextWithMemories.append("MANDATORY FORMAT: Use EXACTLY this format in Part 3:\n");
-                for (EnhancedCalendarEventService.CalendarEventInfo event : calendarAnalysis.getEvents()) {
+                for (CalendarEventEnhancementService.DetectedEvent event : calendarAnalysis.getEvents()) {
                     contextWithMemories.append("Calendar: ").append(event.getDaysFromToday())
                                      .append(" days from today ").append(event.getTitle()).append(".!.\n");
                 }
